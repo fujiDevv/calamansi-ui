@@ -1,0 +1,111 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 612 612" width="100%" height="100%" fill="none">
+  <style>
+    @keyframes float {
+      0%, 100% {
+        transform: translateY(0px) rotate(0deg);
+      }
+      50% {
+        transform: translateY(-9px) rotate(1deg);
+      }
+    }
+    @keyframes blink {
+      0%, 45%, 52%, 100% {
+        transform: scaleY(1);
+      }
+      48% {
+        transform: scaleY(0.08);
+      }
+    }
+    @keyframes sway {
+      0%, 100% {
+        transform: rotate(0deg);
+      }
+      50% {
+        transform: rotate(5deg);
+      }
+    }
+    .mascot-container {
+      animation: float 4s ease-in-out infinite;
+      transform-origin: 306px 306px;
+    }
+    .mascot-leaf {
+      animation: sway 4s ease-in-out infinite;
+      transform-origin: 312px 66px;
+    }
+    .mascot-eyes {
+      animation: blink 3.8s ease-in-out infinite;
+      transform-origin: 306px 306px;
+    }
+  </style>
+
+  <defs>
+    <filter id="soft-shadow" x="-15%" y="-15%" width="130%" height="130%">
+      <feDropShadow dx="0" dy="12" stdDeviation="16" flood-color="#000000" flood-opacity="0.18"/>
+    </filter>
+    <radialGradient id="highlight" cx="36%" cy="20%" r="75%">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.35"/>
+      <stop offset="40%" stop-color="#ffffff" stop-opacity="0.12"/>
+      <stop offset="100%" stop-color="#ffffff" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+
+  <g class="mascot-container" filter="url(#soft-shadow)">
+    <!-- Stem -->
+    <path
+      d="M298 112c0-26 2-46 8-60 6 14 8 34 8 60Z"
+      fill="#4e9a3e"
+      stroke="#4e9a3e"
+      stroke-width="6"
+      stroke-linejoin="round"
+    />
+
+    <!-- Leaf with sway -->
+    <g class="mascot-leaf">
+      <path
+        d="M312 66c32-44 98-64 156-52-8 52-68 88-130 80-14-2-24-14-26-28Z"
+        fill="#4e9a3e"
+        stroke="#4e9a3e"
+        stroke-width="6"
+        stroke-linejoin="round"
+      />
+      <path
+        d="M312 66c32-44 98-64 156-52-8 52-68 88-130 80-14-2-24-14-26-28Z"
+        fill="none"
+        opacity="0.4"
+        stroke="#86b81f"
+        stroke-width="5"
+        stroke-linecap="round"
+      />
+    </g>
+
+    <!-- Calamansi Body -->
+    <path
+      d="M306 104c94 0 166 52 196 122 32 74 26 164-24 220-40 44-106 74-148 68-12-2-19-11-24-18-5 7-12 16-24 18-42 6-108-24-148-68-50-56-56-146-24-220 30-70 102-122 196-122Z"
+      fill="#b4e84c"
+    />
+
+    <!-- Subtle Lighting -->
+    <path
+      d="M306 104c94 0 166 52 196 122 32 74 26 164-24 220-40 44-106 74-148 68-12-2-19-11-24-18-5 7-12 16-24 18-42 6-108-24-148-68-50-56-56-146-24-220 30-70 102-122 196-122Z"
+      fill="url(#highlight)"
+    />
+
+    <!-- Blinking Eyes -->
+    <g class="mascot-eyes" fill="#142206">
+      <rect
+        x="201.569"
+        y="254.878"
+        width="54.589"
+        height="103.245"
+        rx="27.295"
+      />
+      <rect
+        x="355.842"
+        y="254.878"
+        width="54.589"
+        height="103.245"
+        rx="27.295"
+      />
+    </g>
+  </g>
+</svg>
