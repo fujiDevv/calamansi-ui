@@ -30,5 +30,5 @@
     ".next/dev/types/**/*.ts",
     "**/*.mts"
   ],
-  "exclude": ["node_modules", "functions", "out"]
+  "exclude": ["node_modules", "functions", "out", "worker.ts"]
 }

@@ -8,8 +8,8 @@
     "registry:build": "shadcn build",
     "assets:build": "node scripts/generate-assets.mjs",
     "start": "next start",
-    "preview": "wrangler pages dev out",
-    "deploy": "wrangler pages deploy out",
+    "preview": "wrangler dev",
+    "deploy": "wrangler deploy",
     "lint": "eslint"
   },
   "dependencies": {

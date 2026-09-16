@@ -1,7 +1,11 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "calamansi-ui",
-  "pages_build_output_dir": "out",
+  "main": "worker.ts",
+  "assets": {
+    "directory": "./out",
+    "binding": "ASSETS"
+  },
   "compatibility_date": "2026-03-01",
   "compatibility_flags": [
     "nodejs_compat"
@@ -10,7 +14,7 @@
     {
       "binding": "DB",
       "database_name": "calamansi-analytics",
-      "database_id": "REPLACE_WITH_YOUR_D1_DATABASE_ID"
+      "database_id": "78937653-7e8c-43cb-9d61-e4a9b268beae"
     }
   ]
 }
