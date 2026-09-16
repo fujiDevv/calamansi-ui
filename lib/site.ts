@@ -32,7 +32,7 @@ export const SITE_TAGLINE = "Calamansi UI - Animated React Components";
 export const SITE_DESCRIPTION =
   "Calamansi UI is a free, open-source registry of animated React components with a little sour. A tiny citrus UI kit for React and Next.js, built with Tailwind CSS, Motion, and the shadcn CLI.";
 
-export const SITE_REPO = "https://github.com/fujiDevv/calamansi";
+export const SITE_REPO = "https://github.com/fujiDevv/calamansi-ui";
 
 export const SITE_AUTHOR = {
   name: "Joshua Sarmiento",

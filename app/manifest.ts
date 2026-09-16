@@ -6,6 +6,8 @@ import {
   SITE_URL,
 } from "@/lib/site";
 
+export const dynamic = "force-static";
+
 export default function manifest(): MetadataRoute.Manifest {
   return {
     name: SITE_NAME,

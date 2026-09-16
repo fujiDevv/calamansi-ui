@@ -2,6 +2,10 @@ import path from "node:path";
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  output: "export",
+  images: {
+    unoptimized: true,
+  },
   turbopack: {
     /**
      * Pin the workspace root to this project.

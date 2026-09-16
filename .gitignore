@@ -1,7 +1,5 @@
-# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
-
-# dependencies
-/node_modules
+# ── Dependencies ─────────────────────────────────────────────────────────────
+node_modules/
 /.pnp
 .pnp.*
 .yarn/*
@@ -10,40 +8,62 @@
 !.yarn/releases
 !.yarn/versions
 
-# testing
-/coverage
-
-# next.js
+# ── Next.js, Turbopack & Builds ──────────────────────────────────────────────
 /.next/
 /out/
+/build/
+/dist/
+.turbo/
+*.tsbuildinfo
+next-env.d.ts
 
-# production
-/build
+# ── Cloudflare Pages, Workers & Local D1 ──────────────────────────────────────
+.wrangler/
+*.sqlite
+*.sqlite3
+*.db
+*.db-journal
+*.db-wal
+*.db-shm
 
-# misc
-.DS_Store
-*.pem
+# ── Environment & Secrets ───────────────────────────────────────────────────
+.env
+.env.*
+!.env.example
+*.local
 
-# debug
+# ── Testing & Code Coverage ──────────────────────────────────────────────────
+/coverage/
+
+# ── Logs & Debugging ─────────────────────────────────────────────────────────
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
 
-# env files (can opt-in for committing if needed)
-.env*
+# ── Operating System & Filesystem ────────────────────────────────────────────
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
 
-# vercel
-.vercel
+# ── IDEs & Editors ───────────────────────────────────────────────────────────
+.idea/
+.vscode/*
+!.vscode/settings.json
+!.vscode/extensions.json
+*.sublime-workspace
+*.sublime-project
 
-# typescript
-*.tsbuildinfo
-next-env.d.ts
+# ── Security & Certificates ──────────────────────────────────────────────────
+*.pem
+*.key
+*.cert
 
-.temp
-
-# generated asset frames
-.asset-frames
-
-# local editor tool state
-.tokensave
+# ── Internal Tooling & Temp ──────────────────────────────────────────────────
+.tokensave/
+.asset-frames/
+.temp/
