@@ -1,0 +1,20 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "number-ticker",
+  "title": "Number Ticker",
+  "description": "An odometer-style number that rolls to each new value.",
+  "dependencies": [
+    "motion"
+  ],
+  "registryDependencies": [
+    "utils"
+  ],
+  "files": [
+    {
+      "path": "components/ui/number-ticker.tsx",
+      "content": "\"use client\";\n\nimport { motion, useReducedMotion } from \"motion/react\";\nimport { cn } from \"@/lib/utils\";\n\nconst DIGITS_UP = [\"0\", \"1\", \"2\", \"3\", \"4\", \"5\", \"6\", \"7\", \"8\", \"9\"];\nconst DIGITS_DOWN = [...DIGITS_UP].reverse();\n\nconst NUMBER = new Intl.NumberFormat(\"en-US\", { maximumFractionDigits: 2 });\nconst FORMAT = (value: number) => NUMBER.format(value);\n\nexport type NumberTickerProps = {\n  value: number;\n  className?: string;\n  /** Seconds for each digit to settle. */\n  duration?: number;\n  /** Delay between digits, in seconds. */\n  stagger?: number;\n  /** Roll the digits upward or downward. */\n  direction?: \"up\" | \"down\";\n  /** Static text before the digits. */\n  prefix?: string;\n  /** Static text after the digits. */\n  suffix?: string;\n  /** Turns the number into text. Defaults to a grouped en-US number. */\n  format?: (value: number) => string;\n};\n\n/**\n * An odometer-style number that rolls to each new value.\n *\n * Every digit is a column of 0 to 9 that slides to the active digit, which is\n * why the component only ever animates `translateY`, never layout.\n */\nexport function NumberTicker({\n  value,\n  className,\n  duration = 0.7,\n  stagger = 0.05,\n  direction = \"up\",\n  prefix,\n  suffix,\n  format = FORMAT,\n}: NumberTickerProps) {\n  const reduceMotion = useReducedMotion();\n  const text = format(value);\n  const characters = [...text];\n\n  return (\n    <span\n      className={cn(\n        \"inline-flex items-center font-mono tabular-nums\",\n        className,\n      )}\n    >\n      <span className=\"sr-only\">{`${prefix ?? \"\"}${text}${suffix ?? \"\"}`}</span>\n\n      <span aria-hidden className=\"inline-flex items-center whitespace-pre\">\n        {prefix}\n\n        {characters.map((character, index) => (\n          // keyed from the right so the ones column stays put as the number grows\n          <DigitColumn\n            key={characters.length - index}\n            character={character}\n            duration={reduceMotion ? 0 : duration}\n            delay={reduceMotion ? 0 : (characters.length - index - 1) * stagger}\n            direction={direction}\n          />\n        ))}\n\n        {suffix}\n      </span>\n    </span>\n  );\n}\n\nfunction DigitColumn({\n  character,\n  duration,\n  delay,\n  direction,\n}: {\n  character: string;\n  duration: number;\n  delay: number;\n  direction: \"up\" | \"down\";\n}) {\n  if (!/\\d/.test(character)) {\n    return <span className=\"inline-block leading-none\">{character}</span>;\n  }\n\n  const strip = direction === \"down\" ? DIGITS_DOWN : DIGITS_UP;\n  const digit = Number(character);\n  // the strip is ten rows tall, so 10% of its own height is exactly one row\n  const offset = (direction === \"down\" ? 9 - digit : digit) * 10;\n\n  return (\n    <span\n      className=\"relative inline-block h-[1em] overflow-hidden leading-none\"\n      style={{ width: \"0.62em\" }}\n    >\n      <motion.span\n        className=\"absolute inset-x-0 top-0 flex flex-col\"\n        initial={false}\n        animate={{ y: `${-offset}%` }}\n        transition={{ duration, delay, ease: [0.16, 1, 0.3, 1] }}\n        style={{ willChange: \"transform\" }}\n      >\n        {strip.map((row) => (\n          <span\n            key={row}\n            className=\"flex h-[1em] shrink-0 items-center justify-center leading-none\"\n          >\n            {row}\n          </span>\n        ))}\n      </motion.span>\n    </span>\n  );\n}\n",
+      "type": "registry:ui"
+    }
+  ],
+  "type": "registry:ui"
+}

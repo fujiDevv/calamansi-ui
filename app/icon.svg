@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="21 -21 560 560">
+  <defs>
+    <clipPath id="favicon-clip"><path d="M306 104c94 0 166 52 196 122 32 74 26 164-24 220-40 44-106 74-148 68-12-2-19-11-24-18-5 7-12 16-24 18-42 6-108-24-148-68-50-56-56-146-24-220 30-70 102-122 196-122Z"/></clipPath>
+    <radialGradient id="favicon-glare" cx="36%" cy="20%" r="78%">
+      <stop offset="0%" stop-color="#fff" stop-opacity=".32"/>
+      <stop offset="36%" stop-color="#fff" stop-opacity=".12"/>
+      <stop offset="72%" stop-color="#fff" stop-opacity=".02"/>
+      <stop offset="100%" stop-color="#fff" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="favicon-rim" cx="50%" cy="50%" r="50%">
+      <stop offset="72%" stop-color="#fff" stop-opacity="0"/>
+      <stop offset="92%" stop-color="#fff" stop-opacity=".16"/>
+      <stop offset="100%" stop-color="#fff" stop-opacity=".26"/>
+    </radialGradient>
+  </defs>
+  <g>
+    <path d="M298 112c0-26 2-46 8-60 6 14 8 34 8 60Z" fill="#4e9a3e" stroke="#4e9a3e" stroke-width="6" stroke-linejoin="round"/>
+    <path d="M312 66c32-44 98-64 156-52-8 52-68 88-130 80-14-2-24-14-26-28Z" fill="#4e9a3e" stroke="#4e9a3e" stroke-width="6" stroke-linejoin="round"/>
+    <path d="M312 66c32-44 98-64 156-52-8 52-68 88-130 80-14-2-24-14-26-28Z" fill="none" opacity=".45" stroke="#86b81f" stroke-width="5" stroke-linecap="round"/>
+    <path d="M306 104c94 0 166 52 196 122 32 74 26 164-24 220-40 44-106 74-148 68-12-2-19-11-24-18-5 7-12 16-24 18-42 6-108-24-148-68-50-56-56-146-24-220 30-70 102-122 196-122Z" fill="#b4e84c"/>
+    <g clip-path="url(#favicon-clip)">
+      <ellipse cx="244" cy="196" rx="232" ry="188" fill="url(#favicon-glare)"/>
+      <ellipse cx="306" cy="320" rx="306" ry="252" fill="url(#favicon-rim)" opacity=".6"/>
+    </g>
+  </g>
+  <g transform="translate(0 0)">
+    <g transform=""><rect x="201.569" y="254.878" width="54.589" height="103.245" rx="27.295" fill="#0b0d08"/></g>
+    <g transform=""><rect x="355.842" y="254.878" width="54.589" height="103.245" rx="27.295" fill="#0b0d08"/></g>
+  </g>
+</svg>

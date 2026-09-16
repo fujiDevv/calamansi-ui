@@ -1,0 +1,104 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry.json",
+  "name": "calamansi",
+  "homepage": "https://github.com/fujiDevv/calamansi",
+  "items": [
+    {
+      "name": "utils",
+      "type": "registry:lib",
+      "title": "Utils",
+      "description": "The cn helper for merging Tailwind classes.",
+      "dependencies": ["clsx", "tailwind-merge"],
+      "files": [
+        {
+          "path": "lib/utils.ts",
+          "type": "registry:lib"
+        }
+      ]
+    },
+    {
+      "name": "calamansi",
+      "type": "registry:ui",
+      "title": "Calamansi",
+      "description": "A tiny citrus fruit that blinks, tracks the cursor, blushes when petted and goes tart when poked too much.",
+      "dependencies": ["gsap"],
+      "registryDependencies": ["utils"],
+      "files": [
+        {
+          "path": "components/ui/calamansi.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "spotlight-card",
+      "type": "registry:ui",
+      "title": "Spotlight Card",
+      "description": "A card that lights up under the pointer, with an optional lit border.",
+      "dependencies": [],
+      "registryDependencies": ["utils"],
+      "files": [
+        {
+          "path": "components/ui/spotlight-card.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "tilt-card",
+      "type": "registry:ui",
+      "title": "Tilt Card",
+      "description": "A card that leans towards the pointer in 3D, with a sheen that follows it.",
+      "dependencies": ["motion"],
+      "registryDependencies": ["utils"],
+      "files": [
+        {
+          "path": "components/ui/tilt-card.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "marquee",
+      "type": "registry:ui",
+      "title": "Marquee",
+      "description": "An infinite marquee that pauses on hover and fades its edges.",
+      "dependencies": [],
+      "registryDependencies": ["utils"],
+      "files": [
+        {
+          "path": "components/ui/marquee.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "number-ticker",
+      "type": "registry:ui",
+      "title": "Number Ticker",
+      "description": "An odometer-style number that rolls to each new value.",
+      "dependencies": ["motion"],
+      "registryDependencies": ["utils"],
+      "files": [
+        {
+          "path": "components/ui/number-ticker.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "dock",
+      "type": "registry:ui",
+      "title": "Dock",
+      "description": "A dock that magnifies the item under the pointer, Mac-style.",
+      "dependencies": ["motion"],
+      "registryDependencies": ["utils"],
+      "files": [
+        {
+          "path": "components/ui/dock.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    }
+  ]
+}

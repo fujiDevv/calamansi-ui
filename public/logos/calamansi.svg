@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="612" height="612" viewBox="21 -21 560 560">
+  <defs>
+    <mask id="mono-eyes" maskUnits="userSpaceOnUse" x="-200" y="-200" width="1200" height="1200">
+      <rect x="-200" y="-200" width="1200" height="1200" fill="#fff"/>
+      <rect x="201.569" y="254.878" width="54.589" height="103.245" rx="27.295" fill="#000"/>
+      <rect x="355.842" y="254.878" width="54.589" height="103.245" rx="27.295" fill="#000"/>
+    </mask>
+  </defs>
+  <g mask="url(#mono-eyes)" fill="#000">
+    <path d="M298 112c0-26 2-46 8-60 6 14 8 34 8 60Z" stroke="#000" stroke-width="6" stroke-linejoin="round"/>
+    <path d="M312 66c32-44 98-64 156-52-8 52-68 88-130 80-14-2-24-14-26-28Z" stroke="#000" stroke-width="6" stroke-linejoin="round"/>
+    <path d="M306 104c94 0 166 52 196 122 32 74 26 164-24 220-40 44-106 74-148 68-12-2-19-11-24-18-5 7-12 16-24 18-42 6-108-24-148-68-50-56-56-146-24-220 30-70 102-122 196-122Z"/>
+  </g>
+</svg>

@@ -1,0 +1,20 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "tilt-card",
+  "title": "Tilt Card",
+  "description": "A card that leans towards the pointer in 3D, with a sheen that follows it.",
+  "dependencies": [
+    "motion"
+  ],
+  "registryDependencies": [
+    "utils"
+  ],
+  "files": [
+    {
+      "path": "components/ui/tilt-card.tsx",
+      "content": "\"use client\";\n\nimport {\n  useRef,\n  useState,\n  type PointerEvent as ReactPointerEvent,\n  type ReactNode,\n} from \"react\";\nimport {\n  motion,\n  useMotionTemplate,\n  useMotionValue,\n  useReducedMotion,\n  useSpring,\n  useTransform,\n} from \"motion/react\";\nimport { cn } from \"@/lib/utils\";\n\nexport type TiltCardProps = {\n  children: ReactNode;\n  className?: string;\n  /** Maximum rotation, in degrees, at the corners. */\n  maxTilt?: number;\n  /** Scale applied while the pointer is over the card. */\n  hoverScale?: number;\n  /** Draw a sheen that follows the pointer. */\n  glare?: boolean;\n  /** Spring stiffness for the return. */\n  stiffness?: number;\n  /** Spring damping. Lower is bouncier. */\n  damping?: number;\n};\n\n/**\n * A card that leans towards the pointer in 3D.\n *\n * Pointer position is normalised to 0 to 1 and fed through springs, so the card\n * tilts continuously and settles back to flat when the pointer leaves.\n */\nexport function TiltCard({\n  children,\n  className,\n  maxTilt = 12,\n  hoverScale = 1.02,\n  glare = true,\n  stiffness = 220,\n  damping = 18,\n}: TiltCardProps) {\n  const ref = useRef<HTMLDivElement>(null);\n  const reduceMotion = useReducedMotion();\n  const [hovered, setHovered] = useState(false);\n\n  const pointerX = useMotionValue(0.5);\n  const pointerY = useMotionValue(0.5);\n\n  const rotateX = useSpring(\n    useTransform(pointerY, [0, 1], [maxTilt, -maxTilt]),\n    { stiffness, damping },\n  );\n  const rotateY = useSpring(\n    useTransform(pointerX, [0, 1], [-maxTilt, maxTilt]),\n    { stiffness, damping },\n  );\n\n  const glareX = useTransform(pointerX, [0, 1], [0, 100]);\n  const glareY = useTransform(pointerY, [0, 1], [0, 100]);\n  const glareBackground = useMotionTemplate`radial-gradient(240px circle at ${glareX}% ${glareY}%, rgb(255 255 255 / 0.3), transparent 65%)`;\n\n  const track = (event: ReactPointerEvent<HTMLDivElement>) => {\n    const bounds = ref.current?.getBoundingClientRect();\n    if (!bounds) return;\n\n    pointerX.set((event.clientX - bounds.left) / bounds.width);\n    pointerY.set((event.clientY - bounds.top) / bounds.height);\n  };\n\n  const reset = () => {\n    setHovered(false);\n    pointerX.set(0.5);\n    pointerY.set(0.5);\n  };\n\n  return (\n    <div\n      ref={ref}\n      onPointerMove={track}\n      onPointerEnter={() => setHovered(true)}\n      onPointerLeave={reset}\n      style={{ perspective: 1000 }}\n      className=\"w-full\"\n    >\n      <motion.div\n        style={\n          reduceMotion\n            ? undefined\n            : { rotateX, rotateY, transformStyle: \"preserve-3d\" }\n        }\n        whileHover={reduceMotion ? undefined : { scale: hoverScale }}\n        transition={{ type: \"spring\", stiffness, damping }}\n        className={cn(\n          \"relative overflow-hidden rounded-2xl border border-border/70 bg-card p-6 shadow-lg\",\n          className,\n        )}\n      >\n        {glare && (\n          <motion.div\n            aria-hidden\n            initial={{ opacity: 0 }}\n            animate={{ opacity: hovered ? 1 : 0 }}\n            transition={{ duration: 0.25, ease: \"easeOut\" }}\n            className=\"pointer-events-none absolute inset-0\"\n            style={{ background: glareBackground }}\n          />\n        )}\n\n        <div className=\"relative\">{children}</div>\n      </motion.div>\n    </div>\n  );\n}\n",
+      "type": "registry:ui"
+    }
+  ],
+  "type": "registry:ui"
+}

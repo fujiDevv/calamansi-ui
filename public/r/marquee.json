@@ -1,0 +1,18 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "marquee",
+  "title": "Marquee",
+  "description": "An infinite marquee that pauses on hover and fades its edges.",
+  "dependencies": [],
+  "registryDependencies": [
+    "utils"
+  ],
+  "files": [
+    {
+      "path": "components/ui/marquee.tsx",
+      "content": "\"use client\";\n\nimport { useId, useState, type ReactNode } from \"react\";\nimport { cn } from \"@/lib/utils\";\n\nconst EDGE_FADE =\n  \"linear-gradient(to right, transparent, #000 12%, #000 88%, transparent)\";\n\nexport type MarqueeProps = {\n  children: ReactNode;\n  className?: string;\n  /** Seconds for one full loop. */\n  duration?: number;\n  /** Scroll the other way. */\n  reverse?: boolean;\n  /** Hold the loop while the pointer is over it. */\n  pauseOnHover?: boolean;\n  /** Fade the leading and trailing edges. */\n  fade?: boolean;\n  /** Space between items, in pixels. */\n  gap?: number;\n  /** How many copies to render. Two is enough for a seamless loop. */\n  repeat?: number;\n};\n\n/**\n * An infinite marquee.\n *\n * The children are rendered twice inside a `w-max` row that slides by exactly\n * one copy, so the loop is seamless at any width. The keyframes are injected\n * per instance (unique name) and switched off for reduced motion.\n */\nexport function Marquee({\n  children,\n  className,\n  duration = 32,\n  reverse = false,\n  pauseOnHover = true,\n  fade = true,\n  gap = 32,\n  repeat = 2,\n}: MarqueeProps) {\n  const [paused, setPaused] = useState(false);\n  const animation = `marquee-${useId().replace(/[^a-zA-Z0-9]/g, \"\")}`;\n\n  return (\n    <div\n      className={cn(\"relative w-full overflow-hidden\", className)}\n      style={\n        fade\n          ? { maskImage: EDGE_FADE, WebkitMaskImage: EDGE_FADE }\n          : undefined\n      }\n    >\n      <style>{`@keyframes ${animation}{from{transform:translateX(0)}to{transform:translateX(-50%)}}@media (prefers-reduced-motion:reduce){.${animation}{animation:none!important}}`}</style>\n\n      <div\n        onPointerEnter={() => setPaused(true)}\n        onPointerLeave={() => setPaused(false)}\n        className={cn(\"flex w-max\", animation)}\n        style={{\n          animation: `${animation} ${duration}s linear infinite`,\n          animationDirection: reverse ? \"reverse\" : \"normal\",\n          animationPlayState: pauseOnHover && paused ? \"paused\" : \"running\",\n          willChange: \"transform\",\n        }}\n      >\n        {Array.from({ length: repeat }, (_, copy) => (\n          <div\n            key={copy}\n            aria-hidden={copy > 0}\n            className=\"flex shrink-0\"\n            style={{ gap, paddingRight: gap }}\n          >\n            {children}\n          </div>\n        ))}\n      </div>\n    </div>\n  );\n}\n",
+      "type": "registry:ui"
+    }
+  ],
+  "type": "registry:ui"
+}

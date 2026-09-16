@@ -1,0 +1,18 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "spotlight-card",
+  "title": "Spotlight Card",
+  "description": "A card that lights up under the pointer, with an optional lit border.",
+  "dependencies": [],
+  "registryDependencies": [
+    "utils"
+  ],
+  "files": [
+    {
+      "path": "components/ui/spotlight-card.tsx",
+      "content": "\"use client\";\n\nimport {\n  useRef,\n  type CSSProperties,\n  type PointerEvent as ReactPointerEvent,\n  type ReactNode,\n} from \"react\";\nimport { cn } from \"@/lib/utils\";\n\n/** Theme-aware default: the primary colour at partial opacity. */\nconst PRIMARY_GLOW = \"color-mix(in oklab, var(--primary) 55%, transparent)\";\n\nexport type SpotlightCardProps = {\n  children: ReactNode;\n  className?: string;\n  /** Radius of the glow, in pixels. */\n  radius?: number;\n  /** Any CSS colour. Defaults to the theme primary. */\n  color?: string;\n  /** Draw a lit border where the pointer is. */\n  border?: boolean;\n};\n\n/**\n * A card that lights up under the pointer.\n *\n * The spotlight position is written straight to CSS custom properties on the\n * card, so moving the pointer never re-renders React.\n */\nexport function SpotlightCard({\n  children,\n  className,\n  radius = 360,\n  color = PRIMARY_GLOW,\n  border = true,\n}: SpotlightCardProps) {\n  const ref = useRef<HTMLDivElement>(null);\n\n  const track = (event: ReactPointerEvent<HTMLDivElement>) => {\n    const node = ref.current;\n    if (!node) return;\n\n    const rect = node.getBoundingClientRect();\n    node.style.setProperty(\"--spotlight-x\", `${event.clientX - rect.left}px`);\n    node.style.setProperty(\"--spotlight-y\", `${event.clientY - rect.top}px`);\n  };\n\n  return (\n    <div\n      ref={ref}\n      onPointerMove={track}\n      onPointerEnter={(event) => {\n        track(event);\n        ref.current?.style.setProperty(\"--spotlight-opacity\", \"1\");\n      }}\n      onPointerLeave={() =>\n        ref.current?.style.setProperty(\"--spotlight-opacity\", \"0\")\n      }\n      style={\n        {\n          \"--spotlight-x\": \"50%\",\n          \"--spotlight-y\": \"50%\",\n          \"--spotlight-radius\": `${radius}px`,\n          \"--spotlight-color\": color,\n          \"--spotlight-opacity\": \"0\",\n        } as CSSProperties\n      }\n      className={cn(\n        \"relative overflow-hidden rounded-2xl border border-border/70 bg-card p-6\",\n        className,\n      )}\n    >\n      <div\n        aria-hidden\n        className=\"pointer-events-none absolute inset-0 opacity-[var(--spotlight-opacity)] transition-opacity duration-300 ease-out\"\n        style={{\n          background:\n            \"radial-gradient(var(--spotlight-radius) circle at var(--spotlight-x) var(--spotlight-y), var(--spotlight-color), transparent 70%)\",\n        }}\n      />\n\n      {border && (\n        <div\n          aria-hidden\n          className=\"pointer-events-none absolute inset-0 rounded-[inherit] p-px opacity-[var(--spotlight-opacity)] transition-opacity duration-300 ease-out\"\n          style={{\n            background:\n              \"radial-gradient(calc(var(--spotlight-radius) * 0.8) circle at var(--spotlight-x) var(--spotlight-y), var(--spotlight-color), transparent 70%)\",\n            WebkitMask:\n              \"linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0)\",\n            mask: \"linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0)\",\n            WebkitMaskComposite: \"xor\",\n            maskComposite: \"exclude\",\n          }}\n        />\n      )}\n\n      <div className=\"relative z-10\">{children}</div>\n    </div>\n  );\n}\n",
+      "type": "registry:ui"
+    }
+  ],
+  "type": "registry:ui"
+}
