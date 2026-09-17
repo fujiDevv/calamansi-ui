@@ -11,11 +11,14 @@ import gsap from "gsap";
 import { cn } from "@/lib/utils";
 
 export type CalamansiMood = "happy" | "love" | "sleepy" | "tart";
+export type CalamansiTexture = "textured" | "plain";
+export type CalamansiVariant = "default" | "primary" | "citrus" | "slate";
 
 type CalamansiProps = {
   className?: string;
   size?: number;
-  variant?: "default" | "primary";
+  variant?: CalamansiVariant;
+  texture?: CalamansiTexture;
   mood?: CalamansiMood;
   interactive?: boolean;
   followCursor?: boolean;
@@ -158,11 +161,13 @@ export function Calamansi({
   className,
   size = 160,
   variant = "default",
+  texture = "textured",
   mood = "happy",
   interactive = true,
   followCursor,
   pressable,
 }: CalamansiProps) {
+  const isPlain = texture === "plain";
   const shouldFollowCursor = followCursor ?? interactive;
   const shouldPress = pressable ?? interactive;
   const shadowId = useId().replace(/:/g, "");
@@ -170,13 +175,33 @@ export function Calamansi({
   const blurId = `${shadowId}-inner-shadow-blur`;
   const mainGlowId = `${shadowId}-main-glow`;
   const rimGlowId = `${shadowId}-rim-glow`;
+  const grainFilterId = `${shadowId}-citrus-grain`;
+  const depthGradientId = `${shadowId}-citrus-depth`;
+  const sunSheenId = `${shadowId}-sun-sheen`;
+  const dimpleGradientId = `${shadowId}-dimple-depth`;
+
   const isPrimary = variant === "primary";
-  const eyeFill = isPrimary ? "var(--primary-foreground)" : "var(--background)";
-  const bodyFill = isPrimary ? "var(--primary)" : "currentColor";
-  const leafFill = isPrimary
-    ? `var(--calamansi-leaf, ${LEAF_FALLBACK})`
-    : "currentColor";
+  const isCitrus = variant === "citrus";
+  const isSlate = variant === "slate";
+
+  let bodyFill = "currentColor";
+  let leafFill = "currentColor";
+  let eyeFill = "var(--background)";
   const blushFill = `var(--calamansi-blush, ${BLUSH_FALLBACK})`;
+
+  if (isPrimary) {
+    bodyFill = "var(--primary)";
+    leafFill = `var(--calamansi-leaf, ${LEAF_FALLBACK})`;
+    eyeFill = "var(--primary-foreground)";
+  } else if (isCitrus) {
+    bodyFill = "#f59e0b";
+    leafFill = "#16a34a";
+    eyeFill = "#1f2937";
+  } else if (isSlate) {
+    bodyFill = "#94a3b8";
+    leafFill = "#475569";
+    eyeFill = "#0f172a";
+  }
   const fruitRef = useRef<SVGSVGElement>(null);
   const eyesRef = useRef<SVGGElement>(null);
   const tartMarkRef = useRef<SVGGElement>(null);
@@ -990,16 +1015,56 @@ export function Calamansi({
         <filter id={blurId} x="-20%" y="-20%" width="140%" height="140%">
           <feGaussianBlur stdDeviation="18" />
         </filter>
+        {/* Fractal-noise grain simulating the porous citrus peel texture */}
+        <filter id={grainFilterId} x="0%" y="0%" width="100%" height="100%">
+          <feTurbulence
+            type="fractalNoise"
+            baseFrequency="0.75"
+            numOctaves="3"
+            stitchTiles="stitch"
+            result="noise"
+          />
+          <feColorMatrix
+            type="matrix"
+            values="0 0 0 0 0
+                    0 0 0 0 0
+                    0 0 0 0 0
+                    0 0 0 0.22 0"
+            in="noise"
+            result="coloredNoise"
+          />
+          <feComposite in="coloredNoise" in2="SourceGraphic" operator="in" />
+        </filter>
+        {/* Spherical bottom depth — gives the fruit weight and roundness */}
+        <radialGradient id={depthGradientId} cx="50%" cy="88%" r="68%">
+          <stop offset="0%" stopColor="#19330a" stopOpacity="0.45" />
+          <stop offset="45%" stopColor="#22420f" stopOpacity="0.22" />
+          <stop offset="85%" stopColor="#2e5416" stopOpacity="0" />
+        </radialGradient>
+        {/* Crisp daylight sheen on top */}
+        <radialGradient id={sunSheenId} cx="32%" cy="20%" r="62%">
+          <stop offset="0%" stopColor="white" stopOpacity="0.48" />
+          <stop offset="28%" stopColor="white" stopOpacity="0.2" />
+          <stop offset="65%" stopColor="white" stopOpacity="0.04" />
+          <stop offset="100%" stopColor="white" stopOpacity="0" />
+        </radialGradient>
+        {/* Main diffuse light */}
         <radialGradient id={mainGlowId} cx="36%" cy="20%" r="78%">
           <stop offset="0%" stopColor="white" stopOpacity="0.32" />
           <stop offset="36%" stopColor="white" stopOpacity="0.12" />
           <stop offset="72%" stopColor="white" stopOpacity="0.02" />
           <stop offset="100%" stopColor="white" stopOpacity="0" />
         </radialGradient>
+        {/* Ambient backlight rim */}
         <radialGradient id={rimGlowId} cx="50%" cy="50%" r="50%">
           <stop offset="72%" stopColor="white" stopOpacity="0" />
-          <stop offset="92%" stopColor="white" stopOpacity="0.16" />
-          <stop offset="100%" stopColor="white" stopOpacity="0.26" />
+          <stop offset="92%" stopColor="white" stopOpacity="0.18" />
+          <stop offset="100%" stopColor="white" stopOpacity="0.32" />
+        </radialGradient>
+        {/* Navel dimple shadow */}
+        <radialGradient id={dimpleGradientId} cx="50%" cy="100%" r="100%">
+          <stop offset="0%" stopColor="#122506" stopOpacity="0.35" />
+          <stop offset="100%" stopColor="#122506" stopOpacity="0" />
         </radialGradient>
       </defs>
 
@@ -1017,6 +1082,29 @@ export function Calamansi({
           strokeLinejoin="round"
           strokeWidth={6}
         />
+        {!isPlain && (
+          <>
+            {/* Stem woody fiber highlight */}
+            <path
+              d="M304 62 L304 108"
+              fill="none"
+              opacity="0.35"
+              stroke="#ffffff"
+              strokeWidth={2}
+              strokeLinecap="round"
+            />
+            {/* Calyx star cap where stem meets fruit */}
+            <ellipse
+              cx="306"
+              cy="114"
+              rx="14"
+              ry="6"
+              fill={leafFill}
+              opacity="0.8"
+            />
+          </>
+        )}
+
         <path
           d={CALAMANSI_LEAF_PATH}
           fill={leafFill}
@@ -1032,8 +1120,52 @@ export function Calamansi({
           strokeLinecap="round"
           strokeWidth={5}
         />
+        {!isPlain && (
+          /* Leaf veins & natural leaf texture */
+          <g opacity="0.4" stroke={isPrimary ? "#ffffff" : eyeFill} strokeLinecap="round">
+            {/* Main central spine */}
+            <path
+              d="M318 64 Q382 46 454 22"
+              fill="none"
+              strokeWidth={3}
+            />
+            {/* Upper diagonal veins */}
+            <path
+              d="M352 56 Q370 42 392 34"
+              fill="none"
+              strokeWidth={2}
+            />
+            <path
+              d="M386 46 Q406 34 430 26"
+              fill="none"
+              strokeWidth={2}
+            />
+            {/* Lower diagonal veins */}
+            <path
+              d="M362 60 Q382 72 408 72"
+              fill="none"
+              strokeWidth={2}
+            />
+            <path
+              d="M398 50 Q418 62 436 60"
+              fill="none"
+              strokeWidth={2}
+            />
+          </g>
+        )}
+
         <path d={CALAMANSI_BODY_PATH} fill={bodyFill} />
         <g clipPath={`url(#${clipId})`}>
+          {!isPlain && (
+            /* 1. Spherical citrus depth at base */
+            <rect
+              width="612"
+              height="612"
+              fill={`url(#${depthGradientId})`}
+            />
+          )}
+
+          {/* 2. Top-left light wash */}
           <ellipse
             cx="244"
             cy="196"
@@ -1042,18 +1174,77 @@ export function Calamansi({
             fill={`url(#${mainGlowId})`}
           />
           <ellipse
+            cx="210"
+            cy="160"
+            rx="140"
+            ry="100"
+            fill={`url(#${sunSheenId})`}
+          />
+
+          {/* 3. Rim bounce light */}
+          <ellipse
             cx="306"
             cy="320"
             rx="306"
             ry="252"
             fill={`url(#${rimGlowId})`}
-            opacity="0.6"
+            opacity={isPlain ? 0.35 : 0.6}
           />
+
+          {!isPlain && (
+            <>
+              {/* 4. Fine fractal citrus peel grain overlay */}
+              <rect
+                width="612"
+                height="612"
+                fill="white"
+                filter={`url(#${grainFilterId})`}
+                opacity="0.22"
+                style={{ mixBlendMode: "overlay" }}
+              />
+
+              {/* 5. Organic citrus peel micropores (stippling around curved flanks) */}
+              <g opacity="0.18" fill={isPrimary ? "#142805" : eyeFill}>
+                <circle cx="178" cy="384" r="2.2" />
+                <circle cx="194" cy="412" r="1.8" />
+                <circle cx="212" cy="392" r="2.5" />
+                <circle cx="228" cy="434" r="2.2" />
+                <circle cx="248" cy="452" r="1.8" />
+                <circle cx="278" cy="466" r="2.5" />
+                <circle cx="308" cy="472" r="2.2" />
+                <circle cx="338" cy="464" r="2.5" />
+                <circle cx="368" cy="448" r="1.8" />
+                <circle cx="394" cy="428" r="2.2" />
+                <circle cx="418" cy="398" r="2.5" />
+                <circle cx="434" cy="368" r="1.8" />
+                <circle cx="162" cy="342" r="2.2" />
+                <circle cx="152" cy="302" r="1.8" />
+                <circle cx="452" cy="324" r="1.8" />
+                <circle cx="462" cy="284" r="2.2" />
+                <circle cx="204" cy="442" r="1.6" />
+                <circle cx="264" cy="476" r="2" />
+                <circle cx="324" cy="482" r="1.8" />
+                <circle cx="384" cy="462" r="2" />
+                <circle cx="408" cy="442" r="1.6" />
+              </g>
+
+              {/* 6. Soft navel crease at bottom center */}
+              <ellipse
+                cx="306"
+                cy="498"
+                rx="48"
+                ry="18"
+                fill={`url(#${dimpleGradientId})`}
+              />
+            </>
+          )}
+
+          {/* 7. Inner edge bevel glow */}
           <path
             d={CALAMANSI_BODY_PATH}
             fill="none"
             filter={`url(#${blurId})`}
-            opacity="0.18"
+            opacity="0.22"
             stroke="white"
             strokeWidth="26"
           />

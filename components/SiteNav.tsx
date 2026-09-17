@@ -83,7 +83,6 @@ export default function SiteNav({ className }: { className?: string }) {
         className="flex items-center gap-2 text-sm font-medium text-muted-foreground transition-colors duration-150 ease-out hover:text-foreground"
       >
         <GithubLogo className="size-4" />
-        <span className="hidden sm:inline">GitHub</span>
         {stars != null && (
           <span className="hidden items-center gap-1 text-xs tabular-nums min-[560px]:inline-flex">
             <Star className="size-3 fill-current" aria-hidden="true" />

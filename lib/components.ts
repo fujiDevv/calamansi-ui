@@ -102,12 +102,20 @@ export const components: ComponentItem[] = [
         description: "Width and height of the fruit in pixels.",
       },
       {
-        name: "variant",
-        type: '"default" | "primary"',
-        default: '"default"',
-        options: ["default", "primary"],
+        name: "texture",
+        type: '"textured" | "plain"',
+        default: '"textured"',
+        options: ["textured", "plain"],
         description:
-          'Use "primary" to fill the rind with the theme primary colour, or "default" to inherit the current text colour.',
+          'Set to "textured" for organic citrus peel grain, stippled micropores, and leaf veins, or "plain" for a smooth, minimal flat look.',
+      },
+      {
+        name: "variant",
+        type: '"default" | "primary" | "citrus" | "slate"',
+        default: '"default"',
+        options: ["default", "primary", "citrus", "slate"],
+        description:
+          'Color scheme for the fruit body and foliage. "primary" applies the brand lime, "citrus" applies warm amber, and "slate" applies cool frosted slate.',
       },
       {
         name: "mood",

@@ -42,10 +42,48 @@
     <filter id="soft-shadow" x="-15%" y="-15%" width="130%" height="130%">
       <feDropShadow dx="0" dy="12" stdDeviation="16" flood-color="#000000" flood-opacity="0.18"/>
     </filter>
-    <radialGradient id="highlight" cx="36%" cy="20%" r="75%">
-      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.35"/>
-      <stop offset="40%" stop-color="#ffffff" stop-opacity="0.12"/>
+    <clipPath id="body-clip">
+      <path d="M306 104c94 0 166 52 196 122 32 74 26 164-24 220-40 44-106 74-148 68-12-2-19-11-24-18-5 7-12 16-24 18-42 6-108-24-148-68-50-56-56-146-24-220 30-70 102-122 196-122Z"/>
+    </clipPath>
+    <filter id="inner-blur" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="18"/>
+    </filter>
+    <!-- Fractal-noise grain simulating the porous citrus peel texture -->
+    <filter id="citrus-grain" x="0%" y="0%" width="100%" height="100%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.75" numOctaves="3" stitchTiles="stitch" result="noise"/>
+      <feColorMatrix type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 0.22 0" in="noise" result="coloredNoise"/>
+      <feComposite in="coloredNoise" in2="SourceGraphic" operator="in"/>
+    </filter>
+    <!-- Spherical bottom depth -->
+    <radialGradient id="citrus-depth" cx="50%" cy="88%" r="68%">
+      <stop offset="0%" stop-color="#19330a" stop-opacity="0.45"/>
+      <stop offset="45%" stop-color="#22420f" stop-opacity="0.22"/>
+      <stop offset="85%" stop-color="#2e5416" stop-opacity="0"/>
+    </radialGradient>
+    <!-- Daylight sheen -->
+    <radialGradient id="sun-sheen" cx="32%" cy="20%" r="62%">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.48"/>
+      <stop offset="28%" stop-color="#ffffff" stop-opacity="0.2"/>
+      <stop offset="65%" stop-color="#ffffff" stop-opacity="0.04"/>
       <stop offset="100%" stop-color="#ffffff" stop-opacity="0"/>
+    </radialGradient>
+    <!-- Diffuse lighting -->
+    <radialGradient id="main-glow" cx="36%" cy="20%" r="78%">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.32"/>
+      <stop offset="36%" stop-color="#ffffff" stop-opacity="0.12"/>
+      <stop offset="72%" stop-color="#ffffff" stop-opacity="0.02"/>
+      <stop offset="100%" stop-color="#ffffff" stop-opacity="0"/>
+    </radialGradient>
+    <!-- Ambient rim light -->
+    <radialGradient id="rim-glow" cx="50%" cy="50%" r="50%">
+      <stop offset="72%" stop-color="#ffffff" stop-opacity="0"/>
+      <stop offset="92%" stop-color="#ffffff" stop-opacity="0.18"/>
+      <stop offset="100%" stop-color="#ffffff" stop-opacity="0.32"/>
+    </radialGradient>
+    <!-- Navel dimple shadow -->
+    <radialGradient id="dimple-depth" cx="50%" cy="100%" r="100%">
+      <stop offset="0%" stop-color="#122506" stop-opacity="0.35"/>
+      <stop offset="100%" stop-color="#122506" stop-opacity="0"/>
     </radialGradient>
   </defs>
 
@@ -58,6 +96,17 @@
       stroke-width="6"
       stroke-linejoin="round"
     />
+    <!-- Stem woody fiber highlight -->
+    <path
+      d="M304 62 L304 108"
+      fill="none"
+      opacity="0.35"
+      stroke="#ffffff"
+      stroke-width="2"
+      stroke-linecap="round"
+    />
+    <!-- Calyx cap -->
+    <ellipse cx="306" cy="114" rx="14" ry="6" fill="#4e9a3e" opacity="0.8"/>
 
     <!-- Leaf with sway -->
     <g class="mascot-leaf">
@@ -71,11 +120,19 @@
       <path
         d="M312 66c32-44 98-64 156-52-8 52-68 88-130 80-14-2-24-14-26-28Z"
         fill="none"
-        opacity="0.4"
+        opacity="0.45"
         stroke="#86b81f"
         stroke-width="5"
         stroke-linecap="round"
       />
+      <!-- Leaf veins -->
+      <g opacity="0.4" stroke="#ffffff" stroke-linecap="round">
+        <path d="M318 64 Q382 46 454 22" fill="none" stroke-width="3"/>
+        <path d="M352 56 Q370 42 392 34" fill="none" stroke-width="2"/>
+        <path d="M386 46 Q406 34 430 26" fill="none" stroke-width="2"/>
+        <path d="M362 60 Q382 72 408 72" fill="none" stroke-width="2"/>
+        <path d="M398 50 Q418 62 436 60" fill="none" stroke-width="2"/>
+      </g>
     </g>
 
     <!-- Calamansi Body -->
@@ -84,11 +141,59 @@
       fill="#b4e84c"
     />
 
-    <!-- Subtle Lighting -->
-    <path
-      d="M306 104c94 0 166 52 196 122 32 74 26 164-24 220-40 44-106 74-148 68-12-2-19-11-24-18-5 7-12 16-24 18-42 6-108-24-148-68-50-56-56-146-24-220 30-70 102-122 196-122Z"
-      fill="url(#highlight)"
-    />
+    <!-- Textural Layers within Body Clip -->
+    <g clip-path="url(#body-clip)">
+      <!-- 1. Spherical depth -->
+      <rect width="612" height="612" fill="url(#citrus-depth)"/>
+
+      <!-- 2. Diffuse & specular lighting -->
+      <ellipse cx="244" cy="196" rx="232" ry="188" fill="url(#main-glow)"/>
+      <ellipse cx="210" cy="160" rx="140" ry="100" fill="url(#sun-sheen)"/>
+
+      <!-- 3. Rim backlight -->
+      <ellipse cx="306" cy="320" rx="306" ry="252" fill="url(#rim-glow)" opacity="0.6"/>
+
+      <!-- 4. Fine fractal citrus peel grain -->
+      <rect width="612" height="612" fill="#ffffff" filter="url(#citrus-grain)" opacity="0.22" style="mix-blend-mode: overlay;"/>
+
+      <!-- 5. Organic citrus peel micropores -->
+      <g opacity="0.18" fill="#142805">
+        <circle cx="178" cy="384" r="2.2" />
+        <circle cx="194" cy="412" r="1.8" />
+        <circle cx="212" cy="392" r="2.5" />
+        <circle cx="228" cy="434" r="2.2" />
+        <circle cx="248" cy="452" r="1.8" />
+        <circle cx="278" cy="466" r="2.5" />
+        <circle cx="308" cy="472" r="2.2" />
+        <circle cx="338" cy="464" r="2.5" />
+        <circle cx="368" cy="448" r="1.8" />
+        <circle cx="394" cy="428" r="2.2" />
+        <circle cx="418" cy="398" r="2.5" />
+        <circle cx="434" cy="368" r="1.8" />
+        <circle cx="162" cy="342" r="2.2" />
+        <circle cx="152" cy="302" r="1.8" />
+        <circle cx="452" cy="324" r="1.8" />
+        <circle cx="462" cy="284" r="2.2" />
+        <circle cx="204" cy="442" r="1.6" />
+        <circle cx="264" cy="476" r="2" />
+        <circle cx="324" cy="482" r="1.8" />
+        <circle cx="384" cy="462" r="2" />
+        <circle cx="408" cy="442" r="1.6" />
+      </g>
+
+      <!-- 6. Navel crease -->
+      <ellipse cx="306" cy="498" rx="48" ry="18" fill="url(#dimple-depth)"/>
+
+      <!-- 7. Inner edge bevel -->
+      <path
+        d="M306 104c94 0 166 52 196 122 32 74 26 164-24 220-40 44-106 74-148 68-12-2-19-11-24-18-5 7-12 16-24 18-42 6-108-24-148-68-50-56-56-146-24-220 30-70 102-122 196-122Z"
+        fill="none"
+        filter="url(#inner-blur)"
+        opacity="0.22"
+        stroke="white"
+        stroke-width="26"
+      />
+    </g>
 
     <!-- Blinking Eyes -->
     <g class="mascot-eyes" fill="#142206">
