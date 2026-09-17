@@ -12,7 +12,12 @@ import { cn } from "@/lib/utils";
 
 export type DynamicIslandState = "idle" | "compact" | "expanded" | "alert";
 
-export type DynamicIslandVariant = "calamansi" | "slate" | "citrus";
+export type DynamicIslandVariant =
+  | "calamansi"
+  | "slate"
+  | "citrus"
+  | "black"
+  | "dark";
 
 /**
  * The Calamansi surface: a gradient slab inside a thick white lip, matching
@@ -41,6 +46,14 @@ const VARIANTS: Record<DynamicIslandVariant, string> = {
   citrus: [
     "bg-gradient-to-br from-[#d69f7e] via-[#b87152] to-[#7d4128]",
     "dark:from-[#2e170c] dark:via-[#22120b] dark:to-[#140a06]",
+  ].join(" "),
+  black: [
+    "bg-gradient-to-br from-[#27272a] via-[#18181b] to-[#09090b]",
+    "dark:from-[#18181b] dark:via-[#09090b] dark:to-[#000000]",
+  ].join(" "),
+  dark: [
+    "bg-gradient-to-br from-[#27272a] via-[#18181b] to-[#09090b]",
+    "dark:from-[#18181b] dark:via-[#09090b] dark:to-[#000000]",
   ].join(" "),
 };
 

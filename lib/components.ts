@@ -223,9 +223,9 @@ export function Demo() {
       },
       {
         name: "variant",
-        type: '"calamansi" | "slate" | "citrus"',
+        type: '"calamansi" | "slate" | "citrus" | "black"',
         default: '"calamansi"',
-        options: ["calamansi", "slate", "citrus"],
+        options: ["calamansi", "slate", "citrus", "black"],
         description:
           "Palette of the Calamansi gradient slab.",
       },
@@ -332,9 +332,9 @@ export function Demo() {
       },
       {
         name: "variant",
-        type: '"calamansi" | "slate" | "citrus"',
+        type: '"calamansi" | "slate" | "citrus" | "black"',
         default: '"calamansi"',
-        options: ["calamansi", "slate", "citrus"],
+        options: ["calamansi", "slate", "citrus", "black"],
         description:
           "Palette of the Calamansi gradient slab.",
       },
@@ -464,6 +464,13 @@ export function Demo() {
         description: "The number to show.",
       },
       {
+        name: "variant",
+        type: '"calamansi" | "slate" | "citrus" | "black"',
+        default: '"calamansi"',
+        options: ["calamansi", "slate", "citrus", "black"],
+        description: "Palette of the Calamansi gradient slab.",
+      },
+      {
         name: "duration",
         type: "number",
         default: "0.7",
@@ -555,6 +562,13 @@ export function Demo() {
         type: "number",
         description:
           "Fixed height of the dock border box in pixels. Defaults to size + 16.",
+      },
+      {
+        name: "variant",
+        type: '"calamansi" | "slate" | "citrus" | "black"',
+        default: '"calamansi"',
+        options: ["calamansi", "slate", "citrus", "black"],
+        description: "Palette of the Calamansi gradient slab.",
       },
       {
         name: "className",
@@ -651,9 +665,9 @@ export function Demo() {
       },
       {
         name: "variant",
-        type: '"calamansi" | "slate" | "citrus"',
+        type: '"calamansi" | "slate" | "citrus" | "black"',
         default: '"calamansi"',
-        options: ["calamansi", "slate", "citrus"],
+        options: ["calamansi", "slate", "citrus", "black"],
         description: "Palette of the Calamansi gradient slab.",
       },
       {
@@ -733,9 +747,9 @@ export function Demo() {
       },
       {
         name: "variant",
-        type: '"calamansi" | "slate" | "citrus"',
+        type: '"calamansi" | "slate" | "citrus" | "black"',
         default: '"calamansi"',
-        options: ["calamansi", "slate", "citrus"],
+        options: ["calamansi", "slate", "citrus", "black"],
         description: "Glass tint background gradient and specular accents.",
       },
       {

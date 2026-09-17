@@ -33,11 +33,39 @@ const DockConfigContext = createContext({
  * panel's height is driven by `panelHeight` (default `size + 16`) and a border
  * would eat into the space the items are measured against.
  */
+export type DockVariant =
+  | "calamansi"
+  | "slate"
+  | "citrus"
+  | "black"
+  | "dark";
+
 const PANEL = [
-  "relative flex items-end gap-2 overflow-visible rounded-[26px] p-2 text-white/80",
-  "bg-gradient-to-br from-[#8fa37d] via-[#5c7a67] to-[#39564a]",
-  "dark:from-[#1b281f] dark:via-[#16221a] dark:to-[#0e1611]",
+  "relative flex items-end gap-2 overflow-visible rounded-[26px] p-2 text-white/80 select-none",
 ].join(" ");
+
+const VARIANTS: Record<DockVariant, string> = {
+  calamansi: [
+    "bg-gradient-to-br from-[#8fa37d] via-[#5c7a67] to-[#39564a]",
+    "dark:from-[#1b281f] dark:via-[#16221a] dark:to-[#0e1611]",
+  ].join(" "),
+  slate: [
+    "bg-gradient-to-br from-[#a79cb7] via-[#687396] to-[#4a5a7f]",
+    "dark:from-[#1e1b4b] dark:via-[#1e293b] dark:to-[#0f172a]",
+  ].join(" "),
+  citrus: [
+    "bg-gradient-to-br from-[#d69f7e] via-[#b87152] to-[#7d4128]",
+    "dark:from-[#2e170c] dark:via-[#22120b] dark:to-[#140a06]",
+  ].join(" "),
+  black: [
+    "bg-gradient-to-br from-[#27272a] via-[#18181b] to-[#09090b]",
+    "dark:from-[#18181b] dark:via-[#09090b] dark:to-[#000000]",
+  ].join(" "),
+  dark: [
+    "bg-gradient-to-br from-[#27272a] via-[#18181b] to-[#09090b]",
+    "dark:from-[#18181b] dark:via-[#09090b] dark:to-[#000000]",
+  ].join(" "),
+};
 
 const PANEL_SHADOW = [
   // the lip and highlights are inset — the panel casts no shadow on the page
@@ -57,6 +85,8 @@ const ITEM = [
 export type DockProps = {
   children: ReactNode;
   className?: string;
+  /** Palette of the Calamansi gradient slab. Default: "calamansi" */
+  variant?: DockVariant;
   /** How far from the pointer, in pixels, an item starts growing. */
   reach?: number;
   /** Item size at rest, in pixels. */
@@ -101,6 +131,7 @@ function Grain({ id }: { id: string }) {
 export function Dock({
   children,
   className,
+  variant = "calamansi",
   reach = 130,
   size = 48,
   magnify = 78,
@@ -116,7 +147,7 @@ export function Dock({
         onPointerMove={(event) => mouseX.set(event.pageX)}
         onPointerLeave={() => mouseX.set(Infinity)}
         style={{ height: fixedHeight }}
-        className={cn(PANEL, PANEL_SHADOW, className)}
+        className={cn(PANEL, VARIANTS[variant], PANEL_SHADOW, className)}
       >
         {/* clipped so the grain follows the rounded corners */}
         <span className="pointer-events-none absolute inset-0 overflow-hidden rounded-[inherit]">

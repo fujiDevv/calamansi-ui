@@ -30,7 +30,12 @@ export type TaskItem = {
   icon?: ReactNode;
 };
 
-export type TaskWidgetVariant = "calamansi" | "slate" | "citrus";
+export type TaskWidgetVariant =
+  | "calamansi"
+  | "slate"
+  | "citrus"
+  | "black"
+  | "dark";
 
 export type TaskWidgetProps = {
   /** Array of task items (controlled). */
@@ -112,6 +117,16 @@ const VARIANT_STYLES: Record<
     bg: "from-[#d69f7e] via-[#b87152] to-[#7d4128] dark:from-[#2e170c] dark:via-[#22120b] dark:to-[#140a06]",
     accent: "text-[#ff9e3d] dark:text-[#ff9e3d]",
     dotColor: "#ff9e3d",
+  },
+  black: {
+    bg: "from-[#27272a] via-[#18181b] to-[#09090b] dark:from-[#18181b] dark:via-[#09090b] dark:to-[#000000]",
+    accent: "text-zinc-200 dark:text-zinc-300",
+    dotColor: "#e4e4e7",
+  },
+  dark: {
+    bg: "from-[#27272a] via-[#18181b] to-[#09090b] dark:from-[#18181b] dark:via-[#09090b] dark:to-[#000000]",
+    accent: "text-zinc-200 dark:text-zinc-300",
+    dotColor: "#e4e4e7",
   },
 };
 

@@ -10,16 +10,46 @@ const DIGITS_DOWN = [...DIGITS_UP].reverse();
 const NUMBER = new Intl.NumberFormat("en-US", { maximumFractionDigits: 2 });
 const FORMAT = (value: number) => NUMBER.format(value);
 
+export type NumberTickerVariant =
+  | "calamansi"
+  | "slate"
+  | "citrus"
+  | "black"
+  | "dark";
+
 /**
  * The Calamansi surface: a gradient slab inside a thick white lip, matching the
  * task and morning widgets.
  */
 const SHELL = [
   "relative inline-flex overflow-hidden rounded-[20px] border-[3px] border-white/80 p-1.5",
-  "bg-gradient-to-br from-[#8fa37d] via-[#5c7a67] to-[#39564a] font-runde font-bold text-white",
-  "dark:border-white/10 dark:from-[#1b281f] dark:via-[#16221a] dark:to-[#0e1611]",
+  "font-runde font-bold text-white select-none",
+  "dark:border-white/10",
   "sm:rounded-[24px] sm:border-4 sm:p-2",
 ].join(" ");
+
+const VARIANTS: Record<NumberTickerVariant, string> = {
+  calamansi: [
+    "bg-gradient-to-br from-[#8fa37d] via-[#5c7a67] to-[#39564a]",
+    "dark:from-[#1b281f] dark:via-[#16221a] dark:to-[#0e1611]",
+  ].join(" "),
+  slate: [
+    "bg-gradient-to-br from-[#a79cb7] via-[#687396] to-[#4a5a7f]",
+    "dark:from-[#1e1b4b] dark:via-[#1e293b] dark:to-[#0f172a]",
+  ].join(" "),
+  citrus: [
+    "bg-gradient-to-br from-[#d69f7e] via-[#b87152] to-[#7d4128]",
+    "dark:from-[#2e170c] dark:via-[#22120b] dark:to-[#140a06]",
+  ].join(" "),
+  black: [
+    "bg-gradient-to-br from-[#27272a] via-[#18181b] to-[#09090b]",
+    "dark:from-[#18181b] dark:via-[#09090b] dark:to-[#000000]",
+  ].join(" "),
+  dark: [
+    "bg-gradient-to-br from-[#27272a] via-[#18181b] to-[#09090b]",
+    "dark:from-[#18181b] dark:via-[#09090b] dark:to-[#000000]",
+  ].join(" "),
+};
 
 const SHELL_SHADOW: CSSProperties = {
   boxShadow:
@@ -53,6 +83,8 @@ function Grain({ id }: { id: string }) {
 export type NumberTickerProps = {
   value: number;
   className?: string;
+  /** Palette of the Calamansi gradient slab. Default: "calamansi" */
+  variant?: NumberTickerVariant;
   /** Seconds for each digit to settle. */
   duration?: number;
   /** Delay between digits, in seconds. */
@@ -77,6 +109,7 @@ export type NumberTickerProps = {
 export function NumberTicker({
   value,
   className,
+  variant = "calamansi",
   duration = 0.7,
   stagger = 0.05,
   direction = "up",
@@ -90,7 +123,10 @@ export function NumberTicker({
   const characters = [...text];
 
   return (
-    <span className={cn(SHELL, className)} style={SHELL_SHADOW}>
+    <span
+      className={cn(SHELL, VARIANTS[variant], className)}
+      style={SHELL_SHADOW}
+    >
       <Grain id={filterId} />
 
       <span className="sr-only">{`${prefix ?? ""}${text}${suffix ?? ""}`}</span>

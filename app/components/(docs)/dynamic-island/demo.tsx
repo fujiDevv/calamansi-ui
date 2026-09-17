@@ -18,10 +18,31 @@ import {
   Volume2,
 } from "lucide-react";
 
-const VARIANTS: { id: DynamicIslandVariant; label: string }[] = [
-  { id: "calamansi", label: "Calamansi" },
-  { id: "slate", label: "Slate Glass" },
-  { id: "citrus", label: "Warm Citrus" },
+const VARIANTS: {
+  id: DynamicIslandVariant;
+  label: string;
+  gradient: string;
+}[] = [
+  {
+    id: "calamansi",
+    label: "Calamansi",
+    gradient: "linear-gradient(135deg, #8fa37d 0%, #5c7a67 50%, #39564a 100%)",
+  },
+  {
+    id: "slate",
+    label: "Slate Glass",
+    gradient: "linear-gradient(135deg, #a79cb7 0%, #687396 50%, #4a5a7f 100%)",
+  },
+  {
+    id: "citrus",
+    label: "Warm Citrus",
+    gradient: "linear-gradient(135deg, #d69f7e 0%, #b87152 50%, #7d4128 100%)",
+  },
+  {
+    id: "black",
+    label: "Dark Black",
+    gradient: "linear-gradient(135deg, #27272a 0%, #18181b 50%, #09090b 100%)",
+  },
 ];
 
 export default function DynamicIslandDemo() {
@@ -29,27 +50,45 @@ export default function DynamicIslandDemo() {
   const [islandState, setIslandState] = useState<DynamicIslandState>("compact");
   const [isPlaying, setIsPlaying] = useState(true);
   const [variant, setVariant] = useState<DynamicIslandVariant>("calamansi");
+  const currentVariant =
+    VARIANTS.find((v) => v.id === variant) ?? VARIANTS[0];
 
   return (
     <div className="flex w-full max-w-xl flex-col items-center gap-5 py-4 sm:gap-6 sm:py-6">
       {/* Top controls: Colour changer and state morphology controls */}
       <div className="flex flex-wrap items-center justify-center gap-3">
-        {/* Colour changer */}
-        <div className="flex items-center rounded-full border border-border/70 bg-card/60 p-1 shadow-2xs backdrop-blur-xs">
-          {VARIANTS.map((option) => (
-            <button
-              key={option.id}
-              type="button"
-              onClick={() => setVariant(option.id)}
-              className={`rounded-full px-3.5 py-1 text-xs font-semibold transition-all ${
-                variant === option.id
-                  ? "bg-primary text-primary-foreground shadow-xs"
-                  : "text-muted-foreground hover:text-foreground"
-              }`}
-            >
-              {option.label}
-            </button>
-          ))}
+        {/* Color Swatches Control */}
+        <div className="flex items-center gap-3 rounded-2xl border border-border/70 bg-card/60 px-3.5 py-2 shadow-2xs backdrop-blur-xs">
+          <span className="text-xs font-medium text-muted-foreground">
+            Palette
+          </span>
+
+          <div className="flex items-center gap-2">
+            {VARIANTS.map((option) => {
+              const selected = variant === option.id;
+
+              return (
+                <button
+                  key={option.id}
+                  type="button"
+                  onClick={() => setVariant(option.id)}
+                  aria-label={`Set color to ${option.label}`}
+                  aria-pressed={selected}
+                  title={option.label}
+                  className={`relative size-7 cursor-pointer rounded-xl transition-all duration-200 hover:scale-105 sm:size-8 ${
+                    selected
+                      ? "scale-110 shadow-md ring-2 ring-primary ring-offset-2 ring-offset-background"
+                      : "opacity-80 ring-1 ring-white/20 hover:opacity-100"
+                  }`}
+                  style={{ background: option.gradient }}
+                />
+              );
+            })}
+          </div>
+
+          <span className="min-w-[84px] text-xs font-semibold text-foreground transition-colors">
+            {currentVariant.label}
+          </span>
         </div>
 
         {/* State Morphology Controls */}

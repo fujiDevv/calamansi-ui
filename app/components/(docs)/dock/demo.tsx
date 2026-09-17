@@ -11,7 +11,34 @@ import {
   Search,
   Settings,
 } from "lucide-react";
-import { Dock, DockItem } from "@/components/ui/dock";
+import { Dock, DockItem, type DockVariant } from "@/components/ui/dock";
+
+const VARIANTS: {
+  id: DockVariant;
+  label: string;
+  gradient: string;
+}[] = [
+  {
+    id: "calamansi",
+    label: "Calamansi",
+    gradient: "linear-gradient(135deg, #8fa37d 0%, #5c7a67 50%, #39564a 100%)",
+  },
+  {
+    id: "slate",
+    label: "Slate Glass",
+    gradient: "linear-gradient(135deg, #a79cb7 0%, #687396 50%, #4a5a7f 100%)",
+  },
+  {
+    id: "citrus",
+    label: "Warm Citrus",
+    gradient: "linear-gradient(135deg, #d69f7e 0%, #b87152 50%, #7d4128 100%)",
+  },
+  {
+    id: "black",
+    label: "Dark Black",
+    gradient: "linear-gradient(135deg, #27272a 0%, #18181b 50%, #09090b 100%)",
+  },
+];
 
 const ITEMS = [
   { label: "Home", Icon: House },
@@ -26,9 +53,46 @@ const ITEMS = [
 
 export default function DockDemo() {
   const [active, setActive] = useState("Home");
+  const [variant, setVariant] = useState<DockVariant>("calamansi");
+  const currentVariant =
+    VARIANTS.find((v) => v.id === variant) ?? VARIANTS[0];
 
   return (
     <div className="flex h-full w-full flex-col items-center justify-center gap-5 p-2 sm:gap-10 sm:p-6">
+      {/* Color Swatches Control */}
+      <div className="flex items-center gap-3 rounded-2xl border border-border/70 bg-card/60 px-3.5 py-2 shadow-2xs backdrop-blur-xs">
+        <span className="text-xs font-medium text-muted-foreground">
+          Palette
+        </span>
+
+        <div className="flex items-center gap-2">
+          {VARIANTS.map((option) => {
+            const selected = variant === option.id;
+
+            return (
+              <button
+                key={option.id}
+                type="button"
+                onClick={() => setVariant(option.id)}
+                aria-label={`Set color to ${option.label}`}
+                aria-pressed={selected}
+                title={option.label}
+                className={`relative size-7 cursor-pointer rounded-xl transition-all duration-200 hover:scale-105 sm:size-8 ${
+                  selected
+                    ? "scale-110 shadow-md ring-2 ring-primary ring-offset-2 ring-offset-background"
+                    : "opacity-80 ring-1 ring-white/20 hover:opacity-100"
+                }`}
+                style={{ background: option.gradient }}
+              />
+            );
+          })}
+        </div>
+
+        <span className="min-w-[84px] text-xs font-semibold text-foreground transition-colors">
+          {currentVariant.label}
+        </span>
+      </div>
+
       <div className="text-center">
         <p className="font-runde text-lg font-semibold tracking-tight">
           Glide along the dock
@@ -45,7 +109,7 @@ export default function DockDemo() {
         container carries the headroom as padding and pulls it back out with a negative margin.
       */}
       <div className="-mt-16 flex w-full max-w-full justify-start overflow-x-auto overscroll-x-contain px-2 pt-16 pb-2 [scrollbar-width:none] sm:w-auto sm:justify-center">
-        <Dock>
+        <Dock variant={variant}>
           {ITEMS.map(({ label, Icon }) => (
             <DockItem
               key={label}
