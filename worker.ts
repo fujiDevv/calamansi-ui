@@ -128,7 +128,10 @@ async function handleGithubStars(): Promise<Response> {
     if (!response.ok) {
       return new Response(JSON.stringify({ stars: null }), {
         status: 200,
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          "Cache-Control": "no-store",
+        },
       });
     }
 
@@ -139,14 +142,17 @@ async function handleGithubStars(): Promise<Response> {
       {
         headers: {
           "Content-Type": "application/json",
-          "Cache-Control": "public, max-age=3600, s-maxage=3600",
+          "Cache-Control": "public, max-age=60, s-maxage=300",
         },
       },
     );
   } catch {
     return new Response(JSON.stringify({ stars: null }), {
       status: 200,
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+        "Cache-Control": "no-store",
+      },
     });
   }
 }

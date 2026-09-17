@@ -16,7 +16,10 @@ export async function onRequestGet() {
     if (!response.ok) {
       return new Response(JSON.stringify({ stars: null }), {
         status: 200,
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          "Cache-Control": "no-store",
+        },
       });
     }
 
@@ -27,14 +30,17 @@ export async function onRequestGet() {
       {
         headers: {
           "Content-Type": "application/json",
-          "Cache-Control": "public, max-age=3600, s-maxage=3600",
+          "Cache-Control": "public, max-age=60, s-maxage=300",
         },
       },
     );
   } catch {
     return new Response(JSON.stringify({ stars: null }), {
       status: 200,
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+        "Cache-Control": "no-store",
+      },
     });
   }
 }
