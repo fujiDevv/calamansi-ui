@@ -584,68 +584,6 @@ export function Demo() {
 }`,
   },
   {
-    name: "Shimmer button",
-    href: "/components/shimmer-button",
-    category: "inputs",
-    isNew: true,
-    featured: true,
-    registry: "shimmer-button",
-    dependencies: [{ name: "motion" }],
-    description:
-      "A prism-capture CTA button with a rotating border shimmer, a liquid-morph surface canvas that follows the pointer, spring press state and an energy burst on release.",
-    source: `${REGISTRY_HOMEPAGE}/blob/main/components/ui/shimmer-button.tsx`,
-    interaction:
-      "Hover to intensify the outer glow and liquid blobs. Press to squash the button and release to get a burst of energetic particles.",
-    props: [
-      {
-        name: "children",
-        type: "ReactNode",
-        required: true,
-        description: "Button content.",
-      },
-      {
-        name: "shimmerColor",
-        type: "string",
-        default: "var(--primary)",
-        description: "Color of the rotating border beam.",
-      },
-      {
-        name: "shimmerDuration",
-        type: "number",
-        default: "3",
-        description: "Duration of one full rotation cycle in seconds.",
-      },
-      {
-        name: "shimmerSize",
-        type: "number",
-        default: "2",
-        description: "Border thickness of the shimmer ring in pixels.",
-      },
-      {
-        name: "borderRadius",
-        type: "string",
-        default: "9999px",
-        description: "Border radius of button container.",
-      },
-      {
-        name: "className",
-        type: "string",
-        description: "Extra classes merged onto button.",
-      },
-    ],
-    usage: `import { ShimmerButton } from "@/components/ui/shimmer-button"
-import { Sparkles } from "lucide-react"
-
-export function Demo() {
-  return (
-    <ShimmerButton>
-      <Sparkles className="size-4" />
-      <span>Deploy Project</span>
-    </ShimmerButton>
-  )
-}`,
-  },
-  {
     name: "Dynamic island",
     href: "/components/dynamic-island",
     category: "navigation",
@@ -670,6 +608,12 @@ export function Demo() {
         name: "onStateChange",
         type: "(state: DynamicIslandState) => void",
         description: "Callback fired when state toggles.",
+      },
+      {
+        name: "icon",
+        type: "ReactNode",
+        description:
+          "Primary icon styled with the Calamansi frosted glass badge theme.",
       },
       {
         name: "leading",

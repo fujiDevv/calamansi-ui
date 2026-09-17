@@ -9,6 +9,8 @@ import {
   Code2,
   ExternalLink,
   Eye,
+  Maximize2,
+  Minimize2,
   X,
 } from "lucide-react";
 import { activeComponent, components } from "@/lib/components";
@@ -56,12 +58,32 @@ function SidebarShellContent({
   const [mode, setMode] = useState<ViewMode>("preview");
   const [source, setSource] = useState<string | null>(null);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [isFullscreen, setIsFullscreen] = useState(false);
 
   useEffect(() => {
     setMode("preview");
     setSource(null);
     setMobileOpen(false);
+    setIsFullscreen(false);
   }, [pathname]);
+
+  // Lock body scroll and listen to Escape when in full screen preview
+  useEffect(() => {
+    if (!isFullscreen) return;
+
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setIsFullscreen(false);
+    };
+    document.addEventListener("keydown", onKeyDown);
+
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      document.removeEventListener("keydown", onKeyDown);
+    };
+  }, [isFullscreen]);
 
   // the drawer covers the page, so lock the page scroll behind it and let Escape dismiss it
   useEffect(() => {
@@ -235,23 +257,92 @@ function SidebarShellContent({
                   </button>
                 </div>
 
-                {item.source && (
-                  <a
-                    href={item.source}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="mb-2.5 hidden items-center gap-1 text-xs text-muted-foreground transition-colors duration-150 ease-out hover:text-foreground sm:inline-flex"
-                  >
-                    <span>View source</span>
-                    <ExternalLink className="size-3" />
-                  </a>
-                )}
+                <div className="mb-2.5 flex items-center gap-3">
+                  {mode === "preview" && (
+                    <button
+                      type="button"
+                      onClick={() => setIsFullscreen(true)}
+                      className="hidden items-center gap-1.5 text-xs text-muted-foreground transition-colors duration-150 ease-out hover:text-foreground sm:inline-flex"
+                      title="Full screen preview"
+                    >
+                      <Maximize2 className="size-3" />
+                      <span>Full screen</span>
+                    </button>
+                  )}
+                  {item.source && (
+                    <a
+                      href={item.source}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="hidden items-center gap-1 text-xs text-muted-foreground transition-colors duration-150 ease-out hover:text-foreground sm:inline-flex"
+                    >
+                      <span>View source</span>
+                      <ExternalLink className="size-3" />
+                    </a>
+                  )}
+                </div>
               </div>
 
               {/* Content Panel */}
               {mode === "preview" ? (
                 <>
-                  <div className="mt-6 flex min-h-[280px] w-full items-center justify-center overflow-hidden rounded-xl border border-border bg-card p-3 sm:min-h-[400px] sm:p-6 md:p-8">
+                  <div
+                    className={cn(
+                      "light flex items-center justify-center border border-border bg-card text-foreground",
+                      isFullscreen
+                        ? "fixed inset-0 z-50 m-0 h-screen w-screen overflow-y-auto rounded-none border-0 bg-background p-4 sm:p-8"
+                        : "relative mt-6 min-h-[280px] w-full overflow-hidden rounded-xl p-3 sm:min-h-[400px] sm:p-6 md:p-8",
+                    )}
+                  >
+                    {/* Fullscreen header chip */}
+                    {isFullscreen && (
+                      <div className="absolute top-4 left-4 z-30 flex items-center gap-2 rounded-lg border border-border/80 bg-card/85 px-3 py-1.5 text-xs font-medium text-muted-foreground shadow-2xs backdrop-blur-md sm:top-6 sm:left-6">
+                        <span className="font-semibold text-foreground">
+                          {item.name}
+                        </span>
+                        <span className="text-muted-foreground/60">/</span>
+                        <span>Preview</span>
+                      </div>
+                    )}
+
+                    {/* Preview controls */}
+                    <div
+                      className={cn(
+                        "absolute z-30 flex items-center gap-2",
+                        isFullscreen
+                          ? "top-4 right-4 sm:top-6 sm:right-6"
+                          : "top-3 right-3",
+                      )}
+                    >
+                      <button
+                        type="button"
+                        onClick={() => setIsFullscreen(!isFullscreen)}
+                        aria-label={
+                          isFullscreen
+                            ? "Exit full screen"
+                            : "Full screen preview"
+                        }
+                        title={
+                          isFullscreen
+                            ? "Exit full screen (Esc)"
+                            : "Full screen preview"
+                        }
+                        className="flex items-center gap-1.5 rounded-lg border border-border/80 bg-background/85 px-2.5 py-1.5 text-xs font-medium text-muted-foreground shadow-2xs backdrop-blur-md transition-all duration-150 hover:border-border hover:bg-background hover:text-foreground hover:shadow-xs active:scale-95"
+                      >
+                        {isFullscreen ? (
+                          <>
+                            <Minimize2 className="size-3.5" />
+                            <span>Exit full screen</span>
+                          </>
+                        ) : (
+                          <>
+                            <Maximize2 className="size-3.5" />
+                            <span className="hidden sm:inline">Full screen</span>
+                          </>
+                        )}
+                      </button>
+                    </div>
+
                     {children}
                   </div>
                   <section className="pt-12">

@@ -2,14 +2,12 @@
 
 import {
   forwardRef,
-  isValidElement,
   useId,
   useState,
   type CSSProperties,
   type ReactNode,
 } from "react";
 import { motion, AnimatePresence, useReducedMotion } from "motion/react";
-import { Mic } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export type DynamicIslandState = "idle" | "compact" | "expanded" | "alert";
@@ -32,14 +30,28 @@ const SHELL_SHADOW: CSSProperties = {
 };
 
 const VARIANTS: Record<DynamicIslandVariant, string> = {
-  calamansi: "bg-gradient-to-br from-[#8fa37d] via-[#5c7a67] to-[#39564a]",
-  slate: "bg-gradient-to-br from-[#a79cb7] via-[#687396] to-[#4a5a7f]",
-  citrus: "bg-gradient-to-br from-[#d69f7e] via-[#b87152] to-[#7d4128]",
+  calamansi: [
+    "bg-gradient-to-br from-[#8fa37d] via-[#5c7a67] to-[#39564a]",
+    "dark:from-[#1b281f] dark:via-[#16221a] dark:to-[#0e1611]",
+  ].join(" "),
+  slate: [
+    "bg-gradient-to-br from-[#a79cb7] via-[#687396] to-[#4a5a7f]",
+    "dark:from-[#1e1b4b] dark:via-[#1e293b] dark:to-[#0f172a]",
+  ].join(" "),
+  citrus: [
+    "bg-gradient-to-br from-[#d69f7e] via-[#b87152] to-[#7d4128]",
+    "dark:from-[#2e170c] dark:via-[#22120b] dark:to-[#140a06]",
+  ].join(" "),
 };
 
 /** The lit window the content sits in, matching NumberTicker's glass tile. */
 const WINDOW = [
   "relative z-10 flex size-full overflow-hidden bg-white/15 ring-1 ring-white/25 backdrop-blur-sm",
+].join(" ");
+
+/** Frosted glass icon container badge matching the Calamansi UI palette. */
+const ICON_BADGE = [
+  "flex size-7 shrink-0 items-center justify-center rounded-xl bg-white/20 text-white shadow-xs backdrop-blur-md ring-1 ring-white/20",
 ].join(" ");
 
 /** Fractal-noise grain — the texture the Calamansi surface carries. */
@@ -69,6 +81,8 @@ export type DynamicIslandProps = {
   defaultState?: DynamicIslandState;
   /** Callback fired when state changes. */
   onStateChange?: (state: DynamicIslandState) => void;
+  /** Primary icon displayed in the leading slot with the Calamansi frosted glass badge theme. */
+  icon?: ReactNode;
   /** Leading slot in compact/alert state (e.g. icon, avatar, waveform). */
   leading?: ReactNode;
   /** Trailing slot in compact/alert state (e.g. timer, badge, status dot). */
@@ -97,6 +111,7 @@ export const DynamicIsland = forwardRef<HTMLDivElement, DynamicIslandProps>(
       state,
       defaultState = "compact",
       onStateChange,
+      icon,
       leading,
       trailing,
       title,
@@ -117,20 +132,11 @@ export const DynamicIsland = forwardRef<HTMLDivElement, DynamicIslandProps>(
     const isExpanded = currentState === "expanded";
     const isAlert = currentState === "alert";
 
-    const leadingIcon = (() => {
-      if (!leading) return null;
-      if (typeof leading !== "object" || !("type" in leading)) return null;
-      const children =
-        "children" in leading
-          ? Array.isArray(leading.children)
-            ? leading.children
-            : [leading.children]
-          : [];
-      const hasSoundIcon = children.some(
-        (child) => isValidElement(child) && child.type === Mic,
-      );
-      return hasSoundIcon ? <Mic className="size-3.5" /> : null;
-    })();
+    const iconElement = icon ? (
+      <span className={ICON_BADGE}>{icon}</span>
+    ) : leading ? (
+      <span className="shrink-0">{leading}</span>
+    ) : null;
 
     const toggleExpand = () => {
       if (!interactive) return;
@@ -224,24 +230,11 @@ export const DynamicIsland = forwardRef<HTMLDivElement, DynamicIslandProps>(
                   className="relative flex size-full items-center justify-between gap-3 text-white"
                 >
                   <div className="flex min-w-0 items-center gap-2.5">
-                    {leading && <span className="shrink-0">{leading}</span>}
+                    {iconElement}
                     {title && (
                       <div className="truncate text-xs font-semibold tracking-tight text-white drop-shadow-sm">
                         {title}
                       </div>
-                    )}
-                    {leadingIcon && (
-                      <motion.span
-                        className="shrink-0 text-white/90"
-                        animate={{ scale: [1, 1.12, 1] }}
-                        transition={{
-                          duration: 1.1,
-                          repeat: Infinity,
-                          ease: "easeInOut",
-                        }}
-                      >
-                        {leadingIcon}
-                      </motion.span>
                     )}
                   </div>
                   {trailing && (

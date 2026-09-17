@@ -101,20 +101,6 @@
       ]
     },
     {
-      "name": "shimmer-button",
-      "type": "registry:ui",
-      "title": "Shimmer Button",
-      "description": "An action button featuring a rotating conic shimmer beam border, tactile spring squash, and ambient glow.",
-      "dependencies": ["motion"],
-      "registryDependencies": ["utils"],
-      "files": [
-        {
-          "path": "components/ui/shimmer-button.tsx",
-          "type": "registry:ui"
-        }
-      ]
-    },
-    {
       "name": "dynamic-island",
       "type": "registry:ui",
       "title": "Dynamic Island",
