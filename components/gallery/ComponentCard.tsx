@@ -4,8 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { CATEGORY_LABELS, type ComponentItem } from "@/lib/components";
 import { cn } from "@/lib/utils";
-import PreviewFallback from "./PreviewFallback";
-import PreviewVideo from "./PreviewVideo";
+import ComponentLivePreview from "./ComponentLivePreview";
 
 export default function ComponentCard({
   item,
@@ -35,19 +34,11 @@ export default function ComponentCard({
     >
       <div
         className={cn(
-          "relative aspect-4/3 w-full overflow-hidden rounded-lg border border-border bg-muted",
+          "relative aspect-4/3 w-full overflow-hidden rounded-lg border border-border bg-muted/40",
           large && "lg:aspect-auto lg:flex-1",
         )}
       >
-        {item.preview ? (
-          <PreviewVideo
-            src={item.preview}
-            playing={active}
-            autoPlay={autoPlay}
-          />
-        ) : (
-          <PreviewFallback />
-        )}
+        <ComponentLivePreview registry={item.registry} active={active} />
       </div>
 
       <div className="flex items-center justify-between gap-3 px-2 pb-1 pt-3">

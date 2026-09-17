@@ -24,9 +24,9 @@ export default function PanelCode({
   copyable = false,
 }: PanelCodeProps) {
   return (
-    <div className={cn("overflow-hidden bg-popover", className)}>
+    <div className={cn("overflow-hidden bg-card", className)}>
       {(fileName || copyable) && (
-        <div className="flex min-h-10 items-center justify-between border-b border-border/70 px-3">
+        <div className="flex min-h-10 items-center justify-between border-b border-border px-3">
           <span className="truncate font-mono text-[11px] text-muted-foreground">
             {fileName ?? language}
           </span>
@@ -40,7 +40,13 @@ export default function PanelCode({
         </div>
       )}
       <Highlight theme={themes.oneDark} code={code} language={language}>
-        {({ className: prismClassName, style, tokens, getLineProps, getTokenProps }) => (
+        {({
+          className: prismClassName,
+          style,
+          tokens,
+          getLineProps,
+          getTokenProps,
+        }) => (
           <pre
             data-language={language}
             className={cn(

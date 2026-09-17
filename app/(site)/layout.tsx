@@ -7,7 +7,12 @@ export default function SiteLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="flex min-h-screen flex-col overflow-x-hidden">
+    /*
+      overflow-x-clip, not overflow-x-hidden: hidden forces overflow-y to auto, which
+      turns this wrapper into a scroll container and stops the header sticking to the
+      viewport. clip trims the same horizontal overflow without that side effect.
+    */
+    <div className="flex min-h-screen flex-col overflow-x-clip">
       <SiteHeader />
       <main className="flex-1">{children}</main>
       <SiteFooter />

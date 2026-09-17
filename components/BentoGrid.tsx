@@ -9,7 +9,6 @@ import {
   Heart,
   Mail,
   MousePointer2,
-  Sparkles,
   Star,
 } from "lucide-react";
 import CopyButton from "@/components/CopyButton";
@@ -72,7 +71,9 @@ function RegistryCard() {
   const command = `npx shadcn@latest add ${REGISTRY_REPO}/calamansi`;
 
   return (
-    <div className={`flex min-h-0 flex-col justify-between gap-4 p-4 sm:p-5 ${DARK}`}>
+    <div
+      className={`flex min-h-0 flex-col justify-between gap-4 p-4 sm:p-5 ${DARK}`}
+    >
       <div className="min-w-0">
         <p className="text-[10px] font-semibold tracking-[0.18em] text-background/45">
           THE REGISTRY
@@ -86,8 +87,8 @@ function RegistryCard() {
         </p>
       </div>
 
-      <div className="flex items-center gap-1.5 rounded-full bg-background/10 py-1.5 pl-3 pr-1.5 ring-1 ring-background/10">
-        <code className="min-w-0 flex-1 truncate font-mono text-[11px] text-background/50">
+      <div className="flex items-center gap-1.5 rounded-2xl bg-background/10 px-3 py-2.5 ring-1 ring-background/10 sm:rounded-full sm:py-1.5 sm:pr-1.5">
+        <code className="min-w-0 flex-1 font-mono text-[11px] leading-5 break-words text-background/50 whitespace-normal sm:leading-normal sm:truncate">
           npx shadcn@latest add{" "}
           <span className="font-semibold text-background">{REGISTRY_REPO}</span>
           /calamansi
@@ -130,12 +131,14 @@ const BEHAVIORS = [
 
 function BehaviorsCard() {
   return (
-    <div className={`flex min-h-0 flex-col justify-between gap-4 p-4 sm:p-5 ${LIGHT}`}>
+    <div
+      className={`flex min-h-0 flex-col justify-between gap-4 p-4 sm:p-5 ${LIGHT}`}
+    >
       <p className="min-w-0 font-runde text-lg font-semibold tracking-tight">
         A fruit with opinions
       </p>
 
-      <div className="grid grid-cols-2 gap-x-3 gap-y-2.5">
+      <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2 sm:gap-x-3">
         {BEHAVIORS.map(({ label, detail, icon }) => (
           <div key={label} className="flex min-w-0 items-start gap-2">
             {icon}
@@ -170,16 +173,16 @@ function CommunityCard() {
       className={`flex min-w-0 flex-col justify-between gap-6 p-4 sm:p-6 md:col-span-7 ${LIGHT}`}
     >
       <div>
-        <div className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-[0.14em] text-primary">
-          <Sparkles className="size-3.5" />
+        <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-primary">
           <span>Open Source</span>
         </div>
         <p className="mt-2 font-runde text-2xl font-semibold tracking-tight sm:text-3xl">
           Built in public, free forever.
         </p>
         <p className="mt-1.5 max-w-lg text-sm leading-relaxed text-muted-foreground">
-          Every component is open source and yours to customize. Star the repo on
-          GitHub, submit feature requests, or contribute new animated components.
+          Every component is open source and yours to customize. Star the repo
+          on GitHub, submit feature requests, or contribute new animated
+          components.
         </p>
       </div>
 
@@ -267,7 +270,9 @@ function ConnectCard() {
               <span className="text-muted-foreground transition-colors group-hover:text-foreground">
                 {icon}
               </span>
-              <span className="w-14 shrink-0 text-xs font-semibold">{label}</span>
+              <span className="w-14 shrink-0 text-xs font-semibold">
+                {label}
+              </span>
               <span className="min-w-0 flex-1 truncate text-xs text-muted-foreground">
                 {value}
               </span>
@@ -282,10 +287,8 @@ function ConnectCard() {
 
 export default function BentoGrid() {
   return (
-    <section
-      aria-label="Calamansi UI highlights"
-      className="w-full border-t border-border py-16 sm:py-20 lg:py-24"
-    >
+    // the page owns this section's hairline and vertical rhythm
+    <section aria-label="Calamansi UI highlights" className="w-full">
       <AnalyticsPing />
 
       <div className="grid min-w-0 gap-3 sm:gap-4 md:grid-cols-12">

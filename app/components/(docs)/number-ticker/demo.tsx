@@ -13,11 +13,11 @@ export default function NumberTickerDemo() {
   const [value, setValue] = useState(12847);
 
   return (
-    <div className="flex h-full flex-col items-center justify-center gap-8 p-6">
+    <div className="flex h-full flex-col items-center justify-center gap-6 p-4 sm:gap-8 sm:p-6">
       <div className="flex flex-col items-center">
         <NumberTicker
           value={value}
-          className="text-5xl font-semibold tracking-tight sm:text-7xl"
+          className="text-4xl font-semibold tracking-tight sm:text-7xl"
         />
         <p className="mt-3 text-[10px] font-semibold uppercase tracking-[0.24em] text-muted-foreground">
           Kalansing
@@ -46,8 +46,7 @@ export default function NumberTickerDemo() {
           className={BUTTON}
           onClick={() =>
             setValue(
-              PRESETS[Math.floor(Math.random() * PRESETS.length)] ??
-                PRESETS[0],
+              PRESETS[Math.floor(Math.random() * PRESETS.length)] ?? PRESETS[0],
             )
           }
         >
@@ -89,7 +88,10 @@ export default function NumberTickerDemo() {
             ),
           },
         ].map((stat) => (
-          <div key={stat.label} className="rounded-2xl bg-card p-4 ring-1 ring-foreground/[0.04]">
+          <div
+            key={stat.label}
+            className="rounded-2xl bg-card p-4 ring-1 ring-foreground/[0.04]"
+          >
             <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
               {stat.label}
             </p>

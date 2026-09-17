@@ -5,9 +5,5 @@ export default function ComponentsLayout({
 }: {
   children: React.ReactNode;
 }) {
-  return (
-    <div className="h-screen overflow-hidden">
-      <SidebarShell>{children}</SidebarShell>
-    </div>
-  );
+  return <SidebarShell>{children}</SidebarShell>;
 }

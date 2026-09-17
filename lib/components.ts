@@ -63,10 +63,7 @@ export type ComponentItem = {
 export const REGISTRY_HOMEPAGE = SITE_REPO;
 
 /** The `owner/repo` slug the shadcn CLI resolves, e.g. `you/calamansi`. */
-export const REGISTRY_REPO = SITE_REPO.replace(
-  /^https?:\/\/github\.com\//,
-  "",
-);
+export const REGISTRY_REPO = SITE_REPO.replace(/^https?:\/\/github\.com\//, "");
 
 export const PANEL_INFO = {
   sourceHint:
@@ -91,7 +88,6 @@ export const components: ComponentItem[] = [
     isNew: true,
     featured: true,
     registry: "calamansi",
-    preview: "/recordings/calamansi-preview.mp4",
     dependencies: [{ name: "gsap" }],
     description:
       "A tiny citrus fruit that blinks, follows your cursor, blushes when you pet it, and goes tart if you poke it too much.",
@@ -115,7 +111,7 @@ export const components: ComponentItem[] = [
       },
       {
         name: "mood",
-        type: 'CalamansiMood',
+        type: "CalamansiMood",
         default: '"happy"',
         options: ["happy", "love", "sleepy", "tart"],
         description:
@@ -159,31 +155,57 @@ export function Demo() {
     isNew: true,
     featured: true,
     registry: "spotlight-card",
-    preview: "/recordings/spotlight-card-preview.mp4",
     description:
-      "A card that lights up under the pointer, with a glowing border that traces the spotlight.",
+      "A Calamansi surface card designed after the NumberTicker slab, featuring fractal grain noise and a glowing border tracking the pointer along the frosted glass window.",
+    credits: [
+      "Design inspired by Jay Dwivedi (https://sprrrint.com/jaydwivedi)",
+    ],
     source: `${REGISTRY_HOMEPAGE}/blob/main/components/ui/spotlight-card.tsx`,
     interaction:
-      "Move the pointer across the card and the glow follows it. Where the spotlight meets an edge, the border lights up with it.",
+      "Move the pointer across the card: the border lights up along the frosted glass window where the pointer traces it.",
     props: [
+      {
+        name: "title",
+        type: "ReactNode",
+        description: "Title displayed in the header.",
+      },
+      {
+        name: "subtitle",
+        type: "ReactNode",
+        description: "Subtitle or description shown under the title.",
+      },
+      {
+        name: "icon",
+        type: "ReactNode",
+        description: "Icon displayed alongside the title in the header.",
+      },
+      {
+        name: "badge",
+        type: "ReactNode",
+        description: "Badge or element displayed at the top right.",
+      },
+      {
+        name: "header",
+        type: "ReactNode",
+        description: "Custom header element replacing the default title row.",
+      },
       {
         name: "children",
         type: "ReactNode",
-        required: true,
-        description: "Content drawn on top of the spotlight.",
+        description: "Content drawn inside the frosted glass window.",
       },
       {
         name: "radius",
         type: "number",
         default: "360",
-        description: "Radius of the spotlight, in pixels.",
+        description: "Radius of the border glow, in pixels.",
       },
       {
         name: "color",
         type: "string",
-        default: "primary",
+        default: "rgba(255, 255, 255, 0.75)",
         description:
-          "Any CSS colour for the glow. Defaults to the theme primary at 55% opacity.",
+          "Any CSS colour for the border glow. Defaults to a crisp white light.",
       },
       {
         name: "border",
@@ -192,18 +214,34 @@ export function Demo() {
         description: "Draw a lit border where the pointer is.",
       },
       {
+        name: "variant",
+        type: '"calamansi" | "slate" | "citrus"',
+        default: '"calamansi"',
+        options: ["calamansi", "slate", "citrus"],
+        description:
+          "Palette of the Calamansi gradient slab.",
+      },
+      {
         name: "className",
         type: "string",
         description: "Extra classes merged onto the card.",
       },
     ],
     usage: `import { SpotlightCard } from "@/components/ui/spotlight-card"
+import { Leaf } from "lucide-react"
 
 export function Demo() {
   return (
-    <SpotlightCard className="max-w-sm p-8" radius={420}>
-      <h3 className="font-semibold">Zest</h3>
-      <p className="text-sm text-muted-foreground">Move your pointer over me.</p>
+    <SpotlightCard
+      className="max-w-sm"
+      icon={<Leaf className="size-5" />}
+      title="Rind"
+      subtitle="Glass edge tracking"
+      radius={360}
+    >
+      <p className="text-sm font-medium text-white/85">
+        Move your pointer across the card to see the lit border follow the perimeter.
+      </p>
     </SpotlightCard>
   )
 }`,
@@ -214,19 +252,45 @@ export function Demo() {
     category: "effects",
     isNew: true,
     registry: "tilt-card",
-    preview: "/recordings/tilt-card-preview.mp4",
     dependencies: [{ name: "motion" }],
     description:
-      "A card that leans towards the pointer in 3D, with a sheen that slides across it.",
+      "A Calamansi surface card designed after the NumberTicker slab, featuring 3D spring tilt physics, fractal grain noise, and an interactive light sheen.",
+    credits: [
+      "Design inspired by Jay Dwivedi (https://sprrrint.com/jaydwivedi)",
+    ],
     source: `${REGISTRY_HOMEPAGE}/blob/main/components/ui/tilt-card.tsx`,
     interaction:
       "Move the pointer over the card and it leans towards it, tracking continuously through springs. Let go and it settles back to flat.",
     props: [
       {
+        name: "title",
+        type: "ReactNode",
+        description: "Title displayed in the header.",
+      },
+      {
+        name: "subtitle",
+        type: "ReactNode",
+        description: "Subtitle or description shown under the title.",
+      },
+      {
+        name: "icon",
+        type: "ReactNode",
+        description: "Icon displayed alongside the title in the header.",
+      },
+      {
+        name: "badge",
+        type: "ReactNode",
+        description: "Badge or element displayed at the top right.",
+      },
+      {
+        name: "header",
+        type: "ReactNode",
+        description: "Custom header element replacing the default title row.",
+      },
+      {
         name: "children",
         type: "ReactNode",
-        required: true,
-        description: "Content on the card.",
+        description: "Content displayed inside the frosted glass window.",
       },
       {
         name: "maxTilt",
@@ -259,18 +323,34 @@ export function Demo() {
         description: "Spring damping. Lower is bouncier.",
       },
       {
+        name: "variant",
+        type: '"calamansi" | "slate" | "citrus"',
+        default: '"calamansi"',
+        options: ["calamansi", "slate", "citrus"],
+        description:
+          "Palette of the Calamansi gradient slab.",
+      },
+      {
         name: "className",
         type: "string",
         description: "Extra classes merged onto the card.",
       },
     ],
     usage: `import { TiltCard } from "@/components/ui/tilt-card"
+import { Citrus } from "lucide-react"
 
 export function Demo() {
   return (
-    <TiltCard className="max-w-sm" maxTilt={16}>
-      <h3 className="font-semibold">Citrus</h3>
-      <p className="text-sm text-muted-foreground">Lean on me.</p>
+    <TiltCard
+      className="max-w-sm"
+      icon={<Citrus className="size-5" />}
+      title="Rind"
+      subtitle="Interactive 3D"
+      maxTilt={16}
+    >
+      <p className="text-sm font-medium text-white/85">
+        Move your pointer over the card to see it lean in 3D.
+      </p>
     </TiltCard>
   )
 }`,
@@ -281,7 +361,6 @@ export function Demo() {
     category: "effects",
     isNew: true,
     registry: "marquee",
-    preview: "/recordings/marquee-preview.mp4",
     description:
       "An infinite marquee that loops seamlessly, fades its edges and pauses on hover.",
     source: `${REGISTRY_HOMEPAGE}/blob/main/components/ui/marquee.tsx`,
@@ -327,8 +406,15 @@ export function Demo() {
       {
         name: "repeat",
         type: "number",
-        default: "2",
-        description: "How many copies to render. Two is enough for a full loop.",
+        default: "4",
+        description:
+          "How many copies to render for a seamless continuous loop.",
+      },
+      {
+        name: "vertical",
+        type: "boolean",
+        default: "false",
+        description: "Scroll vertically instead of horizontally.",
       },
       {
         name: "className",
@@ -356,7 +442,6 @@ export function Demo() {
     category: "effects",
     isNew: true,
     registry: "number-ticker",
-    preview: "/recordings/number-ticker-preview.mp4",
     dependencies: [{ name: "motion" }],
     description:
       "An odometer-style number that rolls each digit to the next value.",
@@ -392,7 +477,8 @@ export function Demo() {
       {
         name: "prefix",
         type: "string",
-        description: "Static text before the digits, such as a currency symbol.",
+        description:
+          "Static text before the digits, such as a currency symbol.",
       },
       {
         name: "suffix",
@@ -424,7 +510,6 @@ export function Demo() {
     isNew: true,
     featured: true,
     registry: "dock",
-    preview: "/recordings/dock-preview.mp4",
     dependencies: [{ name: "motion" }],
     description:
       "A dock that magnifies the icon under the pointer, the way a desktop one does.",
@@ -442,7 +527,8 @@ export function Demo() {
         name: "reach",
         type: "number",
         default: "130",
-        description: "How far from the pointer, in pixels, an item starts growing.",
+        description:
+          "How far from the pointer, in pixels, an item starts growing.",
       },
       {
         name: "size",
@@ -455,6 +541,12 @@ export function Demo() {
         type: "number",
         default: "78",
         description: "Item size under the pointer, in pixels.",
+      },
+      {
+        name: "panelHeight",
+        type: "number",
+        description:
+          "Fixed height of the dock border box in pixels. Defaults to size + 16.",
       },
       {
         name: "className",
@@ -488,6 +580,306 @@ export function Demo() {
         <Heart className="size-6" />
       </DockItem>
     </Dock>
+  )
+}`,
+  },
+  {
+    name: "Shimmer button",
+    href: "/components/shimmer-button",
+    category: "inputs",
+    isNew: true,
+    featured: true,
+    registry: "shimmer-button",
+    dependencies: [{ name: "motion" }],
+    description:
+      "A prism-capture CTA button with a rotating border shimmer, a liquid-morph surface canvas that follows the pointer, spring press state and an energy burst on release.",
+    source: `${REGISTRY_HOMEPAGE}/blob/main/components/ui/shimmer-button.tsx`,
+    interaction:
+      "Hover to intensify the outer glow and liquid blobs. Press to squash the button and release to get a burst of energetic particles.",
+    props: [
+      {
+        name: "children",
+        type: "ReactNode",
+        required: true,
+        description: "Button content.",
+      },
+      {
+        name: "shimmerColor",
+        type: "string",
+        default: "var(--primary)",
+        description: "Color of the rotating border beam.",
+      },
+      {
+        name: "shimmerDuration",
+        type: "number",
+        default: "3",
+        description: "Duration of one full rotation cycle in seconds.",
+      },
+      {
+        name: "shimmerSize",
+        type: "number",
+        default: "2",
+        description: "Border thickness of the shimmer ring in pixels.",
+      },
+      {
+        name: "borderRadius",
+        type: "string",
+        default: "9999px",
+        description: "Border radius of button container.",
+      },
+      {
+        name: "className",
+        type: "string",
+        description: "Extra classes merged onto button.",
+      },
+    ],
+    usage: `import { ShimmerButton } from "@/components/ui/shimmer-button"
+import { Sparkles } from "lucide-react"
+
+export function Demo() {
+  return (
+    <ShimmerButton>
+      <Sparkles className="size-4" />
+      <span>Deploy Project</span>
+    </ShimmerButton>
+  )
+}`,
+  },
+  {
+    name: "Dynamic island",
+    href: "/components/dynamic-island",
+    category: "navigation",
+    isNew: true,
+    featured: true,
+    registry: "dynamic-island",
+    dependencies: [{ name: "motion" }],
+    description:
+      "A Calamansi surface island designed after the NumberTicker slab, featuring fluid spring layout morphing, fine fractal grain noise, and a frosted glass window.",
+    source: `${REGISTRY_HOMEPAGE}/blob/main/components/ui/dynamic-island.tsx`,
+    interaction:
+      "Click the island to expand it into rich content. In compact and idle states it shows a compact status pill; in alert it pulses with an alert glow and a tap badge hint.",
+    props: [
+      {
+        name: "state",
+        type: '"idle" | "compact" | "expanded" | "alert"',
+        default: '"compact"',
+        options: ["idle", "compact", "expanded", "alert"],
+        description: "State controlling dimensions and morphology.",
+      },
+      {
+        name: "onStateChange",
+        type: "(state: DynamicIslandState) => void",
+        description: "Callback fired when state toggles.",
+      },
+      {
+        name: "leading",
+        type: "ReactNode",
+        description: "Leading slot in compact/alert state.",
+      },
+      {
+        name: "trailing",
+        type: "ReactNode",
+        description: "Trailing slot in compact/alert state.",
+      },
+      {
+        name: "title",
+        type: "ReactNode",
+        description: "Title in compact/alert state.",
+      },
+      {
+        name: "expandedContent",
+        type: "ReactNode",
+        description: "Full content rendered in expanded mode.",
+      },
+      {
+        name: "interactive",
+        type: "boolean",
+        default: "true",
+        description: "Enable click to expand/collapse.",
+      },
+      {
+        name: "variant",
+        type: '"calamansi" | "slate" | "citrus"',
+        default: '"calamansi"',
+        options: ["calamansi", "slate", "citrus"],
+        description: "Palette of the Calamansi gradient slab.",
+      },
+      {
+        name: "className",
+        type: "string",
+        description: "Extra classes merged onto island pill.",
+      },
+    ],
+    usage: `import { DynamicIsland } from "@/components/ui/dynamic-island"
+
+export function Demo() {
+  return (
+    <DynamicIsland
+      title="Focus Timer"
+      trailing={<span>24:18</span>}
+      expandedContent={<div>Expanded Timer View</div>}
+    />
+  )
+}`,
+  },
+  {
+    name: "Task widget",
+    href: "/components/task-widget",
+    category: "display",
+    isNew: true,
+    featured: true,
+    registry: "task-widget",
+    dependencies: [{ name: "motion" }, { name: "lucide-react" }],
+    description:
+      "An iOS-inspired glassmorphism widget featuring a live digital clock, dynamic weather status, fine grain noise, and tactile task cards with spring checkmarks. Inspired by Jay Dwivedi's design on Sprrrint.",
+    credits: [
+      "Design inspired by Jay Dwivedi (https://sprrrint.com/jaydwivedi)",
+    ],
+    source: `${REGISTRY_HOMEPAGE}/blob/main/components/ui/task-widget.tsx`,
+    interaction:
+      "Click any task card to focus and toggle completion with tactile spring physics. Scroll through tasks to watch the symmetrical bottom progress bar dynamically expand.",
+    props: [
+      {
+        name: "tasks",
+        type: "TaskItem[]",
+        description:
+          "Controlled array of task items with id, title, completed, and icon.",
+      },
+      {
+        name: "defaultTasks",
+        type: "TaskItem[]",
+        description: "Initial task items when using uncontrolled state.",
+      },
+      {
+        name: "onTaskToggle",
+        type: "(taskId: string | number, completed: boolean) => void",
+        description: "Callback fired when a task checkbox is pressed.",
+      },
+      {
+        name: "title",
+        type: "string",
+        default: '"Today"',
+        description: "Section header above the task cards.",
+      },
+      {
+        name: "weather",
+        type: "{ condition?: string; temperature?: string; icon?: ReactNode }",
+        description: "Weather indicator condition and icon.",
+      },
+      {
+        name: "showClock",
+        type: "boolean",
+        default: "true",
+        description: "Toggle visibility of the large live digital clock.",
+      },
+      {
+        name: "timeFormat",
+        type: '"12h" | "24h"',
+        default: '"12h"',
+        options: ["12h", "24h"],
+        description: "Display time in 12-hour or 24-hour mode.",
+      },
+      {
+        name: "variant",
+        type: '"calamansi" | "slate" | "citrus"',
+        default: '"calamansi"',
+        options: ["calamansi", "slate", "citrus"],
+        description: "Glass tint background gradient and specular accents.",
+      },
+      {
+        name: "className",
+        type: "string",
+        description: "Extra classes merged onto the widget container.",
+      },
+    ],
+    usage: `import { TaskWidget } from "@/components/ui/task-widget"
+
+export function Demo() {
+  return (
+    <TaskWidget
+      variant="calamansi"
+      title="Today's Priorities"
+    />
+  )
+}`,
+  },
+  {
+    name: "Morning widget",
+    href: "/components/morning-widget",
+    category: "display",
+    isNew: true,
+    featured: true,
+    registry: "morning-widget",
+    dependencies: [{ name: "motion" }, { name: "lucide-react" }],
+    description:
+      "A sunrise-gradient card that greets you by name, keeps a live clock, leans towards the pointer and cycles motivational lines with a staged reveal. Inspired by Jay Dwivedi's design on Sprrrint.",
+    credits: [
+      "Design inspired by Jay Dwivedi (https://sprrrint.com/jaydwivedi)",
+    ],
+    source: `${REGISTRY_HOMEPAGE}/blob/main/components/ui/morning-widget.tsx`,
+    interaction:
+      "Move the pointer over the card and it leans towards it. The line advances on its own every few seconds, or straight away when you click the card. Hovering holds the rotation so you can finish reading, and on a phone the whole widget scales to the width it is given.",
+    props: [
+      {
+        name: "name",
+        type: "string",
+        default: '"Friend"',
+        description: "Name the greeting is addressed to.",
+      },
+      {
+        name: "quotes",
+        type: "MotivationQuote[]",
+        default: "five starter lines",
+        description:
+          "Lines the card rotates through. Each one takes a text and an optional list of phrases to emphasise.",
+      },
+      {
+        name: "showClock",
+        type: "boolean",
+        default: "true",
+        description: "Show the live clock above the card.",
+      },
+      {
+        name: "timeFormat",
+        type: '"12h" | "24h"',
+        default: '"12h"',
+        options: ["12h", "24h"],
+        description:
+          "Render the clock with an AM/PM badge or on the 24-hour clock.",
+      },
+      {
+        name: "interval",
+        type: "number",
+        default: "9",
+        description:
+          "Seconds a line stays up before the next one, or 0 to hold the first line.",
+      },
+      {
+        name: "tilt",
+        type: "boolean",
+        default: "true",
+        description: "Lean the card towards the pointer.",
+      },
+      {
+        name: "className",
+        type: "string",
+        description: "Extra classes merged onto the outer container.",
+      },
+    ],
+    usage: `import { MorningWidget } from "@/components/ui/morning-widget"
+
+export function Demo() {
+  return (
+    <MorningWidget
+      name="Josh"
+      interval={12}
+      quotes={[
+        {
+          text: "Ship it, then make it better.",
+          emphasis: ["Ship it"],
+        },
+      ]}
+    />
   )
 }`,
   },

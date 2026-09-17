@@ -3,6 +3,7 @@
 import {
   createContext,
   useContext,
+  useId,
   useRef,
   useState,
   type ReactNode,
@@ -25,6 +26,34 @@ const DockConfigContext = createContext({
   magnify: 78,
 });
 
+/**
+ * The Calamansi surface, shared with the task and morning widgets.
+ *
+ * The white lip is an inset ring in the shadow rather than a real border: the
+ * panel's height is driven by `panelHeight` (default `size + 16`) and a border
+ * would eat into the space the items are measured against.
+ */
+const PANEL = [
+  "relative flex items-end gap-2 overflow-visible rounded-[26px] p-2 text-white/80",
+  "bg-gradient-to-br from-[#8fa37d] via-[#5c7a67] to-[#39564a]",
+  "dark:from-[#1b281f] dark:via-[#16221a] dark:to-[#0e1611]",
+].join(" ");
+
+const PANEL_SHADOW = [
+  // the lip and highlights are inset — the panel casts no shadow on the page
+  "shadow-[inset_0_0_0_3px_rgba(255,255,255,0.85),inset_0_-6px_16px_4px_rgba(255,255,255,0.22),inset_0_-8px_3px_rgba(0,0,0,0.22)]",
+  "dark:shadow-[inset_0_0_0_1px_rgba(255,255,255,0.14),inset_0_-6px_16px_4px_rgba(255,255,255,0.06)]",
+].join(" ");
+
+/** The glass tile an icon sits on. */
+const ITEM = [
+  "relative flex aspect-square cursor-pointer items-center justify-center rounded-[20px]",
+  "border border-white/40 bg-white/25 backdrop-blur-md",
+  "shadow-[inset_0_1px_1px_rgba(255,255,255,0.55)] transition-colors",
+  "hover:border-white/60 hover:bg-white/45",
+  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/80",
+].join(" ");
+
 export type DockProps = {
   children: ReactNode;
   className?: string;
@@ -34,13 +63,40 @@ export type DockProps = {
   size?: number;
   /** Item size under the pointer, in pixels. */
   magnify?: number;
+  /** Fixed height of the dock border box in pixels. Defaults to size + 16. */
+  panelHeight?: number;
 };
 
+/** Fractal-noise grain — the texture the widgets carry. */
+function Grain({ id }: { id: string }) {
+  return (
+    <svg
+      aria-hidden="true"
+      className="pointer-events-none absolute inset-0 size-full opacity-[0.16] mix-blend-overlay"
+    >
+      <filter id={id}>
+        <feTurbulence
+          type="fractalNoise"
+          baseFrequency="0.85"
+          numOctaves="3"
+          stitchTiles="stitch"
+        />
+      </filter>
+      <rect width="100%" height="100%" filter={`url(#${id})`} />
+    </svg>
+  );
+}
+
 /**
- * A dock that magnifies the item under the pointer, Mac-style.
+ * A Calamansi dock that magnifies the item under the pointer, Mac-style.
  *
  * Each item measures its own distance from the pointer and springs to a size,
  * so the lift is continuous rather than a hover state.
+ *
+ * The panel stays overflow-visible on purpose: items grow past its top edge and
+ * their labels float above that. A parent that has to clip in one axis — an
+ * `overflow-x-auto` row on phones, for example — needs to leave roughly 48px of
+ * headroom above the dock so neither the magnified item nor its label is cut.
  */
 export function Dock({
   children,
@@ -48,19 +104,25 @@ export function Dock({
   reach = 130,
   size = 48,
   magnify = 78,
+  panelHeight,
 }: DockProps) {
   const mouseX = useMotionValue(Infinity);
+  const fixedHeight = panelHeight ?? size + 16;
+  const filterId = `dock-grain-${useId().replace(/[^a-zA-Z0-9]/g, "")}`;
 
   return (
     <DockMouseContext.Provider value={mouseX}>
       <motion.div
         onPointerMove={(event) => mouseX.set(event.pageX)}
         onPointerLeave={() => mouseX.set(Infinity)}
-        className={cn(
-          "relative flex items-end gap-2 rounded-[26px] border border-border/60 bg-card/70 p-2 shadow-lg backdrop-blur-xl",
-          className,
-        )}
+        style={{ height: fixedHeight }}
+        className={cn(PANEL, PANEL_SHADOW, className)}
       >
+        {/* clipped so the grain follows the rounded corners */}
+        <span className="pointer-events-none absolute inset-0 overflow-hidden rounded-[inherit]">
+          <Grain id={filterId} />
+        </span>
+
         <DockConfigContext.Provider value={{ reach, size, magnify }}>
           {children}
         </DockConfigContext.Provider>
@@ -120,11 +182,11 @@ export function DockItem({
       <motion.button
         type="button"
         onClick={onClick}
-        style={{ width: reduceMotion ? size : width }}
-        className={cn(
-          "relative flex aspect-square cursor-pointer items-center justify-center rounded-[18px] border border-border/70 bg-muted text-foreground/80 shadow-sm transition-colors hover:bg-popover hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
-          className,
-        )}
+        style={{
+          width: reduceMotion ? size : width,
+          height: reduceMotion ? size : width,
+        }}
+        className={cn(ITEM, className)}
       >
         {children}
       </motion.button>
@@ -133,7 +195,8 @@ export function DockItem({
         <span
           aria-hidden={!hovered}
           className={cn(
-            "pointer-events-none absolute bottom-[calc(100%+10px)] left-1/2 z-20 -translate-x-1/2 whitespace-nowrap rounded-lg border border-border/60 bg-popover px-2.5 py-1 text-xs font-medium text-popover-foreground shadow-lg transition-all duration-200 ease-out",
+            "pointer-events-none absolute bottom-[calc(100%+10px)] left-1/2 z-20 -translate-x-1/2 rounded-xl bg-neutral-900/90 px-2.5 py-1 font-runde text-[11px] font-semibold whitespace-nowrap text-white shadow-lg ring-1 ring-white/15 backdrop-blur-md transition-all duration-200 ease-out",
+            "dark:bg-white/15",
             hovered ? "scale-100 opacity-100" : "scale-90 opacity-0",
           )}
         >

@@ -14,9 +14,12 @@ import { MailIcon, XIcon } from "./icons";
 type DescriptionContentProps = {
   item?: ComponentItem;
   showSourceHint?: boolean;
+  /** Render the name/description block. Off when the page already shows it. */
+  showHeading?: boolean;
   className?: string;
 };
 
+/** The footer's micro-label. */
 function SectionLabel({
   as: Tag = "p",
   children,
@@ -25,49 +28,55 @@ function SectionLabel({
   children: React.ReactNode;
 }) {
   return (
-    <Tag className="text-xs font-medium uppercase tracking-normal text-muted-foreground">
+    <Tag className="text-[11px] font-semibold tracking-[0.18em] text-muted-foreground uppercase">
       {children}
     </Tag>
   );
 }
 
+/** Every block below the lead is separated by a rule, not by a gap. */
+const SECTION = "flex flex-col gap-3 border-t border-border pt-8";
+
 export default function DescriptionContent({
   item,
   showSourceHint = true,
+  showHeading = true,
   className,
 }: DescriptionContentProps) {
   return (
-    <div className={cn("flex flex-col gap-12 text-left", className)}>
-      <div className="flex flex-col gap-4">
-        <SectionLabel as="h1">{item?.name ?? "Component"}</SectionLabel>
-        <p className="font-sans text-2xl font-semibold leading-relaxed text-foreground">
-          {item?.description ?? "This component is not available yet."}
-        </p>
-      </div>
+    <div className={cn("flex flex-col gap-8 text-left", className)}>
+      {showHeading && (
+        <div className="flex flex-col gap-3">
+          <SectionLabel as="h1">{item?.name ?? "Component"}</SectionLabel>
+          <p className="max-w-3xl font-sans text-2xl leading-relaxed font-semibold text-foreground">
+            {item?.description ?? "This component is not available yet."}
+          </p>
+        </div>
+      )}
 
       {item?.registry && (
-        <div className="flex flex-col gap-3">
+        <div className={SECTION}>
           <SectionLabel as="h2">Installation</SectionLabel>
           <InstallCommand item={item} />
         </div>
       )}
 
       {item?.usage && (
-        <div className="flex flex-col gap-3">
+        <div className={SECTION}>
           <SectionLabel as="h2">How to use</SectionLabel>
           <PanelCode
             code={item.usage}
             fileName="demo.tsx"
             copyable
-            className="rounded-lg ring-1 ring-foreground/[0.04]"
+            className="rounded-xl border border-border"
           />
         </div>
       )}
 
       {item?.props && item.props.length > 0 && (
-        <div className="flex flex-col gap-3">
+        <div className={SECTION}>
           <SectionLabel as="h2">Props</SectionLabel>
-          <p className="-mt-1 text-sm leading-relaxed text-foreground">
+          <p className="max-w-3xl text-sm leading-relaxed text-foreground">
             Options you can pass to customize this component.
           </p>
           <PropsTable props={item.props} />
@@ -75,7 +84,7 @@ export default function DescriptionContent({
       )}
 
       {item?.dependencies && item.dependencies.length > 0 && (
-        <div className="flex flex-col gap-3">
+        <div className={SECTION}>
           <SectionLabel as="h2">Dependencies</SectionLabel>
           <div className="flex flex-wrap gap-2">
             {item.dependencies.map((dep) => (
@@ -86,32 +95,55 @@ export default function DescriptionContent({
       )}
 
       {item?.registry && showSourceHint && (
-        <div className="flex flex-col gap-3">
+        <div className={SECTION}>
           <SectionLabel as="h2">Source Code</SectionLabel>
-          <p className="text-sm leading-relaxed text-foreground">
+          <p className="max-w-3xl text-sm leading-relaxed text-foreground">
             {PANEL_INFO.sourceHint}
           </p>
         </div>
       )}
 
       {item?.credits && item.credits.length > 0 && (
-        <div className="flex flex-col gap-3">
+        <div className={SECTION}>
           <SectionLabel as="h2">Credits</SectionLabel>
 
-          <ul className="flex flex-col gap-2 text-sm leading-relaxed text-foreground">
-            {item.credits.map((credit) => (
-              <li key={credit} className="flex gap-2">
-                <span className="text-muted-foreground">•</span>
-                <span>{credit}</span>
-              </li>
-            ))}
+          <ul className="flex max-w-3xl flex-col gap-2 text-sm leading-relaxed text-foreground">
+            {item.credits.map((credit) => {
+              const match = credit.match(/^(.*?)(https?:\/\/[^\s)]+)(.*)$/);
+              if (match) {
+                const [, before, url, after] = match;
+                return (
+                  <li key={credit} className="flex gap-2">
+                    <span className="text-muted-foreground">•</span>
+                    <span>
+                      {before}
+                      <a
+                        href={url}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="font-medium underline underline-offset-4 hover:text-foreground"
+                      >
+                        {url}
+                      </a>
+                      {after}
+                    </span>
+                  </li>
+                );
+              }
+              return (
+                <li key={credit} className="flex gap-2">
+                  <span className="text-muted-foreground">•</span>
+                  <span>{credit}</span>
+                </li>
+              );
+            })}
           </ul>
         </div>
       )}
 
-      <div className="flex flex-col gap-3">
+      <div className={SECTION}>
         <SectionLabel as="h2">Contact</SectionLabel>
-        <p className="text-sm leading-relaxed text-foreground">
+        <p className="max-w-3xl text-sm leading-relaxed text-foreground">
           Found a bug or issue?{" "}
           <a
             href={PANEL_INFO.issuesUrl}
@@ -148,9 +180,9 @@ export default function DescriptionContent({
         </div>
       </div>
 
-      <div className="flex flex-col gap-3">
+      <div className={SECTION}>
         <SectionLabel as="h2">License &amp; Usage</SectionLabel>
-        <ul className="flex flex-col gap-2 text-sm leading-relaxed text-foreground">
+        <ul className="flex max-w-3xl flex-col gap-2 text-sm leading-relaxed text-foreground">
           {PANEL_INFO.license.map((line) => (
             <li key={line} className="flex gap-2">
               <span className="text-foreground/40">•</span>

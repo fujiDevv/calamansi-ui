@@ -4,8 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { ArrowUpRight } from "lucide-react";
 import CopyButton from "@/components/CopyButton";
-import PreviewFallback from "@/components/gallery/PreviewFallback";
-import PreviewVideo from "@/components/gallery/PreviewVideo";
+import ComponentLivePreview from "@/components/gallery/ComponentLivePreview";
 import { CATEGORY_LABELS, components, installCommand } from "@/lib/components";
 import { cn } from "@/lib/utils";
 import { sectionClassName } from "@/lib/page-layout";
@@ -80,16 +79,12 @@ export default function ComponentIndex() {
         {/* the live preview only exists where there is room for a fixed column */}
         <div className="hidden lg:col-span-6 lg:block">
           <div className="sticky top-24 overflow-hidden rounded-xl border border-border bg-card">
-            <div className="relative aspect-4/3 w-full bg-muted">
-              {active.preview ? (
-                <PreviewVideo
-                  key={active.href}
-                  src={active.preview}
-                  autoPlay
-                />
-              ) : (
-                <PreviewFallback />
-              )}
+            <div className="relative aspect-4/3 w-full bg-muted/40">
+              <ComponentLivePreview
+                key={active.href}
+                registry={active.registry}
+                active
+              />
             </div>
 
             {/* <div className="border-t border-border p-5">

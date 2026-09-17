@@ -34,7 +34,7 @@
       "name": "spotlight-card",
       "type": "registry:ui",
       "title": "Spotlight Card",
-      "description": "A card that lights up under the pointer, with an optional lit border.",
+      "description": "A Calamansi surface card designed after the NumberTicker slab, featuring fractal grain noise and a glowing border tracking the pointer along the frosted glass window.",
       "dependencies": [],
       "registryDependencies": ["utils"],
       "files": [
@@ -48,7 +48,7 @@
       "name": "tilt-card",
       "type": "registry:ui",
       "title": "Tilt Card",
-      "description": "A card that leans towards the pointer in 3D, with a sheen that follows it.",
+      "description": "A Calamansi surface card designed after the NumberTicker slab, featuring 3D spring tilt physics, fractal grain noise, and an interactive light sheen.",
       "dependencies": ["motion"],
       "registryDependencies": ["utils"],
       "files": [
@@ -96,6 +96,62 @@
       "files": [
         {
           "path": "components/ui/dock.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "shimmer-button",
+      "type": "registry:ui",
+      "title": "Shimmer Button",
+      "description": "An action button featuring a rotating conic shimmer beam border, tactile spring squash, and ambient glow.",
+      "dependencies": ["motion"],
+      "registryDependencies": ["utils"],
+      "files": [
+        {
+          "path": "components/ui/shimmer-button.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "dynamic-island",
+      "type": "registry:ui",
+      "title": "Dynamic Island",
+      "description": "A Calamansi surface island designed after the NumberTicker slab, featuring fluid spring layout morphing, fine fractal grain noise, and a frosted glass window.",
+      "dependencies": ["motion"],
+      "registryDependencies": ["utils"],
+      "files": [
+        {
+          "path": "components/ui/dynamic-island.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "task-widget",
+      "type": "registry:ui",
+      "title": "Task Widget",
+      "description": "An iOS-inspired glassmorphism widget featuring a live digital clock, dynamic weather status, fine grain noise, and tactile task cards with spring checkmarks.",
+      "dependencies": ["motion", "lucide-react"],
+      "registryDependencies": ["utils"],
+      "files": [
+        {
+          "path": "components/ui/task-widget.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "morning-widget",
+      "type": "registry:ui",
+      "title": "Morning Widget",
+      "description": "A sunrise-gradient card that greets you by name, keeps a live clock with rolling digits, leans towards the pointer and cycles motivational lines with a staged reveal.",
+      "dependencies": ["motion", "lucide-react"],
+      "registryDependencies": ["utils"],
+      "files": [
+        {
+          "path": "components/ui/morning-widget.tsx",
           "type": "registry:ui"
         }
       ]

@@ -10,7 +10,6 @@
 </p>
 
 <p align="center">
-  <a href="https://calamansi-ui.dev"><img src="https://img.shields.io/badge/Website-calamansi--ui.dev-b4e84c?style=flat-square&labelColor=000000" alt="Website" /></a>
   <a href="https://github.com/fujiDevv/calamansi-ui"><img src="https://img.shields.io/github/stars/fujiDevv/calamansi-ui?style=flat-square&color=b4e84c&labelColor=000000" alt="GitHub Stars" /></a>
   <img src="https://img.shields.io/badge/React-19-black?style=flat-square&logo=react" alt="React 19" />
   <img src="https://img.shields.io/badge/Next.js-16-black?style=flat-square&logo=next.js" alt="Next.js 16" />
@@ -26,21 +25,6 @@
 Calamansi UI is an open-source collection of interactive, animated React components built with TypeScript, Tailwind CSS v4, Motion, and GSAP.
 
 Components are published through a custom shadcn registry. Instead of installing heavy node_modules dependencies, you copy the single-file source directly into your codebase using the shadcn CLI, giving you full ownership and customization of the code.
-
-Live showcase and documentation: [calamansi-ui.dev](https://calamansi-ui.dev)
-
----
-
-## Component Registry
-
-| Component | Description | Technologies |
-| :--- | :--- | :--- |
-| **Calamansi Mascot** | Interactive citrus mascot that blinks, tracks cursor movement, blushes on petting, and turns tart on repeated pokes. | GSAP, SVG, React Pointer Events |
-| **Spotlight Card** | Interactive card featuring a dynamic radial gradient glow that tracks pointer position and highlights borders. | Tailwind CSS, React Events |
-| **Tilt Card** | 3D perspective card that smoothly tilts and casts depth shadows based on cursor proximity. | Motion, CSS 3D Transforms |
-| **Dock** | Floating macOS-style application dock with magnification physics and smooth icon scaling. | Motion, React Spring Physics |
-| **Marquee** | Infinitely looping horizontal ticker supporting pause-on-hover, custom velocities, and vertical layouts. | Tailwind CSS Animations |
-| **Number Ticker** | Smooth numeric rolling counter for stats and metrics with configurable duration. | Motion, React Hooks |
 
 ---
 
@@ -136,26 +120,6 @@ In the Cloudflare Dashboard:
 - **Deploy command:** `npx wrangler deploy`
 - **Version command:** `npx wrangler versions upload`
 - **Root directory:** `/`
-
----
-
-## Project Structure
-
-```text
-calamansi/
-├── app/                  # Next.js App Router static pages and layout
-├── components/           # UI components, layout header, footer, and cards
-│   ├── ui/               # Registry components (exported to consumers)
-│   └── gallery/          # Component preview cards and showcase
-├── functions/api/        # Cloudflare edge handlers
-├── lib/                  # Site metadata, registry configs, and utilities
-├── migrations/           # Cloudflare D1 SQL schema migrations
-├── public/               # Static assets, fonts, icons, and /r registry JSONs
-├── worker.ts             # Cloudflare Worker entrypoint with assets binding
-├── wrangler.jsonc        # Cloudflare Workers and D1 configuration
-├── registry.json         # shadcn registry schema definition
-└── package.json          # Project dependencies and scripts
-```
 
 ---
 

@@ -17,8 +17,8 @@ export default function InstallCommand({ item }: { item: ComponentItem }) {
   if (!command) return null;
 
   return (
-    <div className="overflow-hidden rounded-lg bg-popover ring-1 ring-foreground/[0.04]">
-      <div className="flex items-center gap-1 border-b border-border/70 px-2 py-2">
+    <div className="overflow-hidden rounded-xl border border-border bg-card">
+      <div className="flex items-center gap-1 overflow-x-auto border-b border-border px-2 py-2 [scrollbar-width:none]">
         {PACKAGE_MANAGERS.map((manager) => {
           const Logo = LOGOS[manager];
           const active = pm === manager;
@@ -42,8 +42,9 @@ export default function InstallCommand({ item }: { item: ComponentItem }) {
         })}
       </div>
 
-      <div className="flex min-h-12 items-center gap-3 px-3 py-2">
-        <code className="min-w-0 flex-1 truncate font-mono text-xs text-foreground">
+      <div className="flex min-h-12 items-center gap-3 px-3 py-2.5 sm:py-2">
+        {/* the command wraps on phones so the component name stays readable */}
+        <code className="min-w-0 flex-1 font-mono text-xs leading-5 break-words text-foreground whitespace-normal sm:leading-normal sm:truncate">
           {command}
         </code>
         <CopyButton value={command} label="Copy install command" title="" />

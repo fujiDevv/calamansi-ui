@@ -1,81 +1,121 @@
 "use client";
 
-import { useId, useState, type ReactNode } from "react";
+import { useId, type CSSProperties, type ReactNode } from "react";
 import { cn } from "@/lib/utils";
-
-const EDGE_FADE =
-  "linear-gradient(to right, transparent, #000 12%, #000 88%, transparent)";
 
 export type MarqueeProps = {
   children: ReactNode;
   className?: string;
-  /** Seconds for one full loop. */
+  /** Seconds for one full loop. Default: 30 */
   duration?: number;
-  /** Scroll the other way. */
+  /** Scroll the other way. Default: false */
   reverse?: boolean;
-  /** Hold the loop while the pointer is over it. */
+  /** Hold the loop while the pointer is over it. Default: true */
   pauseOnHover?: boolean;
-  /** Fade the leading and trailing edges. */
+  /** Fade the leading and trailing edges. Default: true */
   fade?: boolean;
-  /** Space between items, in pixels. */
-  gap?: number;
-  /** How many copies to render. Two is enough for a seamless loop. */
+  /** Space between items in pixels or valid CSS string. Default: 24 */
+  gap?: number | string;
+  /** How many copies to render for a seamless loop. Default: 8 */
   repeat?: number;
+  /** Scroll vertically instead of horizontally. Default: false */
+  vertical?: boolean;
 };
 
 /**
- * An infinite marquee.
+ * An infinite, hardware-accelerated marquee.
  *
- * The children are rendered twice inside a `w-max` row that slides by exactly
- * one copy, so the loop is seamless at any width. The keyframes are injected
- * per instance (unique name) and switched off for reduced motion.
+ * Renders multiple clones moving synchronously by exactly their own width
+ * plus gap, creating a continuous and seamless loop on any screen width. It is
+ * deliberately bare — no panel, no border — so it can sit on any surface.
  */
 export function Marquee({
   children,
   className,
-  duration = 32,
+  duration = 30,
   reverse = false,
   pauseOnHover = true,
   fade = true,
-  gap = 32,
-  repeat = 2,
+  gap = 24,
+  repeat = 8,
+  vertical = false,
 }: MarqueeProps) {
-  const [paused, setPaused] = useState(false);
-  const animation = `marquee-${useId().replace(/[^a-zA-Z0-9]/g, "")}`;
+  const animId = `marquee-${useId().replace(/[^a-zA-Z0-9]/g, "")}`;
+  const gapValue = typeof gap === "number" ? `${gap}px` : gap;
+
+  const fadeMask = vertical
+    ? "linear-gradient(to bottom, transparent, #000 8%, #000 92%, transparent)"
+    : "linear-gradient(to right, transparent, #000 8%, #000 92%, transparent)";
 
   return (
     <div
-      className={cn("relative w-full overflow-hidden", className)}
-      style={
-        fade
-          ? { maskImage: EDGE_FADE, WebkitMaskImage: EDGE_FADE }
-          : undefined
-      }
+      className={cn(
+        "group relative flex w-full overflow-hidden",
+        vertical ? "flex-col" : "flex-row",
+        className,
+      )}
+      style={{
+        gap: gapValue,
+        maskImage: fade ? fadeMask : undefined,
+        WebkitMaskImage: fade ? fadeMask : undefined,
+      }}
     >
-      <style>{`@keyframes ${animation}{from{transform:translateX(0)}to{transform:translateX(-50%)}}@media (prefers-reduced-motion:reduce){.${animation}{animation:none!important}}`}</style>
+      <style>{`
+        @keyframes ${animId} {
+          from {
+            transform: ${
+              vertical
+                ? reverse
+                  ? `translateY(calc(-100% - ${gapValue}))`
+                  : "translateY(0)"
+                : reverse
+                  ? `translateX(calc(-100% - ${gapValue}))`
+                  : "translateX(0)"
+            };
+          }
+          to {
+            transform: ${
+              vertical
+                ? reverse
+                  ? "translateY(0)"
+                  : `translateY(calc(-100% - ${gapValue}))`
+                : reverse
+                  ? "translateX(0)"
+                  : `translateX(calc(-100% - ${gapValue}))`
+            };
+          }
+        }
+        @media (prefers-reduced-motion: reduce) {
+          .${animId} {
+            animation: none !important;
+          }
+        }
+      `}</style>
 
-      <div
-        onPointerEnter={() => setPaused(true)}
-        onPointerLeave={() => setPaused(false)}
-        className={cn("flex w-max", animation)}
-        style={{
-          animation: `${animation} ${duration}s linear infinite`,
-          animationDirection: reverse ? "reverse" : "normal",
-          animationPlayState: pauseOnHover && paused ? "paused" : "running",
-          willChange: "transform",
-        }}
-      >
-        {Array.from({ length: repeat }, (_, copy) => (
-          <div
-            key={copy}
-            aria-hidden={copy > 0}
-            className="flex shrink-0"
-            style={{ gap, paddingRight: gap }}
-          >
-            {children}
-          </div>
-        ))}
-      </div>
+      {Array.from({ length: repeat }, (_, copy) => (
+        <div
+          key={copy}
+          aria-hidden={copy > 0}
+          className={cn(
+            "flex shrink-0 items-center",
+            animId,
+            vertical ? "flex-col" : "flex-row",
+            pauseOnHover && "group-hover:[animation-play-state:paused]",
+          )}
+          style={
+            {
+              gap: gapValue,
+              animationName: animId,
+              animationDuration: `${duration}s`,
+              animationTimingFunction: "linear",
+              animationIterationCount: "infinite",
+              willChange: "transform",
+            } as CSSProperties
+          }
+        >
+          {children}
+        </div>
+      ))}
     </div>
   );
 }
