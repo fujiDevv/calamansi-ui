@@ -1,91 +1,78 @@
 "use client";
 
-import {
-  forwardRef,
-  useId,
-  useState,
-  type CSSProperties,
-  type ReactNode,
-} from "react";
+import { forwardRef, useState, type ReactNode } from "react";
 import { motion, AnimatePresence, useReducedMotion } from "motion/react";
+import { squircleLift, SQUIRCLE_LIFT, Squircle } from "@/lib/squircle";
 import { cn } from "@/lib/utils";
 
 export type DynamicIslandState = "idle" | "compact" | "expanded" | "alert";
 
-export type DynamicIslandVariant =
-  | "calamansi"
-  | "slate"
-  | "citrus"
-  | "black"
-  | "dark";
+export type DynamicIslandVariant = "white" | "calamansi" | "slate" | "citrus";
 
 /**
- * The Calamansi surface: a gradient slab inside a thick white lip, matching
- * the number ticker and widgets.
+ * The Calamansi surface: one flat layer, clipped to a squircle by `Squircle`.
+ * The island changes size between states, so the shape re-measures with it:
+ * compact clamps to a pill, expanded to the full corner radius.
+ *
+ * The palette carries its own ink, and everything inside tints from
+ * `currentColor`, so a white island is as legible as a coloured one.
  */
-const SHELL = [
-  "relative flex cursor-pointer items-center justify-between overflow-hidden border-[3px] border-white/80 p-1 font-runde text-white select-none",
-  "dark:border-white/10",
-  "sm:border-4 sm:p-1.5",
+const SURFACE = [
+  "relative flex cursor-pointer items-center justify-between p-1 font-runde select-none",
+  "sm:p-1.5",
 ].join(" ");
 
-const SHELL_SHADOW: CSSProperties = {
-  boxShadow:
-    "0 18px 36px -16px rgba(0, 0, 0, 0.45), inset 0 -3px 14px 5px rgba(255, 255, 255, 0.25), inset 0 -6px 3px rgba(0, 0, 0, 0.2)",
+/** The alert state glows instead of just lifting. */
+const ALERT_GLOW = "drop-shadow(0 0 22px rgba(255, 65, 54, 0.75))";
+
+/**
+ * The morph animates the real box with a CSS transition, not a layout animation.
+ * A layout animation is a transform, and the squircle is clipped from the box that
+ * was measured — so the shape would hold its final path for the whole morph and get
+ * squashed on the way there, pinching the corners. Moving the real box lets the
+ * clip path be re-measured every frame, so the pill stays a pill while it grows
+ * into the slab. The content eases its own radius to match, or its clip would turn
+ * into an oval partway through the collapse.
+ */
+const MORPH_EASE = "ease-[cubic-bezier(0.22,1,0.36,1)] duration-500";
+const BOX_MORPH = `transition-[width,height,max-width] ${MORPH_EASE} motion-reduce:transition-none`;
+const CONTENT_MORPH = `transition-[border-radius] ${MORPH_EASE} motion-reduce:transition-none`;
+
+const VARIANTS: Record<DynamicIslandVariant, { paint: string; ink: string }> = {
+  white: {
+    paint: "bg-white dark:bg-[#1c1c1f]",
+    ink: "text-foreground",
+  },
+  calamansi: {
+    paint: [
+      "bg-gradient-to-br from-[#8fa37d] via-[#5c7a67] to-[#39564a]",
+      "dark:from-[#1b281f] dark:via-[#16221a] dark:to-[#0e1611]",
+    ].join(" "),
+    ink: "text-white",
+  },
+  slate: {
+    paint: [
+      "bg-gradient-to-br from-[#a79cb7] via-[#687396] to-[#4a5a7f]",
+      "dark:from-[#1e1b4b] dark:via-[#1e293b] dark:to-[#0f172a]",
+    ].join(" "),
+    ink: "text-white",
+  },
+  citrus: {
+    paint: [
+      "bg-gradient-to-br from-[#d69f7e] via-[#b87152] to-[#7d4128]",
+      "dark:from-[#2e170c] dark:via-[#22120b] dark:to-[#140a06]",
+    ].join(" "),
+    ink: "text-white",
+  },
 };
 
-const VARIANTS: Record<DynamicIslandVariant, string> = {
-  calamansi: [
-    "bg-gradient-to-br from-[#8fa37d] via-[#5c7a67] to-[#39564a]",
-    "dark:from-[#1b281f] dark:via-[#16221a] dark:to-[#0e1611]",
-  ].join(" "),
-  slate: [
-    "bg-gradient-to-br from-[#a79cb7] via-[#687396] to-[#4a5a7f]",
-    "dark:from-[#1e1b4b] dark:via-[#1e293b] dark:to-[#0f172a]",
-  ].join(" "),
-  citrus: [
-    "bg-gradient-to-br from-[#d69f7e] via-[#b87152] to-[#7d4128]",
-    "dark:from-[#2e170c] dark:via-[#22120b] dark:to-[#140a06]",
-  ].join(" "),
-  black: [
-    "bg-gradient-to-br from-[#27272a] via-[#18181b] to-[#09090b]",
-    "dark:from-[#18181b] dark:via-[#09090b] dark:to-[#000000]",
-  ].join(" "),
-  dark: [
-    "bg-gradient-to-br from-[#27272a] via-[#18181b] to-[#09090b]",
-    "dark:from-[#18181b] dark:via-[#09090b] dark:to-[#000000]",
-  ].join(" "),
-};
+/** The content layer above the surface. */
+const CONTENT = ["relative z-10 flex size-full", CONTENT_MORPH].join(" ");
 
-/** The lit window the content sits in, matching NumberTicker's glass tile. */
-const WINDOW = [
-  "relative z-10 flex size-full overflow-hidden bg-white/15 ring-1 ring-white/25 backdrop-blur-sm",
-].join(" ");
-
-/** Frosted glass icon container badge matching the Calamansi UI palette. */
+/** The icon chip, tinted from the surface ink so it reads on any palette. */
 const ICON_BADGE = [
-  "flex size-7 shrink-0 items-center justify-center rounded-xl bg-white/20 text-white shadow-xs backdrop-blur-md ring-1 ring-white/20",
+  "flex size-7 shrink-0 items-center justify-center rounded-xl bg-current/15 shadow-xs ring-1 ring-current/20",
 ].join(" ");
-
-/** Fractal-noise grain — the texture the Calamansi surface carries. */
-function Grain({ id }: { id: string }) {
-  return (
-    <svg
-      aria-hidden="true"
-      className="pointer-events-none absolute inset-0 size-full opacity-[0.16] mix-blend-overlay"
-    >
-      <filter id={id}>
-        <feTurbulence
-          type="fractalNoise"
-          baseFrequency="0.85"
-          numOctaves="3"
-          stitchTiles="stitch"
-        />
-      </filter>
-      <rect width="100%" height="100%" filter={`url(#${id})`} />
-    </svg>
-  );
-}
 
 export type DynamicIslandProps = {
   /** Current state of the island. */
@@ -94,7 +81,7 @@ export type DynamicIslandProps = {
   defaultState?: DynamicIslandState;
   /** Callback fired when state changes. */
   onStateChange?: (state: DynamicIslandState) => void;
-  /** Primary icon displayed in the leading slot with the Calamansi frosted glass badge theme. */
+  /** Primary icon, drawn in a chip tinted from the surface ink. */
   icon?: ReactNode;
   /** Leading slot in compact/alert state (e.g. icon, avatar, waveform). */
   leading?: ReactNode;
@@ -110,13 +97,13 @@ export type DynamicIslandProps = {
   className?: string;
   /** Optional ambient pulse indicator in compact/idle states. */
   pulse?: boolean;
-  /** Palette of the Calamansi gradient slab. Default: "calamansi" */
+  /** Surface palette. Default: "calamansi" */
   variant?: DynamicIslandVariant;
 };
 
 /**
- * A Calamansi surface island designed exactly after the NumberTicker slab,
- * featuring fluid spring layout morphing, fine fractal grain noise, and a frosted glass window.
+ * A Calamansi surface island: a squircle pill that eases into a slab, and glows
+ * instead of only lifting when it alerts.
  */
 export const DynamicIsland = forwardRef<HTMLDivElement, DynamicIslandProps>(
   function DynamicIsland(
@@ -140,10 +127,11 @@ export const DynamicIsland = forwardRef<HTMLDivElement, DynamicIslandProps>(
       useState<DynamicIslandState>(defaultState);
     const currentState = state ?? internalState;
     const reduceMotion = useReducedMotion();
-    const filterId = `island-grain-${useId().replace(/[^a-zA-Z0-9]/g, "")}`;
 
     const isExpanded = currentState === "expanded";
     const isAlert = currentState === "alert";
+    const showPulse =
+      pulse && (currentState === "compact" || currentState === "idle");
 
     const iconElement = icon ? (
       <span className={ICON_BADGE}>{icon}</span>
@@ -175,13 +163,6 @@ export const DynamicIsland = forwardRef<HTMLDivElement, DynamicIslandProps>(
       }
     })();
 
-    const alertShadow: CSSProperties | undefined = isAlert
-      ? {
-          boxShadow:
-            "0 0 24px -2px rgba(255, 65, 54, 0.7), 0 18px 36px -16px rgba(0, 0, 0, 0.45), inset 0 -3px 14px 5px rgba(255, 255, 255, 0.25), inset 0 -6px 3px rgba(0, 0, 0, 0.2)",
-        }
-      : undefined;
-
     return (
       <div
         className={cn(
@@ -192,33 +173,35 @@ export const DynamicIsland = forwardRef<HTMLDivElement, DynamicIslandProps>(
       >
         <motion.div
           ref={ref}
-          layout
           onClick={toggleExpand}
-          transition={{
-            type: "spring",
-            stiffness: 440,
-            damping: 32,
-            mass: 0.8,
-          }}
           className={cn(
-            SHELL,
-            VARIANTS[variant],
+            SURFACE,
+            BOX_MORPH,
+            VARIANTS[variant].ink,
             sizeClass,
-            isExpanded ? "rounded-[28px] sm:rounded-[32px]" : "rounded-full",
             !interactive && "cursor-default",
           )}
-          style={{
-            ...(alertShadow ?? SHELL_SHADOW),
-          }}
         >
-          <Grain id={filterId} />
+          <Squircle
+            className={VARIANTS[variant].paint}
+            filter={
+              isAlert ? squircleLift(SQUIRCLE_LIFT, ALERT_GLOW) : undefined
+            }
+          />
 
           <div
             className={cn(
-              WINDOW,
+              CONTENT,
+              // the surface is a separate clipped layer, so the content clips
+              // itself to match: a pill while collapsed, the slab radius when
+              // expanded. The pill radius is a finite 20px so it can ease into the
+              // slab — `rounded-full` is an infinite radius and would jump, and on a
+              // 36px row it clamps to the same half-height pill anyway. No vertical
+              // padding either — the surface's padding already insets the row, and
+              // more would push it past the pill.
               isExpanded
-                ? "flex-col justify-between rounded-[20px] p-4 sm:rounded-[24px] sm:p-5"
-                : "items-center justify-between rounded-full px-3.5 py-1.5",
+                ? "flex-col justify-between overflow-hidden rounded-[24px] p-4 sm:p-5"
+                : "items-center justify-between overflow-hidden rounded-[20px] px-3.5",
             )}
           >
             <AnimatePresence mode="wait" initial={false}>
@@ -229,7 +212,7 @@ export const DynamicIsland = forwardRef<HTMLDivElement, DynamicIslandProps>(
                   animate={{ opacity: 1, scale: 1, y: 0 }}
                   exit={{ opacity: 0, scale: 0.96, y: 2 }}
                   transition={{ duration: 0.18 }}
-                  className="relative flex size-full flex-col justify-between gap-3 text-white"
+                  className="relative flex size-full flex-col justify-between gap-3"
                 >
                   {expandedContent}
                 </motion.div>
@@ -240,18 +223,29 @@ export const DynamicIsland = forwardRef<HTMLDivElement, DynamicIslandProps>(
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: 4 }}
                   transition={{ duration: 0.15 }}
-                  className="relative flex size-full items-center justify-between gap-3 text-white"
+                  className="relative flex size-full items-center justify-between gap-3"
                 >
                   <div className="flex min-w-0 items-center gap-2.5">
                     {iconElement}
                     {title && (
-                      <div className="truncate text-xs font-semibold tracking-tight text-white drop-shadow-sm">
+                      <div className="truncate text-xs font-semibold tracking-tight">
                         {title}
                       </div>
                     )}
+                    {showPulse && (
+                      <span
+                        aria-hidden="true"
+                        className="relative flex size-1.5 shrink-0"
+                      >
+                        {!reduceMotion && (
+                          <span className="absolute inline-flex size-full animate-ping rounded-full bg-current opacity-60" />
+                        )}
+                        <span className="relative inline-flex size-1.5 rounded-full bg-current" />
+                      </span>
+                    )}
                   </div>
                   {trailing && (
-                    <div className="flex shrink-0 items-center gap-2 text-xs font-medium text-white/90">
+                    <div className="flex shrink-0 items-center gap-2 text-xs font-medium text-current/75">
                       {trailing}
                     </div>
                   )}

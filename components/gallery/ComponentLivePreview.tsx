@@ -1,19 +1,75 @@
 "use client";
 
-import { Bell, Citrus, Home, MousePointer2, Search, Sun, Zap } from "lucide-react";
+import {
+  Bell,
+  Citrus,
+  Home,
+  MousePointer2,
+  Music2,
+  Search,
+  Sun,
+  Zap,
+} from "lucide-react";
 import Calamansi from "@/components/ui/calamansi";
 import { Dock, DockItem } from "@/components/ui/dock";
+import { DynamicIsland } from "@/components/ui/dynamic-island";
+import {
+  GitHubActivity,
+  type Contribution,
+  type ContributionLevel,
+  type RepoContribution,
+} from "@/components/ui/github-activity";
 import { Marquee } from "@/components/ui/marquee";
+import { MatrixOrb } from "@/components/ui/matrix-orb";
+import { MorningWidget } from "@/components/ui/morning-widget";
 import { NumberTicker } from "@/components/ui/number-ticker";
 import { SpotlightCard } from "@/components/ui/spotlight-card";
 import { TaskWidget } from "@/components/ui/task-widget";
 import { TiltCard } from "@/components/ui/tilt-card";
+import { SITE_REPO } from "@/lib/site";
+import { NO_LIFT } from "@/lib/squircle";
 import PreviewFallback from "./PreviewFallback";
+
+/**
+ * A fixed year of contributions, worked out from its index rather than rolled at
+ * random, so the gallery card never hits the network and never shifts between
+ * server and client.
+ */
+const PREVIEW_CONTRIBUTIONS: Contribution[] = Array.from(
+  { length: 364 },
+  (_, index) => {
+    const date = new Date(Date.UTC(2025, 0, 5) + index * 86_400_000);
+    const wave =
+      Math.sin(index / 5.1) + Math.sin(index / 17.3) + Math.sin(index / 2.7);
+    const count =
+      wave > 1.1 ? 9 : wave > 0.4 ? 5 : wave > -0.2 ? 2 : wave > -1 ? 1 : 0;
+
+    return {
+      date: date.toISOString().slice(0, 10),
+      count,
+      level: (count >= 9
+        ? 4
+        : count >= 5
+          ? 3
+          : count >= 2
+            ? 2
+            : count > 0
+              ? 1
+              : 0) as ContributionLevel,
+    };
+  },
+);
+
+const PREVIEW_REPOS: RepoContribution[] = [
+  { name: "calamansi-ui", count: 24, href: SITE_REPO },
+  { name: "design-tokens", count: 9 },
+  { name: "docs", count: 4 },
+];
 
 const MARQUEE_TAGS_1 = ["Juicy", "Fresh", "Sour", "Citrus", "Zesty"];
 const MARQUEE_TAGS_2 = ["React 19", "Next.js", "Tailwind", "Motion", "shadcn"];
 
-export default function ComponentLivePreview({
+function Preview({
   registry,
   active = false,
 }: {
@@ -35,15 +91,14 @@ export default function ComponentLivePreview({
             className="w-full max-w-[210px]"
             icon={<Sun className="size-4" />}
             title="Spotlight"
-            subtitle="Lit border"
+            subtitle="White squircle"
           >
-            <p className="text-center text-xs font-medium text-white/85">
-              Tracks pointer
+            <p className="text-center text-xs font-medium text-muted-foreground">
+              The branded surface
             </p>
           </SpotlightCard>
         </div>
       );
-
 
     case "tilt-card":
       return (
@@ -55,7 +110,7 @@ export default function ComponentLivePreview({
             title="Tilt Card"
             subtitle="3D Spring"
           >
-            <p className="text-center text-xs font-medium text-white/85">
+            <p className="text-center text-xs font-medium text-current/85">
               Leans towards pointer
             </p>
           </TiltCard>
@@ -138,6 +193,28 @@ export default function ComponentLivePreview({
         </div>
       );
 
+    case "dynamic-island":
+      return (
+        <div className="flex h-full w-full flex-col items-center justify-center gap-1 overflow-hidden p-3">
+          {/* the first pill takes the default palette, the alert one shows the far end */}
+          <DynamicIsland
+            state="compact"
+            interactive={false}
+            icon={<Music2 className="size-3.5" />}
+            title="Solaris — Citrus Beat"
+            trailing={<span className="tabular-nums">1:24</span>}
+          />
+          <DynamicIsland
+            state="alert"
+            interactive={false}
+            variant="white"
+            icon={<Zap className="size-3.5" />}
+            title="Low battery"
+            trailing={<span className="tabular-nums">18%</span>}
+          />
+        </div>
+      );
+
     case "task-widget":
       return (
         <div className="flex h-full w-full items-center justify-center overflow-hidden p-2">
@@ -156,7 +233,68 @@ export default function ComponentLivePreview({
         </div>
       );
 
+    case "morning-widget":
+      return (
+        // laid out at full size and scaled down, so the cqw type stays crisp and
+        // the lift comes down with it
+        <div className="flex h-full w-full items-center justify-center overflow-hidden p-4">
+          <div className="pointer-events-none w-[420px] max-w-none scale-[0.5] select-none">
+            <MorningWidget tilt={false} interval={0} />
+          </div>
+        </div>
+      );
+
+    case "github-activity":
+      return (
+        // the padding keeps the slab's drop shadow off the clipping edge
+        <div className="flex h-full w-full items-center justify-center overflow-hidden p-4 sm:p-5">
+          <div className="pointer-events-none scale-[0.6] select-none sm:scale-[0.7]">
+            <GitHubActivity
+              contributions={PREVIEW_CONTRIBUTIONS}
+              repos={PREVIEW_REPOS}
+              variant="calamansi"
+              months={3}
+              showMonths
+              label="Top contributions in:"
+            />
+          </div>
+        </div>
+      );
+
+    case "matrix-orb":
+      return (
+        // it listens while the tile is at rest and thinks once you hover it
+        <div className="flex h-full w-full items-center justify-center overflow-hidden p-4">
+          <div className="pointer-events-none scale-[0.55] select-none">
+            <MatrixOrb state={active ? "thinking" : "listening"} size={240} />
+          </div>
+        </div>
+      );
+
     default:
       return <PreviewFallback />;
   }
+}
+
+/**
+ * A tile is not the place for a shadow: a surface's lift is wider than the tile's
+ * padding, so it gets sliced off at the clip edge. Every preview is therefore
+ * flattened — the task widget aside, which casts a shadow of its own.
+ */
+export default function ComponentLivePreview({
+  registry,
+  active = false,
+}: {
+  registry?: string;
+  active?: boolean;
+}) {
+  if (registry === "task-widget") {
+    return <Preview registry={registry} active={active} />;
+  }
+
+  return (
+    <div style={NO_LIFT} className="h-full w-full">
+      <Preview registry={registry} active={active} />
+    </div>
+  );
 }

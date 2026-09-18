@@ -24,6 +24,11 @@ const VARIANTS: {
   gradient: string;
 }[] = [
   {
+    id: "white",
+    label: "White",
+    gradient: "linear-gradient(135deg, #ffffff 0%, #e9e9ec 50%, #d4d4d8 100%)",
+  },
+  {
     id: "calamansi",
     label: "Calamansi",
     gradient: "linear-gradient(135deg, #8fa37d 0%, #5c7a67 50%, #39564a 100%)",
@@ -38,11 +43,6 @@ const VARIANTS: {
     label: "Warm Citrus",
     gradient: "linear-gradient(135deg, #d69f7e 0%, #b87152 50%, #7d4128 100%)",
   },
-  {
-    id: "black",
-    label: "Dark Black",
-    gradient: "linear-gradient(135deg, #27272a 0%, #18181b 50%, #09090b 100%)",
-  },
 ];
 
 export default function DynamicIslandDemo() {
@@ -50,8 +50,7 @@ export default function DynamicIslandDemo() {
   const [islandState, setIslandState] = useState<DynamicIslandState>("compact");
   const [isPlaying, setIsPlaying] = useState(true);
   const [variant, setVariant] = useState<DynamicIslandVariant>("calamansi");
-  const currentVariant =
-    VARIANTS.find((v) => v.id === variant) ?? VARIANTS[0];
+  const currentVariant = VARIANTS.find((v) => v.id === variant) ?? VARIANTS[0];
 
   return (
     <div className="flex w-full max-w-xl flex-col items-center gap-5 py-4 sm:gap-6 sm:py-6">
@@ -78,7 +77,7 @@ export default function DynamicIslandDemo() {
                   className={`relative size-7 cursor-pointer rounded-xl transition-all duration-200 hover:scale-105 sm:size-8 ${
                     selected
                       ? "scale-110 shadow-md ring-2 ring-primary ring-offset-2 ring-offset-background"
-                      : "opacity-80 ring-1 ring-white/20 hover:opacity-100"
+                      : "opacity-80 ring-1 ring-foreground/10 hover:opacity-100"
                   }`}
                   style={{ background: option.gradient }}
                 />
@@ -110,8 +109,11 @@ export default function DynamicIslandDemo() {
         </div>
       </div>
 
-      {/* Island Stage Container */}
-      <div className="relative flex min-h-[300px] w-full flex-col items-center justify-start overflow-hidden rounded-3xl border border-border/70 bg-card/40 p-4 pt-6 backdrop-blur-xs sm:p-6 sm:pt-8">
+      {/*
+        Island Stage Container. The bottom padding is there for the dock's lift: the stage clips
+        at its own edge, so a dock sitting flush against it would have its drop-shadow sliced off.
+      */}
+      <div className="relative flex min-h-[300px] w-full flex-col items-center justify-start overflow-hidden rounded-3xl border border-border/70 bg-card/40 p-4 pt-6 pb-12 backdrop-blur-xs sm:p-6 sm:pt-8 sm:pb-14">
         <p className="mb-4 text-[11px] font-medium tracking-wide text-muted-foreground uppercase">
           Tap island to expand or collapse
         </p>
@@ -121,42 +123,43 @@ export default function DynamicIslandDemo() {
             state={islandState}
             onStateChange={setIslandState}
             variant={variant}
+            pulse
             icon={<Music2 className="size-3.5" />}
             title="Solaris — Citrus Beat"
             trailing={
               <div className="flex items-center gap-1.5">
-                <div className="flex items-end gap-0.5 h-3">
-                  <span className="w-0.5 h-full bg-white animate-pulse rounded-full" />
-                  <span className="w-0.5 h-2/3 bg-white/80 animate-pulse rounded-full delay-75" />
-                  <span className="w-0.5 h-4/5 bg-white/90 animate-pulse rounded-full delay-150" />
+                <div className="flex h-3 items-end gap-0.5">
+                  <span className="w-0.5 h-full bg-current animate-pulse rounded-full" />
+                  <span className="w-0.5 h-2/3 bg-current/80 animate-pulse rounded-full delay-75" />
+                  <span className="w-0.5 h-4/5 bg-current/90 animate-pulse rounded-full delay-150" />
                 </div>
               </div>
             }
             expandedContent={
               <div className="flex size-full flex-col justify-between">
                 <div className="flex items-center gap-3">
-                  <div className="size-11 shrink-0 rounded-xl bg-white/20 backdrop-blur-md flex items-center justify-center text-white shadow-xs ring-1 ring-white/25">
+                  <div className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-current/15 shadow-xs ring-1 ring-current/20">
                     <Music2 className="size-6" />
                   </div>
                   <div className="min-w-0 flex-1">
-                    <h4 className="truncate text-xs font-semibold text-white">
+                    <h4 className="truncate text-xs font-semibold">
                       Solaris (Acoustic Version)
                     </h4>
-                    <p className="truncate text-[11px] text-white/70">
+                    <p className="truncate text-[11px] text-current/70">
                       Calamansi Sound Collective
                     </p>
                   </div>
-                  <div className="text-white/60">
+                  <div className="text-current/60">
                     <Volume2 className="size-4" />
                   </div>
                 </div>
 
                 {/* Progress bar */}
                 <div className="space-y-1">
-                  <div className="h-1 w-full overflow-hidden rounded-full bg-white/20">
-                    <div className="h-full w-2/5 rounded-full bg-white" />
+                  <div className="h-1 w-full overflow-hidden rounded-full bg-current/15">
+                    <div className="w-2/5 h-full rounded-full bg-current" />
                   </div>
-                  <div className="flex justify-between text-[10px] text-white/60">
+                  <div className="flex justify-between text-[10px] text-current/60">
                     <span>1:24</span>
                     <span>-2:48</span>
                   </div>
@@ -167,7 +170,7 @@ export default function DynamicIslandDemo() {
                   <button
                     type="button"
                     onClick={(e) => e.stopPropagation()}
-                    className="text-white/75 hover:text-white transition"
+                    className="text-current/70 transition hover:text-current"
                   >
                     <SkipBack className="size-4 fill-current" />
                   </button>
@@ -177,7 +180,7 @@ export default function DynamicIslandDemo() {
                       e.stopPropagation();
                       setIsPlaying((p) => !p);
                     }}
-                    className="flex size-8 items-center justify-center rounded-full bg-white text-neutral-900 shadow-xs transition hover:scale-105"
+                    className="flex size-8 items-center justify-center rounded-full bg-foreground text-background shadow-xs transition hover:scale-105"
                   >
                     {isPlaying ? (
                       <Pause className="size-4 fill-current" />
@@ -188,7 +191,7 @@ export default function DynamicIslandDemo() {
                   <button
                     type="button"
                     onClick={(e) => e.stopPropagation()}
-                    className="text-white/75 hover:text-white transition"
+                    className="text-current/70 transition hover:text-current"
                   >
                     <SkipForward className="size-4 fill-current" />
                   </button>
@@ -206,35 +209,35 @@ export default function DynamicIslandDemo() {
             icon={<Timer className="size-3.5" />}
             title="Focus Session"
             trailing={
-              <span className="font-mono text-xs font-semibold text-white/90">
+              <span className="font-mono text-xs font-semibold text-current/75">
                 24:18
               </span>
             }
             expandedContent={
               <div className="flex size-full flex-col items-center justify-between py-1 text-center">
                 <div className="flex w-full items-center justify-between">
-                  <span className="text-xs font-medium text-white/70">
+                  <span className="text-xs font-medium text-current/70">
                     Pomodoro Interval
                   </span>
-                  <span className="rounded-full bg-white/20 px-2 py-0.5 text-[10px] font-semibold text-white/90 backdrop-blur-xs ring-1 ring-white/20">
+                  <span className="rounded-full bg-current/15 px-2 py-0.5 text-[10px] font-semibold text-current/75 backdrop-blur-xs ring-1 ring-current/20">
                     Active
                   </span>
                 </div>
-                <div className="font-mono text-3xl font-bold tracking-tight text-white">
+                <div className="font-mono text-3xl font-bold tracking-tight">
                   24:18
                 </div>
                 <div className="flex gap-2">
                   <button
                     type="button"
                     onClick={(e) => e.stopPropagation()}
-                    className="rounded-full bg-white/20 px-4 py-1 text-xs font-medium text-white transition hover:bg-white/30"
+                    className="rounded-full bg-current/15 px-4 py-1 text-xs font-medium transition hover:bg-current/25"
                   >
                     +5 min
                   </button>
                   <button
                     type="button"
                     onClick={(e) => e.stopPropagation()}
-                    className="rounded-full bg-white px-4 py-1 text-xs font-semibold text-neutral-900 shadow-xs transition hover:bg-white/90"
+                    className="rounded-full bg-foreground px-4 py-1 text-xs font-semibold text-background shadow-xs transition hover:opacity-90"
                   >
                     Pause
                   </button>
@@ -252,33 +255,33 @@ export default function DynamicIslandDemo() {
             icon={<Headphones className="size-3.5" />}
             title="Citrus Buds Pro"
             trailing={
-              <span className="rounded-full bg-white/20 px-2 py-0.5 text-[10px] font-medium text-white/90 backdrop-blur-xs">
+              <span className="rounded-full bg-current/15 px-2 py-0.5 text-[10px] font-medium text-current/75 backdrop-blur-xs">
                 98%
               </span>
             }
             expandedContent={
               <div className="flex size-full flex-col justify-between py-1">
                 <div className="flex items-center gap-3">
-                  <div className="flex size-10 items-center justify-center rounded-2xl bg-white/20 backdrop-blur-md text-white ring-1 ring-white/25">
+                  <div className="flex size-10 items-center justify-center rounded-2xl bg-current/15 ring-1 ring-current/20">
                     <Headphones className="size-5" />
                   </div>
                   <div>
-                    <p className="text-xs font-semibold text-white">
+                    <p className="text-xs font-semibold">
                       Connected to Mac Studio
                     </p>
-                    <p className="text-[11px] text-white/70">
+                    <p className="text-[11px] text-current/70">
                       Spatial Audio Active
                     </p>
                   </div>
                 </div>
-                <div className="grid grid-cols-2 gap-2 rounded-xl bg-white/10 p-2 text-center text-xs ring-1 ring-white/10">
+                <div className="grid grid-cols-2 gap-2 rounded-xl bg-current/10 p-2 text-center text-xs ring-1 ring-current/15">
                   <div>
-                    <p className="text-[10px] text-white/60">Left Earbud</p>
-                    <p className="font-semibold text-white">98%</p>
+                    <p className="text-[10px] text-current/60">Left Earbud</p>
+                    <p className="font-semibold">98%</p>
                   </div>
                   <div>
-                    <p className="text-[10px] text-white/60">Right Earbud</p>
-                    <p className="font-semibold text-white">95%</p>
+                    <p className="text-[10px] text-current/60">Right Earbud</p>
+                    <p className="font-semibold">95%</p>
                   </div>
                 </div>
               </div>

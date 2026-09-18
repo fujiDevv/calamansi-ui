@@ -1,10 +1,8 @@
 "use client";
 
 import {
-  useId,
   useRef,
   useState,
-  type CSSProperties,
   type PointerEvent as ReactPointerEvent,
   type ReactNode,
 } from "react";
@@ -16,78 +14,55 @@ import {
   useSpring,
   useTransform,
 } from "motion/react";
+import { Squircle } from "@/lib/squircle";
 import { cn } from "@/lib/utils";
 
-export type TiltCardVariant =
-  | "calamansi"
-  | "slate"
-  | "citrus"
-  | "black"
-  | "dark";
+export type TiltCardVariant = "white" | "calamansi" | "slate" | "citrus";
 
 /**
- * The Calamansi surface: a gradient slab inside a thick white lip, matching
- * the number ticker and widgets.
+ * The Calamansi surface: one flat layer, clipped to a squircle by `Squircle`,
+ * with the content sitting straight on the palette.
+ *
+ * `calamansi` is the default. `white` is the other end of the range — the only
+ * palette that has to read on a light page: white in light mode, near-black in
+ * dark. Each palette carries the ink that sits on it, and everything inside tints
+ * from `currentColor`.
  */
-const SHELL = [
-  "relative flex flex-col overflow-hidden rounded-[24px] border-[3px] border-white/80 p-2 font-runde text-white select-none",
-  "dark:border-white/10",
-  "sm:rounded-[28px] sm:border-4 sm:p-2.5",
+const SURFACE = [
+  "relative flex flex-col p-5 font-runde select-none",
+  "sm:p-6",
 ].join(" ");
 
-const SHELL_SHADOW: CSSProperties = {
-  boxShadow:
-    "0 18px 36px -16px rgba(0, 0, 0, 0.45), inset 0 -3px 14px 5px rgba(255, 255, 255, 0.25), inset 0 -6px 3px rgba(0, 0, 0, 0.2)",
+const VARIANTS: Record<TiltCardVariant, { paint: string; ink: string }> = {
+  white: {
+    paint: "bg-white dark:bg-[#1c1c1f]",
+    ink: "text-foreground",
+  },
+  calamansi: {
+    paint: [
+      "bg-gradient-to-br from-[#8fa37d] via-[#5c7a67] to-[#39564a]",
+      "dark:from-[#1b281f] dark:via-[#16221a] dark:to-[#0e1611]",
+    ].join(" "),
+    ink: "text-white",
+  },
+  slate: {
+    paint: [
+      "bg-gradient-to-br from-[#a79cb7] via-[#687396] to-[#4a5a7f]",
+      "dark:from-[#1e1b4b] dark:via-[#1e293b] dark:to-[#0f172a]",
+    ].join(" "),
+    ink: "text-white",
+  },
+  citrus: {
+    paint: [
+      "bg-gradient-to-br from-[#d69f7e] via-[#b87152] to-[#7d4128]",
+      "dark:from-[#2e170c] dark:via-[#22120b] dark:to-[#140a06]",
+    ].join(" "),
+    ink: "text-white",
+  },
 };
 
-const VARIANTS: Record<TiltCardVariant, string> = {
-  calamansi: [
-    "bg-gradient-to-br from-[#8fa37d] via-[#5c7a67] to-[#39564a]",
-    "dark:from-[#1b281f] dark:via-[#16221a] dark:to-[#0e1611]",
-  ].join(" "),
-  slate: [
-    "bg-gradient-to-br from-[#a79cb7] via-[#687396] to-[#4a5a7f]",
-    "dark:from-[#1e1b4b] dark:via-[#1e293b] dark:to-[#0f172a]",
-  ].join(" "),
-  citrus: [
-    "bg-gradient-to-br from-[#d69f7e] via-[#b87152] to-[#7d4128]",
-    "dark:from-[#2e170c] dark:via-[#22120b] dark:to-[#140a06]",
-  ].join(" "),
-  black: [
-    "bg-gradient-to-br from-[#27272a] via-[#18181b] to-[#09090b]",
-    "dark:from-[#18181b] dark:via-[#09090b] dark:to-[#000000]",
-  ].join(" "),
-  dark: [
-    "bg-gradient-to-br from-[#27272a] via-[#18181b] to-[#09090b]",
-    "dark:from-[#18181b] dark:via-[#09090b] dark:to-[#000000]",
-  ].join(" "),
-};
-
-/** The lit window the content sits in, matching NumberTicker's glass tile. */
-const WINDOW = [
-  "relative z-10 flex flex-1 flex-col overflow-hidden rounded-[16px] bg-white/15 p-5 ring-1 ring-white/25 backdrop-blur-sm",
-  "sm:rounded-[20px] sm:p-6",
-].join(" ");
-
-/** Fractal-noise grain — the texture the Calamansi surface carries. */
-function Grain({ id }: { id: string }) {
-  return (
-    <svg
-      aria-hidden="true"
-      className="pointer-events-none absolute inset-0 size-full opacity-[0.16] mix-blend-overlay"
-    >
-      <filter id={id}>
-        <feTurbulence
-          type="fractalNoise"
-          baseFrequency="0.85"
-          numOctaves="3"
-          stitchTiles="stitch"
-        />
-      </filter>
-      <rect width="100%" height="100%" filter={`url(#${id})`} />
-    </svg>
-  );
-}
+/** The content layer above the surface. */
+const CONTENT = "relative z-10 flex flex-1 flex-col";
 
 export type TiltCardProps = {
   children?: ReactNode;
@@ -112,13 +87,14 @@ export type TiltCardProps = {
   stiffness?: number;
   /** Spring damping. Lower is bouncier. */
   damping?: number;
-  /** Palette of the Calamansi gradient slab. Default: "calamansi" */
+  /** Surface palette. Default: "calamansi" */
   variant?: TiltCardVariant;
 };
 
 /**
- * A Calamansi surface card designed exactly after the NumberTicker slab,
- * featuring 3D spring tilt physics, fractal grain noise, and an interactive light sheen.
+ * A Calamansi surface card that leans towards the pointer through 3D spring
+ * physics, with a specular sheen tracking it. The sheen stays white — it is a
+ * highlight, so it reads on the tinted palettes and on white in dark mode.
  */
 export function TiltCard({
   children,
@@ -138,7 +114,6 @@ export function TiltCard({
   const ref = useRef<HTMLDivElement>(null);
   const reduceMotion = useReducedMotion();
   const [hovered, setHovered] = useState(false);
-  const filterId = `tilt-grain-${useId().replace(/[^a-zA-Z0-9]/g, "")}`;
 
   const pointerX = useMotionValue(0.5);
   const pointerY = useMotionValue(0.5);
@@ -184,61 +159,59 @@ export function TiltCard({
       <motion.div
         style={
           reduceMotion
-            ? SHELL_SHADOW
-            : { rotateX, rotateY, transformStyle: "preserve-3d", ...SHELL_SHADOW }
+            ? undefined
+            : { rotateX, rotateY, transformStyle: "preserve-3d" }
         }
         whileHover={reduceMotion ? undefined : { scale: hoverScale }}
         transition={{ type: "spring", stiffness, damping }}
-        className={cn(SHELL, VARIANTS[variant], className)}
+        className={cn(SURFACE, VARIANTS[variant].ink, className)}
       >
-        <Grain id={filterId} />
-
-        <div className={WINDOW}>
+        <Squircle className={VARIANTS[variant].paint}>
           {glare && (
             <motion.div
               aria-hidden="true"
               initial={{ opacity: 0 }}
               animate={{ opacity: hovered ? 1 : 0 }}
               transition={{ duration: 0.25, ease: "easeOut" }}
-              className="pointer-events-none absolute inset-0 z-20 rounded-[inherit]"
+              className="pointer-events-none absolute inset-0"
               style={{ background: glareBackground }}
             />
           )}
+        </Squircle>
 
-          <div className="relative z-10 flex flex-1 flex-col">
-            {hasTopHeader && (
-              <div className="mb-4 flex items-start justify-between gap-3">
-                {header ? (
-                  header
-                ) : (
-                  <div className="flex items-center gap-3 min-w-0">
-                    {icon && (
-                      <span className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-white/20 text-white shadow-xs backdrop-blur-md">
-                        {icon}
-                      </span>
-                    )}
-                    {(title || subtitle) && (
-                      <div className="min-w-0">
-                        {title && (
-                          <h3 className="font-runde text-lg font-bold tracking-tight text-white drop-shadow-sm truncate">
-                            {title}
-                          </h3>
-                        )}
-                        {subtitle && (
-                          <p className="text-xs font-medium text-white/80 truncate">
-                            {subtitle}
-                          </p>
-                        )}
-                      </div>
-                    )}
-                  </div>
-                )}
-                {badge && <div className="shrink-0">{badge}</div>}
-              </div>
-            )}
+        <div className={CONTENT}>
+          {hasTopHeader && (
+            <div className="mb-4 flex items-start justify-between gap-3">
+              {header ? (
+                header
+              ) : (
+                <div className="flex items-center gap-3 min-w-0">
+                  {icon && (
+                    <span className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-current/15 text-current ring-1 ring-current/20">
+                      {icon}
+                    </span>
+                  )}
+                  {(title || subtitle) && (
+                    <div className="min-w-0">
+                      {title && (
+                        <h3 className="truncate font-runde text-lg font-bold tracking-tight">
+                          {title}
+                        </h3>
+                      )}
+                      {subtitle && (
+                        <p className="truncate text-xs font-medium text-current/70">
+                          {subtitle}
+                        </p>
+                      )}
+                    </div>
+                  )}
+                </div>
+              )}
+              {badge && <div className="shrink-0">{badge}</div>}
+            </div>
+          )}
 
-            {children}
-          </div>
+          {children}
         </div>
       </motion.div>
     </div>

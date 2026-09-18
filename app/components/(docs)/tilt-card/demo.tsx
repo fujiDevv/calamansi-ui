@@ -10,6 +10,11 @@ const VARIANTS: {
   gradient: string;
 }[] = [
   {
+    id: "white",
+    label: "White",
+    gradient: "linear-gradient(135deg, #ffffff 0%, #e9e9ec 50%, #d4d4d8 100%)",
+  },
+  {
     id: "calamansi",
     label: "Calamansi",
     gradient: "linear-gradient(135deg, #8fa37d 0%, #5c7a67 50%, #39564a 100%)",
@@ -24,17 +29,11 @@ const VARIANTS: {
     label: "Warm Citrus",
     gradient: "linear-gradient(135deg, #d69f7e 0%, #b87152 50%, #7d4128 100%)",
   },
-  {
-    id: "black",
-    label: "Dark Black",
-    gradient: "linear-gradient(135deg, #27272a 0%, #18181b 50%, #09090b 100%)",
-  },
 ];
 
 export default function TiltCardDemo() {
   const [variant, setVariant] = useState<TiltCardVariant>("calamansi");
-  const currentVariant =
-    VARIANTS.find((v) => v.id === variant) ?? VARIANTS[0];
+  const currentVariant = VARIANTS.find((v) => v.id === variant) ?? VARIANTS[0];
 
   return (
     <div className="flex h-full flex-col items-center justify-center gap-5 p-3 sm:gap-7 sm:p-6">
@@ -59,7 +58,7 @@ export default function TiltCardDemo() {
                 className={`relative size-7 cursor-pointer rounded-xl transition-all duration-200 hover:scale-105 sm:size-8 ${
                   selected
                     ? "scale-110 shadow-md ring-2 ring-primary ring-offset-2 ring-offset-background"
-                    : "opacity-80 ring-1 ring-white/20 hover:opacity-100"
+                    : "opacity-80 ring-1 ring-foreground/10 hover:opacity-100"
                 }`}
                 style={{ background: option.gradient }}
               />
@@ -80,21 +79,22 @@ export default function TiltCardDemo() {
           title="Rind"
           subtitle="maxTilt 16 · glare on"
           badge={
-            <span className="rounded-full bg-white/20 px-2.5 py-0.5 text-[10px] font-semibold text-white/90 backdrop-blur-xs">
+            <span className="rounded-full bg-current/15 px-2.5 py-0.5 text-[10px] font-semibold text-current ring-1 ring-current/20">
               Primary
             </span>
           }
         >
           <div className="flex flex-col gap-2">
-            <p className="text-xs font-semibold uppercase tracking-wider text-white/70">
+            <p className="text-xs font-semibold tracking-wider text-current/70 uppercase">
               Calamansi Surface
             </p>
-            <p className="text-sm font-medium leading-relaxed text-white/85">
-              Leans smoothly towards the pointer with real-time 3D spring physics and interactive light sheen.
+            <p className="text-sm leading-relaxed font-medium text-current/85">
+              Leans smoothly towards the pointer with real-time 3D spring
+              physics and interactive light sheen.
             </p>
           </div>
 
-          <div className="mt-4 flex h-16 items-center justify-center rounded-xl bg-white/10 text-xs font-medium text-white/80 ring-1 ring-white/15 backdrop-blur-xs">
+          <div className="mt-4 flex h-16 items-center justify-center rounded-xl bg-current/10 text-xs font-medium text-current/80 ring-1 ring-current/15">
             Interactive 3D Plane
           </div>
         </TiltCard>
@@ -108,7 +108,7 @@ export default function TiltCardDemo() {
           title="Flesh"
           subtitle="maxTilt 8 · no glare"
           badge={
-            <span className="rounded-full bg-white/20 px-2.5 py-0.5 text-[10px] font-semibold text-white/90 backdrop-blur-xs">
+            <span className="rounded-full bg-current/15 px-2.5 py-0.5 text-[10px] font-semibold text-current ring-1 ring-current/20">
               Springs
             </span>
           }
@@ -122,12 +122,12 @@ export default function TiltCardDemo() {
             ].map(([label, value]) => (
               <div
                 key={label}
-                className="rounded-xl bg-white/10 p-2.5 ring-1 ring-white/15"
+                className="rounded-xl bg-current/10 p-2.5 ring-1 ring-current/15"
               >
-                <dt className="text-[10px] font-semibold tracking-[0.14em] text-white/70 uppercase">
+                <dt className="text-[10px] font-semibold tracking-[0.14em] text-current/70 uppercase">
                   {label}
                 </dt>
-                <dd className="mt-0.5 truncate text-xs font-semibold text-white">
+                <dd className="mt-0.5 truncate text-xs font-semibold text-current">
                   {value}
                 </dd>
               </div>

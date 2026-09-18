@@ -15,6 +15,11 @@ const VARIANTS: {
   gradient: string;
 }[] = [
   {
+    id: "white",
+    label: "White",
+    gradient: "linear-gradient(135deg, #ffffff 0%, #e9e9ec 50%, #d4d4d8 100%)",
+  },
+  {
     id: "calamansi",
     label: "Calamansi",
     gradient: "linear-gradient(135deg, #8fa37d 0%, #5c7a67 50%, #39564a 100%)",
@@ -29,11 +34,6 @@ const VARIANTS: {
     label: "Warm Citrus",
     gradient: "linear-gradient(135deg, #d69f7e 0%, #b87152 50%, #7d4128 100%)",
   },
-  {
-    id: "black",
-    label: "Dark Black",
-    gradient: "linear-gradient(135deg, #27272a 0%, #18181b 50%, #09090b 100%)",
-  },
 ];
 
 const BUTTON =
@@ -42,8 +42,7 @@ const BUTTON =
 export default function NumberTickerDemo() {
   const [value, setValue] = useState(12847);
   const [variant, setVariant] = useState<NumberTickerVariant>("calamansi");
-  const currentVariant =
-    VARIANTS.find((v) => v.id === variant) ?? VARIANTS[0];
+  const currentVariant = VARIANTS.find((v) => v.id === variant) ?? VARIANTS[0];
 
   return (
     <div className="flex h-full flex-col items-center justify-center gap-6 p-4 sm:gap-8 sm:p-6">
@@ -68,7 +67,7 @@ export default function NumberTickerDemo() {
                 className={`relative size-7 cursor-pointer rounded-xl transition-all duration-200 hover:scale-105 sm:size-8 ${
                   selected
                     ? "scale-110 shadow-md ring-2 ring-primary ring-offset-2 ring-offset-background"
-                    : "opacity-80 ring-1 ring-white/20 hover:opacity-100"
+                    : "opacity-80 ring-1 ring-foreground/10 hover:opacity-100"
                 }`}
                 style={{ background: option.gradient }}
               />

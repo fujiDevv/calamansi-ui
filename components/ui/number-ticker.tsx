@@ -1,7 +1,7 @@
 "use client";
 
-import { useId, type CSSProperties } from "react";
 import { motion, useReducedMotion } from "motion/react";
+import { Squircle } from "@/lib/squircle";
 import { cn } from "@/lib/utils";
 
 const DIGITS_UP = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"];
@@ -10,80 +10,58 @@ const DIGITS_DOWN = [...DIGITS_UP].reverse();
 const NUMBER = new Intl.NumberFormat("en-US", { maximumFractionDigits: 2 });
 const FORMAT = (value: number) => NUMBER.format(value);
 
-export type NumberTickerVariant =
-  | "calamansi"
-  | "slate"
-  | "citrus"
-  | "black"
-  | "dark";
+export type NumberTickerVariant = "white" | "calamansi" | "slate" | "citrus";
 
 /**
- * The Calamansi surface: a gradient slab inside a thick white lip, matching the
- * task and morning widgets.
+ * The Calamansi surface: one flat layer, clipped to a squircle by `Squircle`.
+ * No lip, no glass tile, no grain — the palette is the whole treatment.
+ *
+ * `calamansi` is the default. `white` is the other end of the range — the only
+ * palette that has to read on a light page: white in light mode, near-black in
+ * dark. Each palette carries the ink that sits on it, and the content tints from
+ * `currentColor`, so the digits stay legible on every one of them.
  */
-const SHELL = [
-  "relative inline-flex overflow-hidden rounded-[20px] border-[3px] border-white/80 p-1.5",
-  "font-runde font-bold text-white select-none",
-  "dark:border-white/10",
-  "sm:rounded-[24px] sm:border-4 sm:p-2",
+const SURFACE = [
+  "relative inline-flex p-1.5 font-runde font-bold select-none",
+  "sm:p-2",
 ].join(" ");
 
-const VARIANTS: Record<NumberTickerVariant, string> = {
-  calamansi: [
-    "bg-gradient-to-br from-[#8fa37d] via-[#5c7a67] to-[#39564a]",
-    "dark:from-[#1b281f] dark:via-[#16221a] dark:to-[#0e1611]",
-  ].join(" "),
-  slate: [
-    "bg-gradient-to-br from-[#a79cb7] via-[#687396] to-[#4a5a7f]",
-    "dark:from-[#1e1b4b] dark:via-[#1e293b] dark:to-[#0f172a]",
-  ].join(" "),
-  citrus: [
-    "bg-gradient-to-br from-[#d69f7e] via-[#b87152] to-[#7d4128]",
-    "dark:from-[#2e170c] dark:via-[#22120b] dark:to-[#140a06]",
-  ].join(" "),
-  black: [
-    "bg-gradient-to-br from-[#27272a] via-[#18181b] to-[#09090b]",
-    "dark:from-[#18181b] dark:via-[#09090b] dark:to-[#000000]",
-  ].join(" "),
-  dark: [
-    "bg-gradient-to-br from-[#27272a] via-[#18181b] to-[#09090b]",
-    "dark:from-[#18181b] dark:via-[#09090b] dark:to-[#000000]",
-  ].join(" "),
+const VARIANTS: Record<NumberTickerVariant, { paint: string; ink: string }> = {
+  white: {
+    paint: "bg-white dark:bg-[#1c1c1f]",
+    ink: "text-foreground",
+  },
+  calamansi: {
+    paint: [
+      "bg-gradient-to-br from-[#8fa37d] via-[#5c7a67] to-[#39564a]",
+      "dark:from-[#1b281f] dark:via-[#16221a] dark:to-[#0e1611]",
+    ].join(" "),
+    ink: "text-white",
+  },
+  slate: {
+    paint: [
+      "bg-gradient-to-br from-[#a79cb7] via-[#687396] to-[#4a5a7f]",
+      "dark:from-[#1e1b4b] dark:via-[#1e293b] dark:to-[#0f172a]",
+    ].join(" "),
+    ink: "text-white",
+  },
+  citrus: {
+    paint: [
+      "bg-gradient-to-br from-[#d69f7e] via-[#b87152] to-[#7d4128]",
+      "dark:from-[#2e170c] dark:via-[#22120b] dark:to-[#140a06]",
+    ].join(" "),
+    ink: "text-white",
+  },
 };
 
-const SHELL_SHADOW: CSSProperties = {
-  boxShadow:
-    "0 18px 36px -16px rgba(0, 0, 0, 0.45), inset 0 -3px 14px 5px rgba(255, 255, 255, 0.25), inset 0 -6px 3px rgba(0, 0, 0, 0.2)",
-};
-
-/** The lit window the digits sit in, like the widgets' glass tiles. */
-const WINDOW =
-  "relative z-10 inline-flex items-center rounded-[14px] bg-white/15 px-2.5 py-1 ring-1 ring-white/25 backdrop-blur-sm sm:px-3";
-
-/** Fractal-noise grain — the texture the widgets carry. */
-function Grain({ id }: { id: string }) {
-  return (
-    <svg
-      aria-hidden="true"
-      className="pointer-events-none absolute inset-0 size-full opacity-[0.16] mix-blend-overlay"
-    >
-      <filter id={id}>
-        <feTurbulence
-          type="fractalNoise"
-          baseFrequency="0.85"
-          numOctaves="3"
-          stitchTiles="stitch"
-        />
-      </filter>
-      <rect width="100%" height="100%" filter={`url(#${id})`} />
-    </svg>
-  );
-}
+/** The strip the digits sit on, straight on the surface. */
+const ROW =
+  "relative z-10 inline-flex items-center px-2.5 py-1 tabular-nums sm:px-3";
 
 export type NumberTickerProps = {
   value: number;
   className?: string;
-  /** Palette of the Calamansi gradient slab. Default: "calamansi" */
+  /** Surface palette. Default: "calamansi" */
   variant?: NumberTickerVariant;
   /** Seconds for each digit to settle. */
   duration?: number;
@@ -118,20 +96,16 @@ export function NumberTicker({
   format = FORMAT,
 }: NumberTickerProps) {
   const reduceMotion = useReducedMotion();
-  const filterId = `ticker-grain-${useId().replace(/[^a-zA-Z0-9]/g, "")}`;
   const text = format(value);
   const characters = [...text];
 
   return (
-    <span
-      className={cn(SHELL, VARIANTS[variant], className)}
-      style={SHELL_SHADOW}
-    >
-      <Grain id={filterId} />
+    <span className={cn(SURFACE, VARIANTS[variant].ink, className)}>
+      <Squircle className={VARIANTS[variant].paint} />
 
       <span className="sr-only">{`${prefix ?? ""}${text}${suffix ?? ""}`}</span>
 
-      <span className={WINDOW}>
+      <span className={ROW}>
         <span
           aria-hidden
           className="inline-flex items-center tabular-nums drop-shadow-md"

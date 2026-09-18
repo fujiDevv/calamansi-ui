@@ -14,6 +14,7 @@ import {
   X,
 } from "lucide-react";
 import { activeComponent, components } from "@/lib/components";
+import { NO_LIFT } from "@/lib/squircle";
 import { cn } from "@/lib/utils";
 import DescriptionContent from "../Description/DescriptionContent";
 import PanelCode from "../Description/PanelCode";
@@ -287,11 +288,17 @@ function SidebarShellContent({
               {mode === "preview" ? (
                 <>
                   <div
+                    /* the preview panel is no place for a shadow, and its edge would
+                       slice one off anyway — every surface inside renders flat */
+                    style={NO_LIFT}
                     className={cn(
-                      "light flex items-center justify-center border border-border bg-card text-foreground",
+                      // the preview follows the site theme: the surfaces are white in
+                      // light mode and their dark counterpart in dark mode, so what
+                      // you see here is what the component looks like on your site
+                      "flex items-center justify-center border border-border bg-card text-foreground",
                       isFullscreen
                         ? "fixed inset-0 z-50 m-0 h-screen w-screen overflow-y-auto rounded-none border-0 bg-background p-4 sm:p-8"
-                        : "relative mt-6 min-h-[280px] w-full overflow-hidden rounded-xl p-3 sm:min-h-[400px] sm:p-6 md:p-8",
+                        : "relative mt-6 min-h-[280px] w-full overflow-hidden rounded-xl p-4 sm:min-h-[400px] sm:p-7 md:p-10",
                     )}
                   >
                     {/* Fullscreen header chip */}
@@ -337,7 +344,9 @@ function SidebarShellContent({
                         ) : (
                           <>
                             <Maximize2 className="size-3.5" />
-                            <span className="hidden sm:inline">Full screen</span>
+                            <span className="hidden sm:inline">
+                              Full screen
+                            </span>
                           </>
                         )}
                       </button>

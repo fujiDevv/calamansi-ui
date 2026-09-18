@@ -107,7 +107,7 @@ export const components: ComponentItem[] = [
         default: '"textured"',
         options: ["textured", "plain"],
         description:
-          'Set to "textured" for organic citrus peel grain, stippled micropores, and leaf veins, or "plain" for a smooth, minimal flat look.',
+          'Set to "textured" for a lit rind — pore relief and waxy undulation over the palette colour, with a tight specular core, a bevel and a grounding shadow — or "plain" for a smooth, minimal flat look.',
       },
       {
         name: "variant",
@@ -147,7 +147,18 @@ export const components: ComponentItem[] = [
       {
         name: "className",
         type: "string",
-        description: "Extra classes merged onto the SVG root.",
+        description: "Extra classes merged onto the outer element.",
+      },
+      {
+        name: "title",
+        type: "ReactNode",
+        description:
+          "Optional title rendered in a vertical stack above the mascot.",
+      },
+      {
+        name: "description",
+        type: "ReactNode",
+        description: "Optional description rendered below the title.",
       },
     ],
     usage: `import { Calamansi } from "@/components/ui/calamansi"
@@ -164,13 +175,13 @@ export function Demo() {
     featured: true,
     registry: "spotlight-card",
     description:
-      "A Calamansi surface card designed after the NumberTicker slab, featuring fractal grain noise and a glowing border tracking the pointer along the frosted glass window.",
+      "The plain Calamansi surface as a card: one flat layer clipped to the squircle, in white or the Calamansi, Slate and Citrus palettes.",
     credits: [
       "Design inspired by Jay Dwivedi (https://sprrrint.com/jaydwivedi)",
     ],
     source: `${REGISTRY_HOMEPAGE}/blob/main/components/ui/spotlight-card.tsx`,
     interaction:
-      "Move the pointer across the card: the border lights up along the frosted glass window where the pointer traces it.",
+      "Nothing moves: the card is the branding itself. Pick a palette, pass cornerRadius and cornerSmoothing to reshape the corner, and drop any content inside it.",
     props: [
       {
         name: "title",
@@ -200,34 +211,28 @@ export function Demo() {
       {
         name: "children",
         type: "ReactNode",
-        description: "Content drawn inside the frosted glass window.",
+        description: "Content drawn inside the squircle.",
       },
       {
-        name: "radius",
+        name: "cornerRadius",
         type: "number",
-        default: "360",
-        description: "Radius of the border glow, in pixels.",
+        default: "28",
+        description: "Corner radius of the squircle, in pixels.",
       },
       {
-        name: "color",
-        type: "string",
-        default: "rgba(255, 255, 255, 0.75)",
+        name: "cornerSmoothing",
+        type: "number",
+        default: "1",
         description:
-          "Any CSS colour for the border glow. Defaults to a crisp white light.",
-      },
-      {
-        name: "border",
-        type: "boolean",
-        default: "true",
-        description: "Draw a lit border where the pointer is.",
+          "Corner smoothing, from 0 (a rounded rectangle) to 1 (a full superellipse).",
       },
       {
         name: "variant",
-        type: '"calamansi" | "slate" | "citrus" | "black"',
+        type: '"white" | "calamansi" | "slate" | "citrus"',
         default: '"calamansi"',
-        options: ["calamansi", "slate", "citrus", "black"],
+        options: ["white", "calamansi", "slate", "citrus"],
         description:
-          "Palette of the Calamansi gradient slab.",
+          "Surface palette. Calamansi by default; White is white in light mode and near-black in dark, and the tinted palettes carry their own ink.",
       },
       {
         name: "className",
@@ -244,11 +249,10 @@ export function Demo() {
       className="max-w-sm"
       icon={<Leaf className="size-5" />}
       title="Rind"
-      subtitle="Glass edge tracking"
-      radius={360}
+      subtitle="The branded surface"
     >
-      <p className="text-sm font-medium text-white/85">
-        Move your pointer across the card to see the lit border follow the perimeter.
+      <p className="text-sm text-muted-foreground">
+        One flat surface, clipped to the Calamansi squircle.
       </p>
     </SpotlightCard>
   )
@@ -262,7 +266,7 @@ export function Demo() {
     registry: "tilt-card",
     dependencies: [{ name: "motion" }],
     description:
-      "A Calamansi surface card designed after the NumberTicker slab, featuring 3D spring tilt physics, fractal grain noise, and an interactive light sheen.",
+      "A card on the Calamansi squircle surface, with 3D spring tilt physics and an interactive light sheen.",
     credits: [
       "Design inspired by Jay Dwivedi (https://sprrrint.com/jaydwivedi)",
     ],
@@ -298,7 +302,7 @@ export function Demo() {
       {
         name: "children",
         type: "ReactNode",
-        description: "Content displayed inside the frosted glass window.",
+        description: "Content displayed on the surface.",
       },
       {
         name: "maxTilt",
@@ -332,11 +336,11 @@ export function Demo() {
       },
       {
         name: "variant",
-        type: '"calamansi" | "slate" | "citrus" | "black"',
+        type: '"white" | "calamansi" | "slate" | "citrus"',
         default: '"calamansi"',
-        options: ["calamansi", "slate", "citrus", "black"],
+        options: ["white", "calamansi", "slate", "citrus"],
         description:
-          "Palette of the Calamansi gradient slab.",
+          "Surface palette. Calamansi is the default slab; White is white in light mode and near-black in dark.",
       },
       {
         name: "className",
@@ -465,10 +469,11 @@ export function Demo() {
       },
       {
         name: "variant",
-        type: '"calamansi" | "slate" | "citrus" | "black"',
+        type: '"white" | "calamansi" | "slate" | "citrus"',
         default: '"calamansi"',
-        options: ["calamansi", "slate", "citrus", "black"],
-        description: "Palette of the Calamansi gradient slab.",
+        options: ["white", "calamansi", "slate", "citrus"],
+        description:
+          "Surface palette. Calamansi is the default slab; White is white in light mode and near-black in dark.",
       },
       {
         name: "duration",
@@ -565,10 +570,11 @@ export function Demo() {
       },
       {
         name: "variant",
-        type: '"calamansi" | "slate" | "citrus" | "black"',
+        type: '"white" | "calamansi" | "slate" | "citrus"',
         default: '"calamansi"',
-        options: ["calamansi", "slate", "citrus", "black"],
-        description: "Palette of the Calamansi gradient slab.",
+        options: ["white", "calamansi", "slate", "citrus"],
+        description:
+          "Surface palette. Calamansi is the default slab; White is white in light mode and near-black in dark.",
       },
       {
         name: "className",
@@ -614,7 +620,7 @@ export function Demo() {
     registry: "dynamic-island",
     dependencies: [{ name: "motion" }],
     description:
-      "A Calamansi surface island designed after the NumberTicker slab, featuring fluid spring layout morphing, fine fractal grain noise, and a frosted glass window.",
+      "A Calamansi squircle island that eases between pill and slab as it morphs states, and glows when it alerts.",
     source: `${REGISTRY_HOMEPAGE}/blob/main/components/ui/dynamic-island.tsx`,
     interaction:
       "Click the island to expand it into rich content. In compact and idle states it shows a compact status pill; in alert it pulses with an alert glow and a tap badge hint.",
@@ -622,9 +628,15 @@ export function Demo() {
       {
         name: "state",
         type: '"idle" | "compact" | "expanded" | "alert"',
+        options: ["idle", "compact", "expanded", "alert"],
+        description: "Controlled state of the island.",
+      },
+      {
+        name: "defaultState",
+        type: '"idle" | "compact" | "expanded" | "alert"',
         default: '"compact"',
         options: ["idle", "compact", "expanded", "alert"],
-        description: "State controlling dimensions and morphology.",
+        description: "Initial state when the island is uncontrolled.",
       },
       {
         name: "onStateChange",
@@ -635,7 +647,7 @@ export function Demo() {
         name: "icon",
         type: "ReactNode",
         description:
-          "Primary icon styled with the Calamansi frosted glass badge theme.",
+          "Primary icon, drawn in a chip tinted from the surface ink.",
       },
       {
         name: "leading",
@@ -665,10 +677,18 @@ export function Demo() {
       },
       {
         name: "variant",
-        type: '"calamansi" | "slate" | "citrus" | "black"',
+        type: '"white" | "calamansi" | "slate" | "citrus"',
         default: '"calamansi"',
-        options: ["calamansi", "slate", "citrus", "black"],
-        description: "Palette of the Calamansi gradient slab.",
+        options: ["white", "calamansi", "slate", "citrus"],
+        description:
+          "Surface palette. Calamansi is the default slab; White is white in light mode and near-black in dark.",
+      },
+      {
+        name: "pulse",
+        type: "boolean",
+        default: "false",
+        description:
+          "An ambient pulsing dot beside the title in idle and compact states.",
       },
       {
         name: "className",
@@ -776,12 +796,14 @@ export function Demo() {
     isNew: true,
     featured: true,
     registry: "morning-widget",
-    dependencies: [{ name: "motion" }, { name: "lucide-react" }],
-    description:
-      "A sunrise-gradient card that greets you by name, keeps a live clock, leans towards the pointer and cycles motivational lines with a staged reveal. Inspired by Jay Dwivedi's design on Sprrrint.",
-    credits: [
-      "Design inspired by Jay Dwivedi (https://sprrrint.com/jaydwivedi)",
+    dependencies: [
+      { name: "motion" },
+      { name: "lucide-react" },
+      { name: "figma-squircle" },
+      { name: "react-use-measure" },
     ],
+    description:
+      "A Calamansi squircle card holding a drifting sunrise mesh that greets you by name, keeps a live clock, leans towards the pointer and cycles motivational lines with a staged reveal.",
     source: `${REGISTRY_HOMEPAGE}/blob/main/components/ui/morning-widget.tsx`,
     interaction:
       "Move the pointer over the card and it leans towards it. The line advances on its own every few seconds, or straight away when you click the card. Hovering holds the rotation so you can finish reading, and on a phone the whole widget scales to the width it is given.",
@@ -827,6 +849,14 @@ export function Demo() {
         description: "Lean the card towards the pointer.",
       },
       {
+        name: "variant",
+        type: '"white" | "calamansi" | "slate" | "citrus"',
+        default: '"calamansi"',
+        options: ["white", "calamansi", "slate", "citrus"],
+        description:
+          "Surface palette, which recolours the mesh and the ink on it. White is a neutral dawn, Calamansi is the brand greens, Citrus keeps the warm sunrise.",
+      },
+      {
         name: "className",
         type: "string",
         description: "Extra classes merged onto the outer container.",
@@ -847,6 +877,193 @@ export function Demo() {
       ]}
     />
   )
+}`,
+  },
+  {
+    name: "GitHub activity",
+    href: "/components/github-activity",
+    category: "display",
+    isNew: true,
+    featured: true,
+    registry: "github-activity",
+    dependencies: [{ name: "motion" }],
+    description:
+      "A Calamansi squircle calendar that plots a year of GitHub contributions, with a drawer that stacks the busiest repositories over it.",
+    credits: [
+      "Component adapted from rare-ui (https://github.com/swamimalode07/rare-ui)",
+    ],
+    source: `${REGISTRY_HOMEPAGE}/blob/main/components/ui/github-activity.tsx`,
+    interaction:
+      "Hover any day to read its exact count. Press the chevron on the repository drawer to expand it over the calendar, and give the component a username and it fetches the calendar and recent pushes in the browser.",
+    props: [
+      {
+        name: "username",
+        type: "string",
+        description:
+          "GitHub login to read the contribution calendar and recent pushes from. Omit it when passing your own data.",
+      },
+      {
+        name: "contributions",
+        type: "Contribution[]",
+        description:
+          "Pre-fetched calendar of { date, count, level } days. Passing it skips the network entirely.",
+      },
+      {
+        name: "repos",
+        type: "RepoContribution[]",
+        description:
+          "Pre-fetched repository stack of { name, count, logo, href } entries.",
+      },
+      {
+        name: "year",
+        type: "number",
+        description:
+          "Year shown in the heading. Defaults to the year the data ends on.",
+      },
+      {
+        name: "variant",
+        type: '"white" | "calamansi" | "slate" | "citrus"',
+        default: '"calamansi"',
+        options: ["white", "calamansi", "slate", "citrus"],
+        description:
+          "Surface palette, which also picks the contribution ramp. Calamansi is the default; White mixes its ramp from the ink, so the cells follow the theme.",
+      },
+      {
+        name: "accent",
+        type: "string | string[]",
+        description:
+          "Contribution ramp for levels 1 to 4. A single colour fades through opacity instead. Defaults to the ramp of the selected variant.",
+      },
+      {
+        name: "cellSize",
+        type: "number",
+        default: "11",
+        description: "Size of one day cell, in pixels.",
+      },
+      {
+        name: "months",
+        type: "number",
+        default: "12",
+        description:
+          "How many months of history to show once the card is wide enough for them.",
+      },
+      {
+        name: "showMonths",
+        type: "boolean",
+        default: "false",
+        description: "Show the month labels above the grid.",
+      },
+      {
+        name: "label",
+        type: "string",
+        default: '"Top contributions in:"',
+        description: "Label on the repository drawer.",
+      },
+      {
+        name: "defaultOpen",
+        type: "boolean",
+        default: "false",
+        description: "Open the repository drawer on mount.",
+      },
+      {
+        name: "open",
+        type: "boolean",
+        description: "Controlled drawer state, paired with onOpenChange.",
+      },
+      {
+        name: "onOpenChange",
+        type: "(open: boolean) => void",
+        description: "Called when the drawer opens or closes.",
+      },
+      {
+        name: "className",
+        type: "string",
+        description: "Extra classes merged onto the slab.",
+      },
+    ],
+    usage: `import { GitHubActivity } from "@/components/ui/github-activity"
+
+export function Demo() {
+  return (
+    <GitHubActivity username="fujiDevv" months={12} showMonths />
+  )
+}`,
+  },
+  {
+    name: "Matrix orb",
+    href: "/components/matrix-orb",
+    category: "ai",
+    isNew: true,
+    featured: true,
+    registry: "matrix-orb",
+    dependencies: [],
+    description:
+      "A sphere of dots on a bare canvas that breathes while idle, ripples while listening and orbits while it thinks. No slab, so it drops straight into a status row.",
+    credits: [
+      "Component adapted from rare-ui (https://github.com/swamimalode07/rare-ui)",
+    ],
+    source: `${REGISTRY_HOMEPAGE}/blob/main/components/ui/matrix-orb.tsx`,
+    interaction:
+      "Change the state and the orb retargets mid-pulse rather than restarting: idle breathes on a slow wave, listening ripples outward from the centre, and thinking runs three heat sources around the sphere. Hand it a level from 0 to 1 to drive the amplitude from your own audio, and it holds a still frame when the reader prefers reduced motion.",
+    props: [
+      {
+        name: "state",
+        type: '"idle" | "listening" | "thinking"',
+        default: '"idle"',
+        options: ["idle", "listening", "thinking"],
+        description:
+          "What the orb is doing. Each state has its own motion, and changing it blends from the state currently on screen.",
+      },
+      {
+        name: "level",
+        type: "number",
+        description:
+          "Amplitude from 0 to 1, for driving the orb from a real signal such as an audio level. Omit it and the orb runs its own envelope.",
+      },
+      {
+        name: "variant",
+        type: '"white" | "calamansi" | "slate" | "citrus"',
+        default: '"calamansi"',
+        options: ["white", "calamansi", "slate", "citrus"],
+        description:
+          "Accent the dots are painted in — brand lime by default. White is the ink, read from the theme, so the sphere stays monochrome and follows light and dark.",
+      },
+      {
+        name: "color",
+        type: "string",
+        description:
+          "Dot colour, overriding the palette accent. A change recolours the sphere without restarting its motion.",
+      },
+      {
+        name: "size",
+        type: "number",
+        default: "240",
+        description:
+          "Width and height of the dot matrix in pixels. The surface's padding and the gap under it scale with it.",
+      },
+      {
+        name: "dots",
+        type: "number",
+        default: "11",
+        description:
+          "Grid resolution of the sphere. Higher is a finer orb, and the dots keep a minimum of half a device pixel so nothing renders as haze.",
+      },
+      {
+        name: "labels",
+        type: "Partial<Record<MatrixOrbState, string>>",
+        description:
+          'Caption under the orb, per state. Defaults to "Idle", "Listening" and "Thinking".',
+      },
+      {
+        name: "className",
+        type: "string",
+        description: "Extra classes merged onto the slab.",
+      },
+    ],
+    usage: `import { MatrixOrb } from "@/components/ui/matrix-orb"
+
+export function Demo() {
+  return <MatrixOrb state="thinking" variant="calamansi" />
 }`,
   },
 ];

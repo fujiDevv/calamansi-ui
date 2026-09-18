@@ -17,6 +17,20 @@
       ]
     },
     {
+      "name": "squircle",
+      "type": "registry:lib",
+      "title": "Squircle",
+      "description": "The Calamansi surface: a figma-squircle superellipse painted on its own layer, with the font family's drop-shadow lift.",
+      "dependencies": ["figma-squircle", "react-use-measure"],
+      "registryDependencies": ["utils"],
+      "files": [
+        {
+          "path": "lib/squircle.tsx",
+          "type": "registry:lib"
+        }
+      ]
+    },
+    {
       "name": "calamansi",
       "type": "registry:ui",
       "title": "Calamansi",
@@ -34,9 +48,9 @@
       "name": "spotlight-card",
       "type": "registry:ui",
       "title": "Spotlight Card",
-      "description": "A Calamansi surface card designed after the NumberTicker slab, featuring fractal grain noise and a glowing border tracking the pointer along the frosted glass window.",
+      "description": "The plain Calamansi surface as a card: one flat layer clipped to the squircle, in the Calamansi, White, Slate and Citrus palettes.",
       "dependencies": [],
-      "registryDependencies": ["utils"],
+      "registryDependencies": ["utils", "squircle"],
       "files": [
         {
           "path": "components/ui/spotlight-card.tsx",
@@ -48,9 +62,9 @@
       "name": "tilt-card",
       "type": "registry:ui",
       "title": "Tilt Card",
-      "description": "A Calamansi surface card designed after the NumberTicker slab, featuring 3D spring tilt physics, fractal grain noise, and an interactive light sheen.",
-      "dependencies": ["motion"],
-      "registryDependencies": ["utils"],
+      "description": "A card on the Calamansi squircle surface, featuring 3D spring tilt physics and an interactive light sheen.",
+      "dependencies": ["motion", "figma-squircle", "react-use-measure"],
+      "registryDependencies": ["utils", "squircle"],
       "files": [
         {
           "path": "components/ui/tilt-card.tsx",
@@ -76,9 +90,9 @@
       "name": "number-ticker",
       "type": "registry:ui",
       "title": "Number Ticker",
-      "description": "An odometer-style number that rolls to each new value.",
-      "dependencies": ["motion"],
-      "registryDependencies": ["utils"],
+      "description": "An odometer-style number that rolls to each new value, on the Calamansi squircle surface.",
+      "dependencies": ["motion", "figma-squircle", "react-use-measure"],
+      "registryDependencies": ["utils", "squircle"],
       "files": [
         {
           "path": "components/ui/number-ticker.tsx",
@@ -90,9 +104,9 @@
       "name": "dock",
       "type": "registry:ui",
       "title": "Dock",
-      "description": "A dock that magnifies the item under the pointer, Mac-style.",
-      "dependencies": ["motion"],
-      "registryDependencies": ["utils"],
+      "description": "A dock that magnifies the item under the pointer, Mac-style, sitting on the Calamansi squircle panel.",
+      "dependencies": ["motion", "figma-squircle", "react-use-measure"],
+      "registryDependencies": ["utils", "squircle"],
       "files": [
         {
           "path": "components/ui/dock.tsx",
@@ -104,9 +118,9 @@
       "name": "dynamic-island",
       "type": "registry:ui",
       "title": "Dynamic Island",
-      "description": "A Calamansi surface island designed after the NumberTicker slab, featuring fluid spring layout morphing, fine fractal grain noise, and a frosted glass window.",
-      "dependencies": ["motion"],
-      "registryDependencies": ["utils"],
+      "description": "A Calamansi squircle island that eases between pill and slab as it morphs states, and glows when it alerts.",
+      "dependencies": ["motion", "figma-squircle", "react-use-measure"],
+      "registryDependencies": ["utils", "squircle"],
       "files": [
         {
           "path": "components/ui/dynamic-island.tsx",
@@ -128,16 +142,59 @@
         }
       ]
     },
-    {
-      "name": "morning-widget",
+    {      "name": "morning-widget",
       "type": "registry:ui",
       "title": "Morning Widget",
-      "description": "A sunrise-gradient card that greets you by name, keeps a live clock with rolling digits, leans towards the pointer and cycles motivational lines with a staged reveal.",
-      "dependencies": ["motion", "lucide-react"],
-      "registryDependencies": ["utils"],
+      "description": "A Calamansi squircle card holding a drifting sunrise mesh that greets you by name, keeps a live clock with rolling digits, leans towards the pointer and cycles motivational lines with a staged reveal.",
+      "dependencies": [
+        "motion",
+        "lucide-react",
+        "figma-squircle",
+        "react-use-measure"
+      ],
+      "registryDependencies": [
+        "utils",
+        "squircle"
+      ],
       "files": [
         {
           "path": "components/ui/morning-widget.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },    {
+      "name": "github-activity",
+      "type": "registry:ui",
+      "title": "GitHub Activity",
+      "description": "A Calamansi squircle calendar plotting a year of GitHub contributions, with a drawer stacking the busiest repositories over it.",
+      "dependencies": [
+        "motion",
+        "figma-squircle",
+        "react-use-measure"
+      ],
+      "registryDependencies": [
+        "utils",
+        "squircle"
+      ],
+      "files": [
+        {
+          "path": "components/ui/github-activity.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "matrix-orb",
+      "type": "registry:ui",
+      "title": "Matrix Orb",
+      "description": "A sphere of dots on a bare canvas that breathes while idle, ripples while listening and orbits while it thinks.",
+      "dependencies": [],
+      "registryDependencies": [
+        "utils"
+      ],
+      "files": [
+        {
+          "path": "components/ui/matrix-orb.tsx",
           "type": "registry:ui"
         }
       ]

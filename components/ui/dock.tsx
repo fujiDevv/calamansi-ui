@@ -3,7 +3,6 @@
 import {
   createContext,
   useContext,
-  useId,
   useRef,
   useState,
   type ReactNode,
@@ -16,6 +15,7 @@ import {
   useTransform,
   type MotionValue,
 } from "motion/react";
+import { Squircle } from "@/lib/squircle";
 import { cn } from "@/lib/utils";
 
 const DockMouseContext = createContext<MotionValue<number> | null>(null);
@@ -27,65 +27,66 @@ const DockConfigContext = createContext({
 });
 
 /**
- * The Calamansi surface, shared with the task and morning widgets.
+ * The Calamansi surface, shared with the number ticker and the cards: one flat
+ * palette layer, clipped to a squircle.
  *
- * The white lip is an inset ring in the shadow rather than a real border: the
- * panel's height is driven by `panelHeight` (default `size + 16`) and a border
- * would eat into the space the items are measured against.
+ * The surface is painted on its own layer rather than on the panel itself, and
+ * deliberately so: items magnify past the panel's top edge and their labels float
+ * above that, so the panel has to stay overflow-visible. The height is driven by
+ * `panelHeight` (default `size + 16`).
  */
-export type DockVariant =
-  | "calamansi"
-  | "slate"
-  | "citrus"
-  | "black"
-  | "dark";
+export type DockVariant = "white" | "calamansi" | "slate" | "citrus";
 
 const PANEL = [
-  "relative flex items-end gap-2 overflow-visible rounded-[26px] p-2 text-white/80 select-none",
+  "relative flex items-end gap-2 overflow-visible p-2 select-none",
 ].join(" ");
 
-const VARIANTS: Record<DockVariant, string> = {
-  calamansi: [
-    "bg-gradient-to-br from-[#8fa37d] via-[#5c7a67] to-[#39564a]",
-    "dark:from-[#1b281f] dark:via-[#16221a] dark:to-[#0e1611]",
-  ].join(" "),
-  slate: [
-    "bg-gradient-to-br from-[#a79cb7] via-[#687396] to-[#4a5a7f]",
-    "dark:from-[#1e1b4b] dark:via-[#1e293b] dark:to-[#0f172a]",
-  ].join(" "),
-  citrus: [
-    "bg-gradient-to-br from-[#d69f7e] via-[#b87152] to-[#7d4128]",
-    "dark:from-[#2e170c] dark:via-[#22120b] dark:to-[#140a06]",
-  ].join(" "),
-  black: [
-    "bg-gradient-to-br from-[#27272a] via-[#18181b] to-[#09090b]",
-    "dark:from-[#18181b] dark:via-[#09090b] dark:to-[#000000]",
-  ].join(" "),
-  dark: [
-    "bg-gradient-to-br from-[#27272a] via-[#18181b] to-[#09090b]",
-    "dark:from-[#18181b] dark:via-[#09090b] dark:to-[#000000]",
-  ].join(" "),
+/**
+ * `calamansi` is the default slab. `white` is the other end of the range — the only
+ * palette that has to read on a light page: white in light mode, near-black in dark.
+ * Each palette carries the ink that sits on it, and the items tint from
+ * `currentColor`.
+ */
+const VARIANTS: Record<DockVariant, { paint: string; ink: string }> = {
+  white: {
+    paint: "bg-white dark:bg-[#1c1c1f]",
+    ink: "text-foreground",
+  },
+  calamansi: {
+    paint: [
+      "bg-gradient-to-br from-[#8fa37d] via-[#5c7a67] to-[#39564a]",
+      "dark:from-[#1b281f] dark:via-[#16221a] dark:to-[#0e1611]",
+    ].join(" "),
+    ink: "text-white",
+  },
+  slate: {
+    paint: [
+      "bg-gradient-to-br from-[#a79cb7] via-[#687396] to-[#4a5a7f]",
+      "dark:from-[#1e1b4b] dark:via-[#1e293b] dark:to-[#0f172a]",
+    ].join(" "),
+    ink: "text-white",
+  },
+  citrus: {
+    paint: [
+      "bg-gradient-to-br from-[#d69f7e] via-[#b87152] to-[#7d4128]",
+      "dark:from-[#2e170c] dark:via-[#22120b] dark:to-[#140a06]",
+    ].join(" "),
+    ink: "text-white",
+  },
 };
 
-const PANEL_SHADOW = [
-  // the lip and highlights are inset — the panel casts no shadow on the page
-  "shadow-[inset_0_0_0_3px_rgba(255,255,255,0.85),inset_0_-6px_16px_4px_rgba(255,255,255,0.22),inset_0_-8px_3px_rgba(0,0,0,0.22)]",
-  "dark:shadow-[inset_0_0_0_1px_rgba(255,255,255,0.14),inset_0_-6px_16px_4px_rgba(255,255,255,0.06)]",
-].join(" ");
-
-/** The glass tile an icon sits on. */
+/** The tile an icon sits on, tinted from the surface ink so it works on white too. */
 const ITEM = [
   "relative flex aspect-square cursor-pointer items-center justify-center rounded-[20px]",
-  "border border-white/40 bg-white/25 backdrop-blur-md",
-  "shadow-[inset_0_1px_1px_rgba(255,255,255,0.55)] transition-colors",
-  "hover:border-white/60 hover:bg-white/45",
-  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/80",
+  "border border-current/20 bg-current/15 backdrop-blur-md",
+  "transition-colors hover:border-current/35 hover:bg-current/25",
+  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-current/50",
 ].join(" ");
 
 export type DockProps = {
   children: ReactNode;
   className?: string;
-  /** Palette of the Calamansi gradient slab. Default: "calamansi" */
+  /** Surface palette. Default: "calamansi" */
   variant?: DockVariant;
   /** How far from the pointer, in pixels, an item starts growing. */
   reach?: number;
@@ -96,26 +97,6 @@ export type DockProps = {
   /** Fixed height of the dock border box in pixels. Defaults to size + 16. */
   panelHeight?: number;
 };
-
-/** Fractal-noise grain — the texture the widgets carry. */
-function Grain({ id }: { id: string }) {
-  return (
-    <svg
-      aria-hidden="true"
-      className="pointer-events-none absolute inset-0 size-full opacity-[0.16] mix-blend-overlay"
-    >
-      <filter id={id}>
-        <feTurbulence
-          type="fractalNoise"
-          baseFrequency="0.85"
-          numOctaves="3"
-          stitchTiles="stitch"
-        />
-      </filter>
-      <rect width="100%" height="100%" filter={`url(#${id})`} />
-    </svg>
-  );
-}
 
 /**
  * A Calamansi dock that magnifies the item under the pointer, Mac-style.
@@ -139,7 +120,6 @@ export function Dock({
 }: DockProps) {
   const mouseX = useMotionValue(Infinity);
   const fixedHeight = panelHeight ?? size + 16;
-  const filterId = `dock-grain-${useId().replace(/[^a-zA-Z0-9]/g, "")}`;
 
   return (
     <DockMouseContext.Provider value={mouseX}>
@@ -147,12 +127,9 @@ export function Dock({
         onPointerMove={(event) => mouseX.set(event.pageX)}
         onPointerLeave={() => mouseX.set(Infinity)}
         style={{ height: fixedHeight }}
-        className={cn(PANEL, VARIANTS[variant], PANEL_SHADOW, className)}
+        className={cn(PANEL, VARIANTS[variant].ink, className)}
       >
-        {/* clipped so the grain follows the rounded corners */}
-        <span className="pointer-events-none absolute inset-0 overflow-hidden rounded-[inherit]">
-          <Grain id={filterId} />
-        </span>
+        <Squircle className={VARIANTS[variant].paint} />
 
         <DockConfigContext.Provider value={{ reach, size, magnify }}>
           {children}

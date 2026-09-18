@@ -19,6 +19,11 @@ const VARIANTS: {
   gradient: string;
 }[] = [
   {
+    id: "white",
+    label: "White",
+    gradient: "linear-gradient(135deg, #ffffff 0%, #e9e9ec 50%, #d4d4d8 100%)",
+  },
+  {
     id: "calamansi",
     label: "Calamansi",
     gradient: "linear-gradient(135deg, #8fa37d 0%, #5c7a67 50%, #39564a 100%)",
@@ -32,11 +37,6 @@ const VARIANTS: {
     id: "citrus",
     label: "Warm Citrus",
     gradient: "linear-gradient(135deg, #d69f7e 0%, #b87152 50%, #7d4128 100%)",
-  },
-  {
-    id: "black",
-    label: "Dark Black",
-    gradient: "linear-gradient(135deg, #27272a 0%, #18181b 50%, #09090b 100%)",
   },
 ];
 
@@ -54,8 +54,7 @@ const ITEMS = [
 export default function DockDemo() {
   const [active, setActive] = useState("Home");
   const [variant, setVariant] = useState<DockVariant>("calamansi");
-  const currentVariant =
-    VARIANTS.find((v) => v.id === variant) ?? VARIANTS[0];
+  const currentVariant = VARIANTS.find((v) => v.id === variant) ?? VARIANTS[0];
 
   return (
     <div className="flex h-full w-full flex-col items-center justify-center gap-5 p-2 sm:gap-10 sm:p-6">
@@ -80,7 +79,7 @@ export default function DockDemo() {
                 className={`relative size-7 cursor-pointer rounded-xl transition-all duration-200 hover:scale-105 sm:size-8 ${
                   selected
                     ? "scale-110 shadow-md ring-2 ring-primary ring-offset-2 ring-offset-background"
-                    : "opacity-80 ring-1 ring-white/20 hover:opacity-100"
+                    : "opacity-80 ring-1 ring-foreground/10 hover:opacity-100"
                 }`}
                 style={{ background: option.gradient }}
               />
@@ -104,11 +103,13 @@ export default function DockDemo() {
       </div>
 
       {/*
-        The row scrolls sideways when the dock is wider than the screen, but it must not clip in the
-        vertical axis: the magnified icon and its hover label grow past the dock's top edge, so the
-        container carries the headroom as padding and pulls it back out with a negative margin.
+        The row scrolls sideways when the dock is wider than the screen, but `overflow-x-auto`
+        clips on both axes, so the container has to carry every bit of headroom the dock needs and
+        pull it back out with negative margins. Two things stick out of the panel: the magnified
+        icon and its hover label above it (about 48px), and the panel's own drop-shadow lift (42px
+        below, and about 28px to the sides — it is a filter, so it is cut exactly like the icons).
       */}
-      <div className="-mt-16 flex w-full max-w-full justify-start overflow-x-auto overscroll-x-contain px-2 pt-16 pb-2 [scrollbar-width:none] sm:w-auto sm:justify-center">
+      <div className="-mt-16 -mb-12 flex w-full max-w-full justify-start overflow-x-auto overscroll-x-contain px-8 pt-16 pb-12 [scrollbar-width:none] sm:w-auto sm:justify-center">
         <Dock variant={variant}>
           {ITEMS.map(({ label, Icon }) => (
             <DockItem

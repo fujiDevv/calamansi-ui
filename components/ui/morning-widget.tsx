@@ -15,6 +15,7 @@ import {
   useTransform,
 } from "motion/react";
 import { Sun } from "lucide-react";
+import { Squircle } from "@/lib/squircle";
 import { cn } from "@/lib/utils";
 
 export type MotivationQuote = {
@@ -23,6 +24,8 @@ export type MotivationQuote = {
   /** Phrases from `text` to render in the emphasis colour. Matched literally. */
   emphasis?: string[];
 };
+
+export type MorningWidgetVariant = "white" | "calamansi" | "slate" | "citrus";
 
 export type MorningWidgetProps = {
   /** Name the greeting is addressed to. Default: "Friend" */
@@ -37,6 +40,8 @@ export type MorningWidgetProps = {
   interval?: number;
   /** Lean the widget towards the pointer. Default: true */
   tilt?: boolean;
+  /** Surface palette. Default: "calamansi" */
+  variant?: MorningWidgetVariant;
   /** Extra class names merged onto the outer container. */
   className?: string;
 };
@@ -65,25 +70,47 @@ const DEFAULT_QUOTES: MotivationQuote[] = [
 ];
 
 /**
- * Every size, radius and inset below is written in `cqw` — one percent of the
- * widget's own width — so the card is an exact scale of its 519px design from a
- * phone preview up to full width. The @container on the outer element is what
- * those units resolve against; nothing here needs a media query.
+ * Every size and inset below is written in `cqw` — one percent of the widget's
+ * own width — so the card is an exact scale of its 519px design from a phone
+ * preview up to full width. The @container on the outer element is what those
+ * units resolve against; nothing here needs a media query. The corner is the one
+ * exception: it is the kit's squircle, so it holds the same curve as every other
+ * component instead of drifting with the width.
+ *
+ * The palette picks the four blobs the mesh is built from plus the base they sit
+ * on, and the ink that reads on top of them: a neutral dawn for `white`, the
+ * Calamansi greens by default, and citrus keeps the warm sunrise.
  */
-const MESH_VARS = [
-  "[--mesh-base:#ffe7cc]",
-  "[--mesh-a:#fcaf58]",
-  "[--mesh-b:#ff8d8d]",
-  "[--mesh-c:#ffc93d]",
-  "[--mesh-d:#ffb6a0]",
-  "[--mesh-ink:rgba(255,255,255,0.85)]",
-  "dark:[--mesh-base:#151217]",
-  "dark:[--mesh-a:#6d5cff]",
-  "dark:[--mesh-b:#ff5a5f]",
-  "dark:[--mesh-c:#4b33ff]",
-  "dark:[--mesh-d:#ffb6a0]",
-  "dark:[--mesh-ink:rgba(255,255,255,0.12)]",
-].join(" ");
+const VARIANTS: Record<MorningWidgetVariant, { mesh: string; ink: string }> = {
+  white: {
+    mesh: [
+      "[--mesh-base:#f5f5f6] [--mesh-a:#dadbdf] [--mesh-b:#c7c8cd] [--mesh-c:#e8e8eb] [--mesh-d:#d2d3d8]",
+      "dark:[--mesh-base:#0c0c0d] dark:[--mesh-a:#2c2c31] dark:[--mesh-b:#1e1e22] dark:[--mesh-c:#39393f] dark:[--mesh-d:#26262a]",
+    ].join(" "),
+    ink: "text-foreground",
+  },
+  calamansi: {
+    mesh: [
+      "[--mesh-base:#eff6e0] [--mesh-a:#7d9c52] [--mesh-b:#b4e84c] [--mesh-c:#5c7a67] [--mesh-d:#a8d06a]",
+      "dark:[--mesh-base:#0f1409] dark:[--mesh-a:#4f7d3a] dark:[--mesh-b:#86b81f] dark:[--mesh-c:#2b4a24] dark:[--mesh-d:#6f9a4a]",
+    ].join(" "),
+    ink: "text-white",
+  },
+  slate: {
+    mesh: [
+      "[--mesh-base:#eeecf6] [--mesh-a:#8b84b4] [--mesh-b:#7d8bc9] [--mesh-c:#5a6a9c] [--mesh-d:#a99fd6]",
+      "dark:[--mesh-base:#0d0c16] dark:[--mesh-a:#4a4b8f] dark:[--mesh-b:#33406b] dark:[--mesh-c:#6f68b8] dark:[--mesh-d:#2a3560]",
+    ].join(" "),
+    ink: "text-white",
+  },
+  citrus: {
+    mesh: [
+      "[--mesh-base:#ffe7cc] [--mesh-a:#fcaf58] [--mesh-b:#ff8d8d] [--mesh-c:#ffc93d] [--mesh-d:#ffb6a0]",
+      "dark:[--mesh-base:#17100a] dark:[--mesh-a:#b8714a] dark:[--mesh-b:#8a4530] dark:[--mesh-c:#a8623a] dark:[--mesh-d:#6d3a25]",
+    ].join(" "),
+    ink: "text-white",
+  },
+};
 
 const MESH_BACKGROUND = [
   "radial-gradient(circle at 10% 20%, var(--mesh-a) 0%, transparent 55%)",
@@ -154,9 +181,9 @@ function RollingGlyph({
 }
 
 /**
- * A sunrise-gradient card that greets you by name, keeps the time, leans towards
- * the pointer and cycles motivational quotes with a staged reveal.
- * Design inspired by Jay Dwivedi (https://sprrrint.com/jaydwivedi).
+ * A Calamansi squircle card holding a drifting sunrise mesh: it greets you by
+ * name, keeps the time, leans towards the pointer and cycles motivational quotes
+ * with a staged reveal. The palette recolours the mesh and the ink on it.
  */
 export function MorningWidget({
   name = "Friend",
@@ -165,6 +192,7 @@ export function MorningWidget({
   timeFormat = "12h",
   interval = 9,
   tilt = true,
+  variant = "calamansi",
   className,
 }: MorningWidgetProps) {
   const reduceMotion = Boolean(useReducedMotion());
@@ -254,53 +282,66 @@ export function MorningWidget({
       >
         <div
           data-slot="morning-widget"
-          className="relative size-full overflow-hidden rounded-[17cqw] border-[1.73cqw] border-white/95 bg-[var(--mesh-base)] shadow-[0_2.5rem_3.5rem_rgba(0,0,0,0.08),inset_0_1.2cqw_1.4cqw_0.4cqw_var(--mesh-ink)] dark:border-[#272a33] dark:shadow-[0_2.5rem_3.5rem_rgba(0,0,0,0.4),inset_0_1.2cqw_1.4cqw_0.4cqw_var(--mesh-ink)]"
+          className={cn(
+            "relative size-full select-none",
+            VARIANTS[variant].mesh,
+            VARIANTS[variant].ink,
+          )}
         >
-          {/* Sunrise mesh. It drifts on its own so the surface keeps breathing. */}
-          <motion.div
-            aria-hidden="true"
-            className={cn("absolute -inset-1/4", MESH_VARS)}
-            style={{ background: MESH_BACKGROUND }}
-            animate={
-              reduceMotion
-                ? undefined
-                : { scale: [1, 1.08, 1], rotate: [0, 2, 0] }
-            }
-            transition={{ duration: 22, repeat: Infinity, ease: "easeInOut" }}
-          />
+          {/*
+            The mesh lives inside the squircle layer rather than on the card, so
+            the drift, the bloom and the sheen are all clipped to the shape — and
+            the corner is the kit's curve, not a cqw radius.
+          */}
+          <Squircle className="bg-[var(--mesh-base)]">
+            {/* Sunrise mesh. It drifts on its own so the surface keeps breathing. */}
+            <motion.div
+              aria-hidden="true"
+              className="absolute -inset-1/4"
+              style={{ background: MESH_BACKGROUND }}
+              animate={
+                reduceMotion
+                  ? undefined
+                  : { scale: [1, 1.08, 1], rotate: [0, 2, 0] }
+              }
+              transition={{ duration: 22, repeat: Infinity, ease: "easeInOut" }}
+            />
 
-          {/* Warm bloom in the top corner, swelling like a sunrise. */}
-          <motion.div
-            aria-hidden="true"
-            className="absolute -top-1/4 -left-1/4 size-3/4 rounded-full"
-            style={{
-              background:
-                "radial-gradient(circle, rgba(255,255,255,0.5) 0%, transparent 65%)",
-            }}
-            animate={reduceMotion ? undefined : { opacity: [0.45, 0.85, 0.45] }}
-            transition={{ duration: 9, repeat: Infinity, ease: "easeInOut" }}
-          />
+            {/* Warm bloom in the top corner, swelling like a sunrise. */}
+            <motion.div
+              aria-hidden="true"
+              className="absolute -top-1/4 -left-1/4 size-3/4 rounded-full"
+              style={{
+                background:
+                  "radial-gradient(circle, rgba(255,255,255,0.5) 0%, transparent 65%)",
+              }}
+              animate={
+                reduceMotion ? undefined : { opacity: [0.45, 0.85, 0.45] }
+              }
+              transition={{ duration: 9, repeat: Infinity, ease: "easeInOut" }}
+            />
 
-          {/* A soft light crossing the glass every few seconds. */}
-          <motion.div
-            aria-hidden="true"
-            className="absolute -inset-1/4"
-            style={{
-              background:
-                "linear-gradient(115deg, transparent 38%, rgba(255,255,255,0.4) 50%, transparent 62%)",
-            }}
-            animate={reduceMotion ? undefined : { x: ["-40%", "40%"] }}
-            transition={{
-              duration: 7,
-              repeat: Infinity,
-              repeatDelay: 4,
-              ease: "easeInOut",
-            }}
-          />
+            {/* A soft light crossing the surface every few seconds. */}
+            <motion.div
+              aria-hidden="true"
+              className="absolute -inset-1/4"
+              style={{
+                background:
+                  "linear-gradient(115deg, transparent 38%, rgba(255,255,255,0.4) 50%, transparent 62%)",
+              }}
+              animate={reduceMotion ? undefined : { x: ["-40%", "40%"] }}
+              transition={{
+                duration: 7,
+                repeat: Infinity,
+                repeatDelay: 4,
+                ease: "easeInOut",
+              }}
+            />
+          </Squircle>
 
           {showClock && (
             /* the row carries the shadow, leaving the heading free to clip its rolling digits */
-            <div className="pointer-events-none absolute top-[8.4%] left-[10%] z-30 font-runde text-white drop-shadow-sm">
+            <div className="pointer-events-none absolute top-[8.4%] left-[10%] z-30 font-runde drop-shadow-sm">
               <h1 className="text-[17.5cqw] leading-none font-bold tracking-[-0.03em] tabular-nums [clip-path:inset(0_-0.3em)]">
                 <span className="sr-only">
                   {clock.time}
@@ -329,12 +370,6 @@ export function MorningWidget({
             </div>
           )}
 
-          {/* Frosted lip the solid card sits inside. */}
-          <div
-            aria-hidden="true"
-            className="absolute bottom-[10.5%] left-[8.5%] z-10 aspect-[430/196] w-[82.9%] rounded-[11.2cqw] border-t border-white/40 bg-white/15 shadow-[inset_0_0.8cqw_1.2cqw_-0.8cqw_rgba(255,255,255,0.8)] backdrop-blur-[20px] dark:border-white/10 dark:bg-black/20"
-          />
-
           <motion.button
             type="button"
             onClick={advance}
@@ -346,7 +381,7 @@ export function MorningWidget({
             whileHover={reduceMotion ? undefined : { y: -4 }}
             whileTap={reduceMotion ? undefined : { scale: 0.985 }}
             transition={{ type: "spring", stiffness: 320, damping: 26 }}
-            className="absolute bottom-[2.5%] left-[2.3%] z-20 flex aspect-[477/216] w-[91.9%] cursor-pointer flex-col justify-center rounded-[12.7cqw] bg-gradient-to-b from-white to-[#fdfdfd] px-[6.4cqw] text-left shadow-[0_0.6cqw_1.6cqw_rgba(0,0,0,0.05)] outline-none select-none focus-visible:ring-[0.5cqw] focus-visible:ring-foreground/25 dark:from-[#1f2229] dark:to-[#1a1c22] dark:shadow-[0_0.6cqw_1.6cqw_rgba(0,0,0,0.3)]"
+            className="absolute bottom-[2.5%] left-[2.3%] z-20 flex aspect-[477/216] w-[91.9%] cursor-pointer flex-col justify-center rounded-[28px] bg-white px-[6.4cqw] text-left shadow-[0_0.6cqw_1.6cqw_rgba(0,0,0,0.05)] outline-none select-none focus-visible:ring-[0.5cqw] focus-visible:ring-foreground/25 dark:bg-[#1c1c1f] dark:shadow-[0_0.6cqw_1.6cqw_rgba(0,0,0,0.3)]"
           >
             <span className="mb-[2.3cqw] flex items-center gap-[1.9cqw]">
               <motion.span

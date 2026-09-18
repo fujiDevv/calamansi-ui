@@ -3,6 +3,7 @@
 import {
   type CSSProperties,
   type PointerEvent as ReactPointerEvent,
+  type ReactNode,
   useEffect,
   useId,
   useRef,
@@ -11,10 +12,17 @@ import gsap from "gsap";
 import { cn } from "@/lib/utils";
 
 export type CalamansiMood = "happy" | "love" | "sleepy" | "tart";
+
+/**
+ * `textured` (the default) lights the rind: fractal noise drives two lighting
+ * passes, so the peel has pores and slow waxy undulation instead of a flat grain
+ * stamped over it, with a tight specular core, a directional bevel and a grounding
+ * shadow underneath. `plain` is the flat, minimal take on the same fruit.
+ */
 export type CalamansiTexture = "textured" | "plain";
 export type CalamansiVariant = "default" | "primary" | "citrus" | "slate";
 
-type CalamansiProps = {
+export type CalamansiProps = {
   className?: string;
   size?: number;
   variant?: CalamansiVariant;
@@ -23,6 +31,10 @@ type CalamansiProps = {
   interactive?: boolean;
   followCursor?: boolean;
   pressable?: boolean;
+  /** Optional title displayed in a vertical flex stack */
+  title?: ReactNode;
+  /** Optional description text displayed below the title */
+  description?: ReactNode;
 };
 
 /**
@@ -37,12 +49,31 @@ export const CALAMANSI_BODY_PATH =
   "M306 104c94 0 166 52 196 122 32 74 26 164-24 220-40 44-106 74-148 68-12-2-19-11-24-18-5 7-12 16-24 18-42 6-108-24-148-68-50-56-56-146-24-220 30-70 102-122 196-122Z";
 
 /** The stem sprouting from the top of the fruit. */
-export const CALAMANSI_STEM_PATH =
-  "M298 112c0-26 2-46 8-60 6 14 8 34 8 60Z";
+export const CALAMANSI_STEM_PATH = "M298 112c0-26 2-46 8-60 6 14 8 34 8 60Z";
 
 /** The single leaf angled up and to the right. */
 export const CALAMANSI_LEAF_PATH =
   "M312 66c32-44 98-64 156-52-8 52-68 88-130 80-14-2-24-14-26-28Z";
+
+/**
+ * The dimples the light catches along the lower flanks. They follow the curve of
+ * the sphere where it turns away from the light — soft, and few, so the rind reads
+ * as porous rather than speckled.
+ */
+const PEEL_DIMPLES: [number, number, number][] = [
+  [178, 384, 7],
+  [206, 424, 6],
+  [238, 454, 7],
+  [276, 470, 6],
+  [312, 476, 7],
+  [350, 466, 6],
+  [386, 448, 7],
+  [416, 414, 6],
+  [440, 374, 7],
+  [162, 332, 6],
+  [454, 318, 6],
+  [200, 446, 5],
+];
 
 const bodyStyle = {
   transformBox: "view-box",
@@ -166,6 +197,8 @@ export function Calamansi({
   interactive = true,
   followCursor,
   pressable,
+  title,
+  description,
 }: CalamansiProps) {
   const isPlain = texture === "plain";
   const shouldFollowCursor = followCursor ?? interactive;
@@ -175,10 +208,16 @@ export function Calamansi({
   const blurId = `${shadowId}-inner-shadow-blur`;
   const mainGlowId = `${shadowId}-main-glow`;
   const rimGlowId = `${shadowId}-rim-glow`;
-  const grainFilterId = `${shadowId}-citrus-grain`;
+  const peelHighlightId = `${shadowId}-peel-highlight`;
+  const peelShadowId = `${shadowId}-peel-shadow`;
+  const mottleId = `${shadowId}-wax-mottle`;
+  const softenId = `${shadowId}-soften`;
+  const contactId = `${shadowId}-grounding`;
   const depthGradientId = `${shadowId}-citrus-depth`;
   const sunSheenId = `${shadowId}-sun-sheen`;
   const dimpleGradientId = `${shadowId}-dimple-depth`;
+  const leafShadeId = `${shadowId}-leaf-shade`;
+  const stemShadeId = `${shadowId}-stem-shade`;
 
   const isPrimary = variant === "primary";
   const isCitrus = variant === "citrus";
@@ -926,14 +965,14 @@ export function Calamansi({
       });
   };
 
-  return (
+  const svgContent = (
     <svg
       ref={fruitRef}
       aria-label="Animated Calamansi mascot"
       className={cn(
         "calamansi-mascot group touch-none select-none overflow-visible",
         shouldPress ? "cursor-grab active:cursor-grabbing" : "cursor-default",
-        className,
+        !title && !description && className,
       )}
       fill="none"
       height={size}
@@ -1015,31 +1054,116 @@ export function Calamansi({
         <filter id={blurId} x="-20%" y="-20%" width="140%" height="140%">
           <feGaussianBlur stdDeviation="18" />
         </filter>
-        {/* Fractal-noise grain simulating the porous citrus peel texture */}
-        <filter id={grainFilterId} x="0%" y="0%" width="100%" height="100%">
+        {/*
+          The peel is lit, not stippled. Fractal noise drives `feDiffuseLighting`
+          from a distant light in the same top-left direction as the sheen, and the
+          result is split into a highlight pass and a shadow pass, so the relief
+          shades the flesh instead of fogging it with a flat grain overlay.
+        */}
+        <filter id={peelHighlightId} x="0%" y="0%" width="100%" height="100%">
           <feTurbulence
-            type="fractalNoise"
-            baseFrequency="0.75"
-            numOctaves="3"
+            baseFrequency="0.16"
+            numOctaves="4"
+            result="pores"
+            seed="11"
             stitchTiles="stitch"
-            result="noise"
+            type="fractalNoise"
           />
+          <feDiffuseLighting
+            diffuseConstant="1.05"
+            in="pores"
+            lightingColor="#ffffff"
+            result="relief"
+            surfaceScale="1.3"
+          >
+            <feDistantLight azimuth="235" elevation="52" />
+          </feDiffuseLighting>
           <feColorMatrix
+            in="relief"
+            result="lit"
+            type="matrix"
+            values="0 0 0 0 1
+                    0 0 0 0 1
+                    0 0 0 0 1
+                    2 0 0 0 -1.15"
+          />
+          <feComposite in="lit" in2="SourceAlpha" operator="in" />
+        </filter>
+        <filter id={peelShadowId} x="0%" y="0%" width="100%" height="100%">
+          <feTurbulence
+            baseFrequency="0.16"
+            numOctaves="4"
+            result="pores"
+            seed="11"
+            stitchTiles="stitch"
+            type="fractalNoise"
+          />
+          <feDiffuseLighting
+            diffuseConstant="1.05"
+            in="pores"
+            lightingColor="#ffffff"
+            result="relief"
+            surfaceScale="1.3"
+          >
+            <feDistantLight azimuth="235" elevation="52" />
+          </feDiffuseLighting>
+          <feColorMatrix
+            in="relief"
+            result="shade"
             type="matrix"
             values="0 0 0 0 0
                     0 0 0 0 0
                     0 0 0 0 0
-                    0 0 0 0.22 0"
-            in="noise"
-            result="coloredNoise"
+                    -2 0 0 0 1.15"
           />
-          <feComposite in="coloredNoise" in2="SourceGraphic" operator="in" />
+          <feComposite in="shade" in2="SourceAlpha" operator="in" />
         </filter>
-        {/* Spherical bottom depth — gives the fruit weight and roundness */}
-        <radialGradient id={depthGradientId} cx="50%" cy="88%" r="68%">
-          <stop offset="0%" stopColor="#19330a" stopOpacity="0.45" />
-          <stop offset="45%" stopColor="#22420f" stopOpacity="0.22" />
-          <stop offset="85%" stopColor="#2e5416" stopOpacity="0" />
+        {/* Slow waxy undulation under the pores: the difference between a rind and a ball. */}
+        <filter id={mottleId} x="0%" y="0%" width="100%" height="100%">
+          <feTurbulence
+            baseFrequency="0.008"
+            numOctaves="2"
+            result="mottle"
+            seed="5"
+            stitchTiles="stitch"
+            type="fractalNoise"
+          />
+          <feDiffuseLighting
+            diffuseConstant="1"
+            in="mottle"
+            lightingColor="#ffffff"
+            result="undulation"
+            surfaceScale="3.2"
+          >
+            <feDistantLight azimuth="250" elevation="45" />
+          </feDiffuseLighting>
+          <feColorMatrix
+            in="undulation"
+            type="matrix"
+            values="0 0 0 0 0
+                    0 0 0 0 0
+                    0 0 0 0 0
+                    -2 0 0 0 1.15"
+          />
+          <feComposite in="undulation" in2="SourceAlpha" operator="in" />
+        </filter>
+        {/* Softens the dimples, and the shadows that land on the fruit. */}
+        <filter id={softenId} x="-30%" y="-60%" width="160%" height="220%">
+          <feGaussianBlur stdDeviation="3" />
+        </filter>
+        {/* The pool of shade the fruit sits in. */}
+        <filter id={contactId} x="-40%" y="-160%" width="180%" height="420%">
+          <feGaussianBlur stdDeviation="16" />
+        </filter>
+        {/*
+          Spherical bottom depth. Black rather than a green-tinted stop, so the
+          shading follows every palette — the citrus and slate fruits were being
+          shadowed with the calamansi's own greens.
+        */}
+        <radialGradient id={depthGradientId} cx="50%" cy="86%" r="70%">
+          <stop offset="0%" stopColor="#000000" stopOpacity="0.34" />
+          <stop offset="45%" stopColor="#000000" stopOpacity="0.16" />
+          <stop offset="85%" stopColor="#000000" stopOpacity="0" />
         </radialGradient>
         {/* Crisp daylight sheen on top */}
         <radialGradient id={sunSheenId} cx="32%" cy="20%" r="62%">
@@ -1063,9 +1187,20 @@ export function Calamansi({
         </radialGradient>
         {/* Navel dimple shadow */}
         <radialGradient id={dimpleGradientId} cx="50%" cy="100%" r="100%">
-          <stop offset="0%" stopColor="#122506" stopOpacity="0.35" />
-          <stop offset="100%" stopColor="#122506" stopOpacity="0" />
+          <stop offset="0%" stopColor="#000000" stopOpacity="0.32" />
+          <stop offset="100%" stopColor="#000000" stopOpacity="0" />
         </radialGradient>
+        {/* Leaf and stem shading, built from black and white so it reads on every
+            palette: a lit upper edge falling away into a shaded base. */}
+        <linearGradient id={leafShadeId} x1="0%" y1="0%" x2="45%" y2="100%">
+          <stop offset="0%" stopColor="#ffffff" stopOpacity="0.34" />
+          <stop offset="42%" stopColor="#ffffff" stopOpacity="0.04" />
+          <stop offset="100%" stopColor="#000000" stopOpacity="0.32" />
+        </linearGradient>
+        <linearGradient id={stemShadeId} x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" stopColor="#ffffff" stopOpacity="0.3" />
+          <stop offset="100%" stopColor="#000000" stopOpacity="0.3" />
+        </linearGradient>
       </defs>
 
       <g
@@ -1075,20 +1210,35 @@ export function Calamansi({
         )}
         style={bodyStyle}
       >
+        {!isPlain && (
+          /* The pool of shade the fruit grounds itself with. */
+          <ellipse
+            cx="306"
+            cy="556"
+            rx="164"
+            ry="26"
+            fill="#000000"
+            filter={`url(#${contactId})`}
+            opacity="0.32"
+          />
+        )}
+
         <path
           d={CALAMANSI_STEM_PATH}
           fill={leafFill}
           stroke={leafFill}
           strokeLinejoin="round"
-          strokeWidth={6}
+          strokeWidth={isPlain ? 6 : 4}
         />
         {!isPlain && (
           <>
+            {/* Stem shading down its length */}
+            <path d={CALAMANSI_STEM_PATH} fill={`url(#${stemShadeId})`} />
             {/* Stem woody fiber highlight */}
             <path
               d="M304 62 L304 108"
               fill="none"
-              opacity="0.35"
+              opacity="0.3"
               stroke="#ffffff"
               strokeWidth={2}
               strokeLinecap="round"
@@ -1110,62 +1260,61 @@ export function Calamansi({
           fill={leafFill}
           stroke={leafFill}
           strokeLinejoin="round"
-          strokeWidth={6}
+          strokeWidth={isPlain ? 6 : 4}
         />
+        {!isPlain && (
+          /* Lit upper edge falling into a shaded base, so the blade has a surface */
+          <path d={CALAMANSI_LEAF_PATH} fill={`url(#${leafShadeId})`} />
+        )}
         <path
           d={CALAMANSI_LEAF_PATH}
           fill="none"
-          opacity="0.45"
+          opacity={isPlain ? 0.45 : 0.28}
           stroke={isPrimary ? "var(--calamansi-rind-deep, #86b81f)" : eyeFill}
           strokeLinecap="round"
-          strokeWidth={5}
+          strokeWidth={isPlain ? 5 : 2.5}
         />
         {!isPlain && (
-          /* Leaf veins & natural leaf texture */
-          <g opacity="0.4" stroke={isPrimary ? "#ffffff" : eyeFill} strokeLinecap="round">
+          /* Veins, kept faint so the blade still reads as one surface */
+          <g
+            opacity="0.26"
+            stroke={isPrimary ? "#ffffff" : eyeFill}
+            strokeLinecap="round"
+          >
             {/* Main central spine */}
-            <path
-              d="M318 64 Q382 46 454 22"
-              fill="none"
-              strokeWidth={3}
-            />
+            <path d="M318 64 Q382 46 454 22" fill="none" strokeWidth={2} />
             {/* Upper diagonal veins */}
-            <path
-              d="M352 56 Q370 42 392 34"
-              fill="none"
-              strokeWidth={2}
-            />
-            <path
-              d="M386 46 Q406 34 430 26"
-              fill="none"
-              strokeWidth={2}
-            />
+            <path d="M352 56 Q370 42 392 34" fill="none" strokeWidth={1.4} />
+            <path d="M386 46 Q406 34 430 26" fill="none" strokeWidth={1.4} />
             {/* Lower diagonal veins */}
-            <path
-              d="M362 60 Q382 72 408 72"
-              fill="none"
-              strokeWidth={2}
-            />
-            <path
-              d="M398 50 Q418 62 436 60"
-              fill="none"
-              strokeWidth={2}
-            />
+            <path d="M362 60 Q382 72 408 72" fill="none" strokeWidth={1.4} />
+            <path d="M398 50 Q418 62 436 60" fill="none" strokeWidth={1.4} />
           </g>
         )}
 
         <path d={CALAMANSI_BODY_PATH} fill={bodyFill} />
         <g clipPath={`url(#${clipId})`}>
           {!isPlain && (
-            /* 1. Spherical citrus depth at base */
-            <rect
-              width="612"
-              height="612"
-              fill={`url(#${depthGradientId})`}
-            />
+            <>
+              {/* 1. Spherical citrus depth at base */}
+              <rect
+                width="612"
+                height="612"
+                fill={`url(#${depthGradientId})`}
+              />
+
+              {/* 2. The leaf's shadow landing on the shoulder of the fruit */}
+              <path
+                d={CALAMANSI_LEAF_PATH}
+                fill="#000000"
+                filter={`url(#${softenId})`}
+                opacity="0.18"
+                transform="translate(7 18)"
+              />
+            </>
           )}
 
-          {/* 2. Top-left light wash */}
+          {/* 3. Top-left light wash */}
           <ellipse
             cx="244"
             cy="196"
@@ -1191,44 +1340,36 @@ export function Calamansi({
             opacity={isPlain ? 0.35 : 0.6}
           />
 
-          {!isPlain && (
+          {!isPlain ? (
             <>
-              {/* 4. Fine fractal citrus peel grain overlay */}
+              {/* 5. Waxy undulation, then the pores — all lit from the top left */}
               <rect
                 width="612"
                 height="612"
-                fill="white"
-                filter={`url(#${grainFilterId})`}
-                opacity="0.22"
-                style={{ mixBlendMode: "overlay" }}
+                filter={`url(#${mottleId})`}
+                opacity="0.16"
+              />
+              <rect
+                width="612"
+                height="612"
+                filter={`url(#${peelShadowId})`}
+                opacity="0.26"
+              />
+              <rect
+                width="612"
+                height="612"
+                filter={`url(#${peelHighlightId})`}
+                opacity="0.3"
               />
 
-              {/* 5. Organic citrus peel micropores (stippling around curved flanks) */}
-              <g opacity="0.18" fill={isPrimary ? "#142805" : eyeFill}>
-                <circle cx="178" cy="384" r="2.2" />
-                <circle cx="194" cy="412" r="1.8" />
-                <circle cx="212" cy="392" r="2.5" />
-                <circle cx="228" cy="434" r="2.2" />
-                <circle cx="248" cy="452" r="1.8" />
-                <circle cx="278" cy="466" r="2.5" />
-                <circle cx="308" cy="472" r="2.2" />
-                <circle cx="338" cy="464" r="2.5" />
-                <circle cx="368" cy="448" r="1.8" />
-                <circle cx="394" cy="428" r="2.2" />
-                <circle cx="418" cy="398" r="2.5" />
-                <circle cx="434" cy="368" r="1.8" />
-                <circle cx="162" cy="342" r="2.2" />
-                <circle cx="152" cy="302" r="1.8" />
-                <circle cx="452" cy="324" r="1.8" />
-                <circle cx="462" cy="284" r="2.2" />
-                <circle cx="204" cy="442" r="1.6" />
-                <circle cx="264" cy="476" r="2" />
-                <circle cx="324" cy="482" r="1.8" />
-                <circle cx="384" cy="462" r="2" />
-                <circle cx="408" cy="442" r="1.6" />
+              {/* 6. Dimples the eye reads as pores, down where the sphere turns away */}
+              <g fill="#000000" filter={`url(#${softenId})`} opacity="0.08">
+                {PEEL_DIMPLES.map(([cx, cy, r]) => (
+                  <circle key={`${cx}-${cy}`} cx={cx} cy={cy} r={r} />
+                ))}
               </g>
 
-              {/* 6. Soft navel crease at bottom center */}
+              {/* 7. Navel crease, with the small highlight the fold catches */}
               <ellipse
                 cx="306"
                 cy="498"
@@ -1236,18 +1377,77 @@ export function Calamansi({
                 ry="18"
                 fill={`url(#${dimpleGradientId})`}
               />
-            </>
-          )}
+              <path
+                d="M280 490c10-10 42-10 52 0"
+                fill="none"
+                opacity="0.16"
+                stroke="#ffffff"
+                strokeLinecap="round"
+                strokeWidth="3"
+              />
 
-          {/* 7. Inner edge bevel glow */}
-          <path
-            d={CALAMANSI_BODY_PATH}
-            fill="none"
-            filter={`url(#${blurId})`}
-            opacity="0.22"
-            stroke="white"
-            strokeWidth="26"
-          />
+              {/* 8. Specular core: the tight window reflection the wax throws back */}
+              <ellipse
+                cx="216"
+                cy="170"
+                rx="98"
+                ry="64"
+                fill="#ffffff"
+                filter={`url(#${softenId})`}
+                opacity="0.3"
+              />
+              <ellipse
+                cx="196"
+                cy="150"
+                rx="46"
+                ry="27"
+                fill="#ffffff"
+                filter={`url(#${softenId})`}
+                opacity="0.34"
+              />
+
+              {/* 9. Bevel: a lit rim on the top left, a shaded rim on the bottom right */}
+              <path
+                d={CALAMANSI_BODY_PATH}
+                fill="none"
+                filter={`url(#${blurId})`}
+                opacity="0.3"
+                stroke="#ffffff"
+                strokeWidth="24"
+                transform="translate(-5 -5)"
+              />
+              <path
+                d={CALAMANSI_BODY_PATH}
+                fill="none"
+                filter={`url(#${blurId})`}
+                opacity="0.22"
+                stroke="#000000"
+                strokeWidth="24"
+                transform="translate(6 6)"
+              />
+
+              {/* 10. Glossy bounce hugging the bottom edge */}
+              <path
+                d={CALAMANSI_BODY_PATH}
+                fill="none"
+                filter={`url(#${softenId})`}
+                opacity="0.26"
+                stroke="#ffffff"
+                strokeWidth="7"
+                transform="translate(0 -4)"
+              />
+            </>
+          ) : (
+            /* Inner edge bevel glow */
+            <path
+              d={CALAMANSI_BODY_PATH}
+              fill="none"
+              filter={`url(#${blurId})`}
+              opacity="0.22"
+              stroke="white"
+              strokeWidth="26"
+            />
+          )}
         </g>
         <g transform="translate(424 116) scale(0.38)">
           <g
@@ -1315,6 +1515,39 @@ export function Calamansi({
       )}
     </svg>
   );
+
+  if (title || description) {
+    return (
+      <div
+        className={cn(
+          "flex flex-col items-center gap-3 text-center",
+          className,
+        )}
+      >
+        <div className="flex flex-col items-center gap-1.5 text-center">
+          {title &&
+            (typeof title === "string" ? (
+              <p className="font-runde text-lg font-semibold tracking-tight text-foreground">
+                {title}
+              </p>
+            ) : (
+              title
+            ))}
+          {description &&
+            (typeof description === "string" ? (
+              <p className="max-w-sm text-xs text-muted-foreground">
+                {description}
+              </p>
+            ) : (
+              description
+            ))}
+        </div>
+        {svgContent}
+      </div>
+    );
+  }
+
+  return svgContent;
 }
 
 export default Calamansi;
