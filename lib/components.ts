@@ -628,10 +628,10 @@ export function Demo() {
     registry: "dynamic-island",
     dependencies: [{ name: "motion" }],
     description:
-      "A Calamansi squircle island that eases between pill and slab as it morphs states — the content clipped to that same curve — and glows when it alerts.",
+      "A Calamansi squircle island that eases between a compact bar and a slab as it morphs states — the corner the kit's 28px capped by the brand's share of the box, the content clipped to that same curve — and glows when it alerts.",
     source: `${REGISTRY_HOMEPAGE}/blob/main/components/ui/dynamic-island.tsx`,
     interaction:
-      "Click the island to expand it into rich content. In compact and idle states it shows a compact status pill; in alert it pulses with an alert glow and a tap badge hint.",
+      "Click the island to expand it into rich content. Compact and idle hold the brand corner rather than a stadium — the box is short enough that a flat 28px would be clamped to half its height — and the expanded slab takes the kit's 28px outright. In alert it pulses with an alert glow and a tap badge hint.",
     props: [
       {
         name: "state",
@@ -712,6 +712,281 @@ export function Demo() {
       title="Focus Timer"
       trailing={<span>24:18</span>}
       expandedContent={<div>Expanded Timer View</div>}
+    />
+  )
+}`,
+  },
+  {
+    name: "Gooey nav",
+    href: "/components/gooey-nav",
+    category: "navigation",
+    isNew: true,
+    featured: true,
+    registry: "gooey-nav",
+    dependencies: [
+      { name: "motion" },
+      { name: "figma-squircle" },
+      { name: "react-use-measure" },
+    ],
+    description:
+      "A Calamansi squircle nav whose active pill is fused to the tray by a real metaball: the stage is blurred, the blur is pushed through a steep alpha ramp so any bleed becomes solid material, and the crisp stage is drawn back over the top. The thread parts mid-flight and leaves a bead of palette juice behind.",
+    source: `${REGISTRY_HOMEPAGE}/blob/main/components/ui/gooey-nav.tsx`,
+    interaction:
+      "Pick an item and the seams either side of it spring open by pulling the surface back, not by moving the layout — the labels never shift and the bar never changes width. In the gap a thread forms by itself: the blur spreads each surface's alpha into the seam, the ramp at half-alpha turns that bleed into solid material, and because the bar has a height the bridge is starved at its midline — it pinches from the full bar down to a few pixels and then severs at 1.234 of the blur radius, which is where the bead swells to full size and dissolves. Raise the viscosity and the thread reaches further and parts later; lower the threshold and the fused edge softens. Sealed seams are one continuous bar: every surface keeps the brand corner and extends two radii under its neighbour, so the tray reads as a single shape rather than a row of boxes.",
+    props: [
+      {
+        name: "items",
+        type: "GooeyNavItem[]",
+        description:
+          "Labels, or `{ label, href, icon }` objects. An item with an href renders as a link and takes `aria-current`, one without is a button.",
+      },
+      {
+        name: "value",
+        type: "number",
+        description:
+          "Active index, for controlled use. Leave it off and the nav keeps its own, seeded from the route when an item's href matches the current path.",
+      },
+      {
+        name: "defaultValue",
+        type: "number",
+        default: "0",
+        description: "Active index on mount when uncontrolled.",
+      },
+      {
+        name: "onChange",
+        type: "(index: number) => void",
+        description: "Fired with the new index on selection.",
+      },
+      {
+        name: "variant",
+        type: '"white" | "calamansi" | "slate" | "citrus"',
+        default: '"calamansi"',
+        options: ["white", "calamansi", "slate", "citrus"],
+        description:
+          "Palette the active pill, its neck and its bead are painted in. Flat shades of the family's mid stop rather than its gradients, because the liquid has to meet the pill edge to edge.",
+      },
+      {
+        name: "size",
+        type: '"xs" | "sm" | "md" | "lg"',
+        default: '"md"',
+        options: ["xs", "sm", "md", "lg"],
+        description:
+          "Label size, and with it the corner radius and how far the pill travels.",
+      },
+      {
+        name: "separation",
+        type: "number",
+        description:
+          "Override the gap the pill opens up on each side, in pixels.",
+      },
+      {
+        name: "radius",
+        type: "number",
+        description:
+          "Override the brand corner radius in pixels. Defaults to the kit's share of the bar's height — about two fifths, which is the 28px corner on a 64px pill — so the turn reads the same at every size.",
+      },
+      {
+        name: "viscosity",
+        type: "number",
+        description:
+          "The SVG blur behind the fuse, in pixels, and so how far a thread reaches: the bridge survives to about 1.234 of this before it severs. Defaults to 0.55 of the gap.",
+      },
+      {
+        name: "threshold",
+        type: "number",
+        default: "19",
+        description:
+          "The alpha ramp's slope — how hard the fused edge is, and how much the thread thins before it parts.",
+      },
+      {
+        name: "gooey",
+        type: "boolean",
+        default: "true",
+        description:
+          "Run the fuse at all. Off, the surfaces simply pull apart. The filter is skipped under reduced motion either way.",
+      },
+      {
+        name: "bead",
+        type: "boolean",
+        default: "true",
+        description:
+          "Leave a bead of juice behind when the thread severs — the detail that makes the move read as a liquid rather than a slide.",
+      },
+      {
+        name: "className",
+        type: "string",
+        description: "Extra classes merged onto the nav.",
+      },
+    ],
+    usage: `import { GooeyNav } from "@/components/ui/gooey-nav"
+
+export function Demo() {
+  return (
+    <GooeyNav
+      items={[
+        { label: "Home", href: "/" },
+        { label: "Docs", href: "/components/introduction" },
+        { label: "Pricing", href: "/pricing" },
+      ]}
+    />
+  )
+}`,
+  },
+  {
+    name: "Duration picker",
+    href: "/components/duration-picker",
+    category: "inputs",
+    isNew: true,
+    featured: true,
+    registry: "duration-picker",
+    dependencies: [
+      { name: "motion" },
+      { name: "figma-squircle" },
+      { name: "react-use-measure" },
+    ],
+    description:
+      "A Calamansi duration field: hours, minutes and a save button fused into one bar by a real metaball thread. Press the pen and the pieces pull apart on the goo, commit and they merge back — leaving a bead of palette juice where the thread parted.",
+    source: `${REGISTRY_HOMEPAGE}/blob/main/components/ui/duration-picker.tsx`,
+    interaction:
+      'At rest both seams are sealed, so the bar reads as one piece of material: the fields collapse to their digits and the whole thing says "1 Hr. 30 Min.". Press the pen and the seams open by pulling the surfaces apart rather than moving the layout — the fields keep their place, the numbers spring from their collapsed width to a fixed one, and the units lean into the split. The thread between the pieces is real metaball geometry: the stage is blurred, the blur is pushed through a steep alpha ramp so any bleed becomes solid material, and the crisp stage is drawn back over the top. Because the bar has a height the bridge is starved at its midline — it pinches from the full bar down to a few pixels and then severs at 1.234 of the blur radius, which is where the bead swells to full size and dissolves. Committing with the tick, or Enter in either field, merges the pieces back and fires `onConfirm`; a number past the ceiling is refused with a nudge and taken as the nearest legal value.',
+    props: [
+      {
+        name: "value",
+        type: "DurationValue",
+        description:
+          "Controlled value, `{ hours, minutes }`. A new outside value is adopted unless the field already shows that number, so typing is never fought.",
+      },
+      {
+        name: "defaultValue",
+        type: "DurationValue",
+        description: "Value on mount when uncontrolled.",
+      },
+      {
+        name: "onChange",
+        type: "(value: DurationValue) => void",
+        description: "Fired on every keystroke with the clamped value.",
+      },
+      {
+        name: "onConfirm",
+        type: "(value: DurationValue) => void",
+        description:
+          "Fired when the bar is committed — the tick, or Enter in either field.",
+      },
+      {
+        name: "editing",
+        type: "boolean",
+        description: "Hold the bar open or shut yourself.",
+      },
+      {
+        name: "defaultEditing",
+        type: "boolean",
+        default: "false",
+        description: "Open the bar on mount when uncontrolled.",
+      },
+      {
+        name: "onEditingChange",
+        type: "(editing: boolean) => void",
+        description: "Fired when the pieces split apart or merge back.",
+      },
+      {
+        name: "maxHours",
+        type: "number",
+        default: "24",
+        description:
+          "Ceiling for the hours field, and the verge the input refuses to cross.",
+      },
+      {
+        name: "maxMinutes",
+        type: "number",
+        default: "60",
+        description: "Ceiling for the minutes field.",
+      },
+      {
+        name: "hoursLabel",
+        type: "string",
+        default: '"Hr."',
+        description:
+          "Unit after the hours field, and its accessible name as well.",
+      },
+      {
+        name: "minutesLabel",
+        type: "string",
+        default: '"Min."',
+        description: "Unit after the minutes field.",
+      },
+      {
+        name: "variant",
+        type: '"white" | "calamansi" | "slate" | "citrus"',
+        default: '"calamansi"',
+        options: ["white", "calamansi", "slate", "citrus"],
+        description:
+          "Palette the save button and its bead are painted in once the seams are open.",
+      },
+      {
+        name: "size",
+        type: '"sm" | "md" | "lg"',
+        default: '"md"',
+        options: ["sm", "md", "lg"],
+        description:
+          "Bar height, and with it the corner, the travel and the width a live field grows to.",
+      },
+      {
+        name: "gap",
+        type: "number",
+        description: "Override how far the seams open on each side, in pixels.",
+      },
+      {
+        name: "radius",
+        type: "number",
+        description:
+          "Override the brand corner radius in pixels. Defaults to the kit's share of the bar — 16 on 40, 20 on 48, 24 on 56.",
+      },
+      {
+        name: "viscosity",
+        type: "number",
+        description:
+          "The SVG blur behind the fuse, in pixels, and so how far a thread reaches: the bridge survives to about 1.234 of this before it severs. Defaults to 0.55 of the gap.",
+      },
+      {
+        name: "threshold",
+        type: "number",
+        default: "19",
+        description:
+          "The alpha ramp's slope — how hard the fused edge is, and how much the thread thins before it parts.",
+      },
+      {
+        name: "gooey",
+        type: "boolean",
+        default: "true",
+        description:
+          "Run the fuse at all. Off, the pieces simply slide apart. The filter is skipped under reduced motion either way.",
+      },
+      {
+        name: "bead",
+        type: "boolean",
+        default: "true",
+        description: "Leave a bead of juice behind when the thread severs.",
+      },
+      {
+        name: "disabled",
+        type: "boolean",
+        default: "false",
+        description:
+          "Dim the bar and take both the fields and the tick out of play.",
+      },
+      {
+        name: "className",
+        type: "string",
+        description: "Extra classes merged onto the wrapper.",
+      },
+    ],
+    usage: `import { DurationPicker } from "@/components/ui/duration-picker"
+
+export function Demo() {
+  return (
+    <DurationPicker
+      defaultValue={{ hours: 1, minutes: 30 }}
+      onConfirm={(value) => console.log(value)}
     />
   )
 }`,
@@ -1018,15 +1293,16 @@ export function Demo() {
     isNew: true,
     featured: true,
     registry: "matrix-orb",
-    dependencies: [],
-    description:
-      "A sphere of dots on a bare canvas that breathes while idle, ripples while listening and orbits while it thinks. No slab, so it drops straight into a status row.",
-    credits: [
-      "Component adapted from rare-ui (https://github.com/swamimalode07/rare-ui)",
+    dependencies: [
+      { name: "motion" },
+      { name: "figma-squircle" },
+      { name: "react-use-measure" },
     ],
+    description:
+      "A liquid orb on the same metaball fuse the Gooey nav runs: one core and a ring of satellites, joined by necks into a single body that breathes while idle, ripples while listening, and churns — throwing off droplets and taking them back — while it thinks.",
     source: `${REGISTRY_HOMEPAGE}/blob/main/components/ui/matrix-orb.tsx`,
     interaction:
-      "Change the state and the orb retargets mid-pulse rather than restarting: idle breathes on a slow wave, listening ripples outward from the centre, and thinking runs three heat sources around the sphere. Hand it a level from 0 to 1 to drive the amplitude from your own audio, and it holds a still frame when the reader prefers reduced motion.",
+      "The body is plain circles and a filter: the stage is blurred, that blur is pushed through a steep alpha ramp so any bleed between the circles becomes solid matter, and the crisp circles are drawn back over the top — so the lobes read as one body whose necks stretch and part. Every state moves the satellites' orbit and radius, which is what merges them into a ball or pulls them off as droplets: idle breathes slowly, listening ripples outward from the core until the lobes detach, and thinking runs each lobe on its own clock so they lap one another. Changing state retargets mid-pulse rather than restarting, blending from what is on screen. Hand it a level from 0 to 1 to drive the amplitude and swell the body from your own audio, turn the fuse off to see the circles underneath, and it holds a still frame when the reader prefers reduced motion.",
     props: [
       {
         name: "state",
@@ -1061,14 +1337,34 @@ export function Demo() {
         type: "number",
         default: "240",
         description:
-          "Width and height of the dot matrix in pixels. The surface's padding and the gap under it scale with it.",
+          "Width and height of the orb in pixels. The gap under its caption scales with it.",
       },
       {
-        name: "dots",
+        name: "lobes",
         type: "number",
-        default: "11",
+        default: "5",
         description:
-          "Grid resolution of the sphere. Higher is a finer orb, and the dots keep a minimum of half a device pixel so nothing renders as haze.",
+          "Satellites around the core, 2 to 10. More of them means a busier body and shorter necks between the lobes.",
+      },
+      {
+        name: "gooey",
+        type: "boolean",
+        default: "true",
+        description:
+          "Run the fuse at all. Off, the circles simply overlap and you can see the body's construction.",
+      },
+      {
+        name: "viscosity",
+        type: "number",
+        description:
+          "The blur behind the fuse, in pixels — how far a lobe reaches for its neighbour before the neck parts. Defaults to 0.078 of the stage, which at five lobes leaves neighbouring bulges just touching: one silhouette with a dip between them, rather than a pinwheel of separate drops. It scales with the stage, so the body reads the same at every size.",
+      },
+      {
+        name: "threshold",
+        type: "number",
+        default: "19",
+        description:
+          "The alpha ramp's slope — how hard the fused edge is, and how much a lobe stretches before it comes off.",
       },
       {
         name: "labels",
@@ -1086,7 +1382,7 @@ export function Demo() {
       {
         name: "className",
         type: "string",
-        description: "Extra classes merged onto the slab.",
+        description: "Extra classes merged onto the orb's wrapper.",
       },
     ],
     usage: `import { MatrixOrb } from "@/components/ui/matrix-orb"

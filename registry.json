@@ -31,6 +31,20 @@
       ]
     },
     {
+      "name": "liquid",
+      "type": "registry:lib",
+      "title": "Liquid Bar",
+      "description": "The Calamansi fuse: squircle surfaces painted on their own layers, a seam between them crossed by a real metaball thread that severs at 1.234 of the blur and leaves a bead of liquid behind — for anything whose pieces have to pull apart and snap back together.",
+      "dependencies": ["motion", "figma-squircle", "react-use-measure"],
+      "registryDependencies": ["utils", "squircle"],
+      "files": [
+        {
+          "path": "lib/liquid.tsx",
+          "type": "registry:lib"
+        }
+      ]
+    },
+    {
       "name": "calamansi",
       "type": "registry:ui",
       "title": "Calamansi",
@@ -115,10 +129,38 @@
       ]
     },
     {
+      "name": "gooey-nav",
+      "type": "registry:ui",
+      "title": "Gooey Nav",
+      "description": "A Calamansi squircle nav whose active pill is fused to the tray by a real metaball filter, parts mid-flight and leaves a bead of palette juice behind.",
+      "dependencies": ["motion", "figma-squircle", "react-use-measure"],
+      "registryDependencies": ["utils", "squircle", "liquid"],
+      "files": [
+        {
+          "path": "components/ui/gooey-nav.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "duration-picker",
+      "type": "registry:ui",
+      "title": "Duration Picker",
+      "description": "A Calamansi duration field: hours, minutes and a save button fused into one bar by a real metaball thread, splitting apart to be edited, merging back on commit and leaving a bead of palette juice where the thread parts.",
+      "dependencies": ["motion", "figma-squircle", "react-use-measure"],
+      "registryDependencies": ["utils", "squircle", "liquid"],
+      "files": [
+        {
+          "path": "components/ui/duration-picker.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
       "name": "dynamic-island",
       "type": "registry:ui",
       "title": "Dynamic Island",
-      "description": "A Calamansi squircle island that eases between pill and slab as it morphs states — the content clipped to that same curve — and glows when it alerts.",
+      "description": "A Calamansi squircle island that eases between a compact bar and a slab as it morphs states — the corner the kit's 28px capped by the brand's share of the box, the content clipped to that same curve — and glows when it alerts.",
       "dependencies": ["motion", "figma-squircle", "react-use-measure"],
       "registryDependencies": ["utils", "squircle"],
       "files": [
@@ -184,9 +226,9 @@
       "name": "matrix-orb",
       "type": "registry:ui",
       "title": "Matrix Orb",
-      "description": "A sphere of dots on a bare canvas that breathes while idle, ripples while listening and orbits while it thinks.",
-      "dependencies": [],
-      "registryDependencies": ["utils"],
+      "description": "A liquid orb on the same metaball fuse the Gooey nav runs: one core and a ring of satellites joined by necks into a single body — breathing while idle, rippling while listening until the lobes come off as droplets, and churning while it thinks.",
+      "dependencies": ["motion", "figma-squircle", "react-use-measure"],
+      "registryDependencies": ["utils", "liquid"],
       "files": [
         {
           "path": "components/ui/matrix-orb.tsx",

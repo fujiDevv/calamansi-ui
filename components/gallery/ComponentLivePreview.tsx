@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import Calamansi from "@/components/ui/calamansi";
 import { Dock, DockItem } from "@/components/ui/dock";
+import { DurationPicker } from "@/components/ui/duration-picker";
 import { DynamicIsland } from "@/components/ui/dynamic-island";
 import {
   GitHubActivity,
@@ -19,6 +20,7 @@ import {
   type ContributionLevel,
   type RepoContribution,
 } from "@/components/ui/github-activity";
+import { GooeyNav } from "@/components/ui/gooey-nav";
 import { Marquee } from "@/components/ui/marquee";
 import { MatrixOrb } from "@/components/ui/matrix-orb";
 import { MorningWidget } from "@/components/ui/morning-widget";
@@ -163,29 +165,31 @@ function Preview({
             size={34}
             magnify={46}
             reach={60}
-            className="gap-1.5 rounded-2xl border-border/70 p-1.5 shadow-2xs"
+            /* layout only: the panel is clipped to the squircle, so a radius or a box
+               shadow up here would paint a rectangle around the shape */
+            className="gap-1.5 p-1.5"
           >
             <DockItem
               label="Home"
-              className="flex size-8.5 items-center justify-center rounded-xl bg-muted/80"
+              className="flex size-8.5 items-center justify-center bg-muted/80"
             >
               <Home className="size-3.5 text-foreground/70" />
             </DockItem>
             <DockItem
               label="Search"
-              className="flex size-8.5 items-center justify-center rounded-xl bg-muted/80"
+              className="flex size-8.5 items-center justify-center bg-muted/80"
             >
               <Search className="size-3.5 text-foreground/70" />
             </DockItem>
             <DockItem
               label="Citrus"
-              className="flex size-8.5 items-center justify-center rounded-xl bg-muted/80"
+              className="flex size-8.5 items-center justify-center bg-muted/80"
             >
               <Citrus className="size-3.5 text-primary" />
             </DockItem>
             <DockItem
               label="Alerts"
-              className="flex size-8.5 items-center justify-center rounded-xl bg-muted/80"
+              className="flex size-8.5 items-center justify-center bg-muted/80"
             >
               <Bell className="size-3.5 text-calamansi-flesh" />
             </DockItem>
@@ -258,6 +262,30 @@ function Preview({
               label="Top contributions in:"
             />
           </div>
+        </div>
+      );
+
+    case "gooey-nav":
+      return (
+        // hovering moves the pill, so the tile runs the liquid on its own
+        <div className="flex h-full w-full items-center justify-center overflow-hidden p-4">
+          <GooeyNav
+            items={["Home", "Docs", "Pricing"]}
+            value={active ? 2 : 1}
+            size="sm"
+          />
+        </div>
+      );
+
+    case "duration-picker":
+      return (
+        // hovering opens the seams, so the tile shows the split on its own
+        <div className="flex h-full w-full items-center justify-center overflow-hidden p-4">
+          <DurationPicker
+            defaultValue={{ hours: active ? 2 : 1, minutes: active ? 45 : 30 }}
+            editing={active}
+            size="sm"
+          />
         </div>
       );
 

@@ -24,6 +24,18 @@ export const SQUIRCLE_RADIUS = 28;
 export const SQUIRCLE_SMOOTHING = 1;
 
 /**
+ * The brand's corner as a share of the surface: 28px on a 64px pill.
+ *
+ * A surface shorter than the radius it holds is a special case the constant cannot
+ * cover, because the library will not let a corner exceed half the height — handed
+ * 28px on a 48px box, `getSvgPath` rounds it down to 24 and the corner stops being
+ * an edge at all: the shape becomes a stadium. Passing this as `share` gives a
+ * short surface its proportion instead, so the collapsed island and the dock tiles
+ * wear the brand corner rather than a pill.
+ */
+export const SQUIRCLE_SHARE = 0.44;
+
+/**
  * The lift, written as a filter because the surface is clipped to its squircle
  * and a clip-path takes a box shadow with it.
  */
@@ -50,6 +62,13 @@ export type SquircleProps = {
   className?: string;
   /** Corner radius in pixels. Default: 28 */
   radius?: number;
+  /**
+   * Hold the corner to this share of the measured height, taking whichever of the
+   * two is smaller. A box too short for `radius` then keeps the brand's proportion
+   * instead of being clamped to half its height, and because the share is worked
+   * out from the measured box it follows a surface that changes size.
+   */
+  share?: number;
   /** Corner smoothing, from 0 (rounded rectangle) to 1. Default: 1 */
   smoothing?: number;
   /** Cast the lift under the surface. Default: true */
@@ -76,6 +95,7 @@ export type SquircleProps = {
 export function Squircle({
   className,
   radius = SQUIRCLE_RADIUS,
+  share,
   smoothing = SQUIRCLE_SMOOTHING,
   lift = true,
   filter,
@@ -85,17 +105,35 @@ export function Squircle({
 }: SquircleProps) {
   const [ref, bounds] = useMeasure();
 
+  /*
+    The share only applies once there is a box to take a share of — before that the
+    constant is what the fallback radius and the first paint are.
+  */
+  const corner =
+    share && bounds.height > 0
+      ? Math.min(radius, bounds.height * share)
+      : radius;
+
+  /*
+    The fallback is not just a first paint: a surface rendered without JS never gets
+    a measured path at all. Handing the browser the share as a percentage lets it
+    hold the proportion itself — and a browser clamping a 28px radius on a short box
+    to half its height is exactly the stadium this prop exists to avoid — while
+    `min()` keeps a surface tall enough for the kit's radius at that radius.
+  */
+  const fallback = share ? `min(${radius}px, ${share * 100}%)` : radius;
+
   const path = useMemo(
     () =>
       bounds.width > 0 && bounds.height > 0
         ? getSvgPath({
             width: bounds.width,
             height: bounds.height,
-            cornerRadius: radius,
+            cornerRadius: corner,
             cornerSmoothing: smoothing,
           })
         : null,
-    [bounds.width, bounds.height, radius, smoothing],
+    [bounds.width, bounds.height, corner, smoothing],
   );
 
   return (
@@ -110,7 +148,7 @@ export function Squircle({
         ref={ref}
         /* the radius is the fallback for the first paint and the server render */
         style={
-          path ? { clipPath: `path('${path}')` } : { borderRadius: radius }
+          path ? { clipPath: `path('${path}')` } : { borderRadius: fallback }
         }
         className={cn("relative block size-full overflow-hidden", className)}
       >
@@ -140,7 +178,7 @@ export function Squircle({
                 border,
               )}
               style={{
-                borderRadius: radius,
+                borderRadius: fallback,
                 boxShadow: `inset 0 0 0 ${borderWidth}px currentColor`,
               }}
             />

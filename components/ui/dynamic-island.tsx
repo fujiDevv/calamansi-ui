@@ -2,7 +2,12 @@
 
 import { forwardRef, useState, type ReactNode } from "react";
 import { motion, AnimatePresence, useReducedMotion } from "motion/react";
-import { squircleLift, SQUIRCLE_LIFT, Squircle } from "@/lib/squircle";
+import {
+  squircleLift,
+  SQUIRCLE_LIFT,
+  SQUIRCLE_SHARE,
+  Squircle,
+} from "@/lib/squircle";
 import { cn } from "@/lib/utils";
 
 export type DynamicIslandState = "idle" | "compact" | "expanded" | "alert";
@@ -11,8 +16,11 @@ export type DynamicIslandVariant = "white" | "calamansi" | "slate" | "citrus";
 
 /**
  * The Calamansi surface: one flat layer, clipped to a squircle by `Squircle`.
- * The island changes size between states, so the shape re-measures with it:
- * compact clamps to a pill, expanded to the full corner radius.
+ * The island changes size between states, so the shape re-measures with it — and
+ * the corner is the kit's 28px capped by the brand's share of the box. Collapsed,
+ * that share is the whole point: handed a flat 28px on a 48px box the library
+ * would clamp it to half the height and the island would come out a stadium, where
+ * 28px on the expanded slab is the kit's corner as it should be.
  *
  * The palette carries its own ink, and everything inside tints from
  * `currentColor`, so a white island is as legible as a coloured one.
@@ -200,6 +208,7 @@ export const DynamicIsland = forwardRef<HTMLDivElement, DynamicIslandProps>(
           )}
         >
           <Squircle
+            share={SQUIRCLE_SHARE}
             className={VARIANTS[variant].paint}
             filter={
               isAlert ? squircleLift(SQUIRCLE_LIFT, ALERT_GLOW) : undefined

@@ -1,16 +1,14 @@
 "use client";
 
 import { useState } from "react";
-import { Minus, Plus, Shuffle } from "lucide-react";
 import {
-  NumberTicker,
-  type NumberTickerVariant,
-} from "@/components/ui/number-ticker";
-
-const PRESETS = [12847, 3620, 981, 40215];
+  DurationPicker,
+  type DurationPickerVariant,
+  type DurationValue,
+} from "@/components/ui/duration-picker";
 
 const VARIANTS: {
-  id: NumberTickerVariant;
+  id: DurationPickerVariant;
   label: string;
   gradient: string;
 }[] = [
@@ -36,16 +34,13 @@ const VARIANTS: {
   },
 ];
 
-const BUTTON =
-  "inline-flex h-9 cursor-pointer items-center gap-1.5 rounded-full border border-border/70 bg-card px-3.5 text-xs font-semibold text-foreground/80 transition-colors hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring";
-
-export default function NumberTickerDemo() {
-  const [value, setValue] = useState(12847);
-  const [variant, setVariant] = useState<NumberTickerVariant>("calamansi");
+export default function DurationPickerDemo() {
+  const [value, setValue] = useState<DurationValue>({ hours: 1, minutes: 30 });
+  const [variant, setVariant] = useState<DurationPickerVariant>("calamansi");
   const currentVariant = VARIANTS.find((v) => v.id === variant) ?? VARIANTS[0];
 
   return (
-    <div className="flex h-full flex-col items-center justify-center gap-6 p-4 sm:gap-8 sm:p-6">
+    <div className="flex w-full flex-col items-center gap-5 px-1 py-3 sm:gap-6 sm:py-4">
       {/* Color Swatches Control */}
       <div className="flex items-center gap-3 rounded-2xl border border-border/70 bg-card/60 px-3.5 py-2 shadow-2xs backdrop-blur-xs">
         <span className="text-xs font-medium text-muted-foreground">
@@ -80,46 +75,9 @@ export default function NumberTickerDemo() {
         </span>
       </div>
 
-      <div className="flex flex-col items-center">
-        <NumberTicker
-          value={value}
-          variant={variant}
-          className="text-4xl font-semibold tracking-tight sm:text-7xl"
-        />
-        <p className="mt-3 text-[10px] font-semibold uppercase tracking-[0.24em] text-muted-foreground">
-          Kalansing
-        </p>
-      </div>
-
-      <div className="flex flex-wrap items-center justify-center gap-2">
-        <button
-          type="button"
-          className={BUTTON}
-          onClick={() => setValue((current) => Math.max(0, current - 275))}
-        >
-          <Minus className="size-3.5" />
-          275
-        </button>
-        <button
-          type="button"
-          className={BUTTON}
-          onClick={() => setValue((current) => current + 275)}
-        >
-          <Plus className="size-3.5" />
-          275
-        </button>
-        <button
-          type="button"
-          className={BUTTON}
-          onClick={() =>
-            setValue(
-              PRESETS[Math.floor(Math.random() * PRESETS.length)] ?? PRESETS[0],
-            )
-          }
-        >
-          <Shuffle className="size-3.5" />
-          Shuffle
-        </button>
+      {/* Main Interactive Component */}
+      <div className="flex w-full justify-center p-3 sm:p-4">
+        <DurationPicker value={value} onChange={setValue} variant={variant} />
       </div>
     </div>
   );

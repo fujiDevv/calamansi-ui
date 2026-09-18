@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { Dock, DockItem } from "@/components/ui/dock";
 import {
   DynamicIsland,
   type DynamicIslandState,
@@ -43,6 +42,17 @@ const VARIANTS: {
     label: "Warm Citrus",
     gradient: "linear-gradient(135deg, #d69f7e 0%, #b87152 50%, #7d4128 100%)",
   },
+];
+
+/** The three scenarios the island can show, and the icon each one wears. */
+const SCENARIOS: {
+  id: "media" | "timer" | "call";
+  label: string;
+  Icon: typeof Music2;
+}[] = [
+  { id: "media", label: "Music Player", Icon: Music2 },
+  { id: "timer", label: "Focus Timer", Icon: Timer },
+  { id: "call", label: "Earbuds Alert", Icon: Headphones },
 ];
 
 export default function DynamicIslandDemo() {
@@ -290,57 +300,33 @@ export default function DynamicIslandDemo() {
         )}
       </div>
 
-      {/* Scenario Switcher Dock placed at the bottom */}
+      {/* Scenario Switcher: plain icon buttons, one per scenario */}
       <div className="flex flex-col items-center gap-2 pt-2">
         <p className="text-[11px] font-medium tracking-wide text-muted-foreground uppercase">
           Scenario Switcher
         </p>
-        <Dock size={42} magnify={60} reach={110} panelHeight={58}>
-          <DockItem
-            label="Music Player"
-            onClick={() => {
-              setMode("media");
-              setIslandState("compact");
-            }}
-            className={
-              mode === "media"
-                ? "bg-primary text-primary-foreground shadow-sm ring-1 ring-primary"
-                : undefined
-            }
-          >
-            <Music2 className="size-4" />
-          </DockItem>
-
-          <DockItem
-            label="Focus Timer"
-            onClick={() => {
-              setMode("timer");
-              setIslandState("compact");
-            }}
-            className={
-              mode === "timer"
-                ? "bg-primary text-primary-foreground shadow-sm ring-1 ring-primary"
-                : undefined
-            }
-          >
-            <Timer className="size-4" />
-          </DockItem>
-
-          <DockItem
-            label="Earbuds Alert"
-            onClick={() => {
-              setMode("call");
-              setIslandState("compact");
-            }}
-            className={
-              mode === "call"
-                ? "bg-primary text-primary-foreground shadow-sm ring-1 ring-primary"
-                : undefined
-            }
-          >
-            <Headphones className="size-4" />
-          </DockItem>
-        </Dock>
+        <div className="flex items-center gap-1">
+          {SCENARIOS.map(({ id, label, Icon }) => (
+            <button
+              key={id}
+              type="button"
+              aria-pressed={mode === id}
+              onClick={() => {
+                setMode(id);
+                setIslandState("compact");
+              }}
+              className={`grid size-9 cursor-pointer place-items-center rounded-xl transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${
+                mode === id
+                  ? "bg-primary text-primary-foreground"
+                  : "text-muted-foreground hover:bg-muted hover:text-foreground"
+              }`}
+            >
+              <Icon className="size-4" />
+              {/* the name the icon cannot give */}
+              <span className="sr-only">{label}</span>
+            </button>
+          ))}
+        </div>
       </div>
     </div>
   );

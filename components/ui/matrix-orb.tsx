@@ -1,27 +1,45 @@
 "use client";
 
-import {
-  useEffect,
-  useRef,
-  useSyncExternalStore,
-  type ComponentProps,
-} from "react";
+import { useEffect, useRef, useState, type ComponentProps } from "react";
+import { FuseFilter, LIQUID_THRESHOLD, useFuseId } from "@/lib/liquid";
 import { cn } from "@/lib/utils";
+
+/**
+ * ─────────────────────────────────────────────────────────────────────────────
+ * THE LIQUID ORB
+ *
+ * One core and a ring of satellites, all of them plain circles — and the same
+ * metaball fuse the Gooey nav and the Duration picker run: the stage is blurred,
+ * that blur is pushed through a steep alpha ramp so any bleed between the circles
+ * becomes solid material, and the crisp shapes are drawn back over the top. What
+ * lands on screen is a single soft body whose lobes are joined by necks, and the
+ * motion is what that body does with them: it breathes, it ripples, it churns and
+ * throws off droplets that fall back in.
+ *
+ * The satellite geometry is the whole animation, so it is a plain request-animation
+ * loop writing transforms — no canvas, no re-render per frame, and nothing to read
+ * back off the DOM. A lobe's colour is `currentColor`, so the palette and the theme
+ * both come for free.
+ * ─────────────────────────────────────────────────────────────────────────────
+ */
 
 export type MatrixOrbState = "idle" | "listening" | "thinking";
 export type MatrixOrbVariant = "white" | "calamansi" | "slate" | "citrus";
 
 export type MatrixOrbProps = ComponentProps<"div"> & {
-  /** What the orb is doing. Each state moves it differently. Default: "idle" */
+  /** What the orb is doing. Each state moves the body differently. Default: "idle" */
   state?: MatrixOrbState;
   /** Drive the amplitude yourself, 0 to 1 — an audio level, for instance. */
   level?: number;
-  /** Width and height of the dot matrix, in pixels. Default: 240 */
+  /** Width and height of the stage, in pixels. Default: 240 */
   size?: number;
-  /** Dot colour, overriding the palette's accent. */
+  /** Body colour, overriding the palette's ink. */
   color?: string;
-  /** Grid resolution: higher is a finer sphere. Default: 11 */
-  dots?: number;
+  /**
+   * Satellites around the core, 2 to 10. More of them means a busier body and
+   * shorter necks between the lobes. Default: 5
+   */
+  lobes?: number;
   /** Caption under the orb, per state. */
   labels?: Partial<Record<MatrixOrbState, string>>;
   /**
@@ -29,8 +47,21 @@ export type MatrixOrbProps = ComponentProps<"div"> & {
    * decorative indicator rather than a status the reader is reading.
    */
   caption?: boolean;
-  /** Accent palette the dots are painted in. Default: "calamansi" */
+  /** Ink the body is painted in. Default: "calamansi" */
   variant?: MatrixOrbVariant;
+  /** Run the fuse at all. Off, the circles simply overlap. Default: true */
+  gooey?: boolean;
+  /**
+   * The blur behind the fuse, in pixels — how far a lobe reaches for its neighbour
+   * before the neck between them severs. Defaults to 0.078 of the stage, so the body
+   * reads the same at every size.
+   */
+  viscosity?: number;
+  /**
+   * The alpha ramp's slope: how hard the fused edge is, and so how much a lobe
+   * stretches before it parts. Default: 19
+   */
+  threshold?: number;
 };
 
 const TAU = Math.PI * 2;
@@ -42,6 +73,10 @@ const LABELS: Record<MatrixOrbState, string> = {
   thinking: "Thinking",
 };
 
+/**
+ * How big the body stands in each state, sprung rather than switched, so a change
+ * of state lands rather than snaps.
+ */
 const SCALE: Record<MatrixOrbState, number> = {
   idle: 0.88,
   listening: 1,
@@ -50,28 +85,45 @@ const SCALE: Record<MatrixOrbState, number> = {
 
 const STIFFNESS = 180;
 const DAMPING = 26;
+/** An amplitude on its way up arrives faster than it leaves. */
 const ATTACK = 0.22;
 const RELEASE = 0.08;
+/** How fast a state's geometry fades in, which is what makes an interruption smooth. */
 const BLEND = 0.16;
-const BRAND_LIME = "#b4e84c";
-
-const ORBITERS = [
-  { radius: 0.62, speed: 2.2, phase: 0, spread: 0.42 },
-  { radius: 0.4, speed: -1.7, phase: 2.1, spread: 0.36 },
-  { radius: 0.8, speed: 1.15, phase: 4, spread: 0.34 },
-];
 
 /**
- * The orb is the dots and nothing else — no slab behind them, so it drops into a
- * chat header or a status row as it is. The palette picks the accent the dots are
- * painted in; `white` is the ink itself, read from the theme, which is the canvas
- * equivalent of painting from `currentColor`.
+ * The body, in shares of the stage: a core, and satellites whose radius and orbit
+ * leave the neck between them as thick as a few pixels of blur. Those two numbers
+ * are what the states push around — pull the orbit in and the lobes swallow each
+ * other into a ball, push it out past the sever and they come off as droplets.
  */
-const ACCENTS: Record<MatrixOrbVariant, string | null> = {
-  white: null,
-  calamansi: BRAND_LIME,
-  slate: "#d8dcff",
-  citrus: "#ffd166",
+const CORE = 0.155;
+const SATELLITE = 0.1;
+const ORBIT = 0.26;
+
+/**
+ * The blur, as a share of the stage, when the caller does not name one.
+ *
+ * A neck dies once the gap it spans passes ~1.35σ — the alpha ramp cuts at 0.5, and
+ * that is where the blurred alphas between two circles stop reaching it. At the
+ * geometry above, a satellite sits 0.005 of the stage off the core, so the lobes are
+ * always joined to the body; it is the neighbours that move. At the default five the
+ * gap between them is 0.106, so 0.078 puts them just touching — one silhouette with a
+ * dip between the lobes rather than a pinwheel of separate drops. Fewer lobes pull
+ * further apart (at three the bumps only meet at the core) and more of them close into
+ * a ring, which is what `lobes` tunes its name to.
+ */
+const VISCOSITY_RATIO = 0.078;
+
+const MIN_LOBES = 2;
+const MAX_LOBES = 10;
+const DEFAULT_LOBES = 5;
+
+const ACCENTS: Record<MatrixOrbVariant, string> = {
+  white: "text-foreground",
+  calamansi: "text-[#b4e84c]",
+  slate: "text-[#d8dcff]",
+  citrus: "text-[#ffd166]",
 };
 
 const SURFACE =
@@ -81,6 +133,13 @@ const SURFACE =
 const CAPTION =
   "rounded-full bg-current/10 px-2.5 py-1 text-[10px] font-semibold tracking-[0.16em] text-muted-foreground uppercase ring-1 ring-current/20";
 
+/** The fuse blurs whatever the stage paints, so the circles have to stay crisp. */
+const STAGE = "relative block";
+const LOBE = "absolute top-0 left-0 rounded-full bg-current";
+
+/** How far outside the stage the fuse is allowed to paint. */
+const FUSE_REGION = { x: "-30%", y: "-30%", width: "160%", height: "160%" };
+
 // no Math.abs here, its corners read as a snap at every trough
 function envelope(t: number) {
   const slow = 0.5 + 0.5 * Math.sin(t * 0.62 + 0.4);
@@ -88,45 +147,127 @@ function envelope(t: number) {
   return 0.22 + 0.78 * (0.45 + 0.55 * slow) * fast;
 }
 
-function intensityOf(
+/** Where a satellite sits around the core, and how fat it is, in stage shares. */
+function satelliteAt(
   state: MatrixOrbState,
-  d: number,
-  nx: number,
-  ny: number,
+  index: number,
+  count: number,
   t: number,
   amplitude: number,
 ) {
   if (state === "listening") {
-    const ripple = 0.5 + 0.5 * Math.sin(d * 4.2 - t * 3);
-    return 0.32 + amplitude * (0.34 + 0.38 * ripple);
+    // a ripple leaving the core, travelling around the ring; the level is how far
+    // it pushes, and at the top of the range a lobe comes off the body entirely
+    const wave = 0.5 + 0.5 * Math.sin(t * 3.2 - index * 1.15);
+    const push = amplitude * wave;
+    return {
+      orbit: ORBIT * (0.85 + 0.75 * push),
+      radius: SATELLITE * (0.9 + 0.3 * wave),
+    };
   }
 
   if (state === "thinking") {
-    let heat = 0;
-    for (const o of ORBITERS) {
-      const a = t * o.speed + o.phase;
-      const dx = nx - Math.cos(a) * o.radius;
-      const dy = ny - Math.sin(a) * o.radius;
-      heat += Math.exp(-(dx * dx + dy * dy) / (o.spread * o.spread));
-    }
-    return 0.26 + 0.8 * Math.min(1, heat);
+    // each lobe runs on its own clock, so they lap each other: a neck stretches,
+    // parts, and closes again as the next one comes round
+    const i = index / Math.max(1, count - 1);
+    return {
+      orbit: ORBIT * (0.78 + 0.42 * Math.sin(t * 1.6 + i * 5.2)),
+      radius: SATELLITE * (0.85 + 0.28 * Math.sin(t * 2.1 + i * 3.4)),
+    };
   }
 
-  return 0.62 + 0.12 * Math.sin(t * 1.05 - d * 2.4);
+  return {
+    orbit: ORBIT * (1 + 0.07 * Math.sin(t * 0.85 + index * 1.3)),
+    radius: SATELLITE * (1 + 0.1 * Math.sin(t * 0.62 + index * 1.9)),
+  };
 }
 
-function subscribeToZoom(onChange: () => void) {
-  window.addEventListener("resize", onChange);
-  return () => window.removeEventListener("resize", onChange);
+function satelliteAngle(
+  state: MatrixOrbState,
+  index: number,
+  count: number,
+  t: number,
+) {
+  const base = (index / count) * TAU;
+
+  if (state === "listening") return base + t * 0.35;
+  // different speeds are what makes the lobes lap one another
+  if (state === "thinking") {
+    return base + t * (2.2 + 0.35 * Math.sin(index * 2.1));
+  }
+
+  return base + t * 0.22;
 }
 
-// zoom changes devicePixelRatio, and a buffer built for the old one gets upscaled
-function useDevicePixelRatio() {
-  return useSyncExternalStore(
-    subscribeToZoom,
-    () => Math.min(window.devicePixelRatio || 1, 4),
-    () => 1,
-  );
+function coreAt(state: MatrixOrbState, t: number, amplitude: number) {
+  if (state === "listening") return CORE * (0.95 + 0.12 * amplitude);
+  if (state === "thinking") return CORE * (0.85 + 0.1 * Math.sin(t * 1.4));
+  return CORE * (1 + 0.05 * Math.sin(t * 0.5));
+}
+
+type Weights = Record<MatrixOrbState, number>;
+
+/** Every state's weight on one state, for the frames drawn before the loop runs. */
+function soleWeights(state: MatrixOrbState): Weights {
+  return {
+    idle: state === "idle" ? 1 : 0,
+    listening: state === "listening" ? 1 : 0,
+    thinking: state === "thinking" ? 1 : 0,
+  };
+}
+
+type Lobe = {
+  /** Centre, in pixels from the stage's top-left corner. */
+  x: number;
+  y: number;
+  /** Radius, in pixels. */
+  r: number;
+};
+
+/**
+ * The body at one instant, as circles to draw: the core first, then the ring of
+ * satellites. Taking the state weights rather than a state is what lets an
+ * interrupted change blend — the same call serves the loop and a still frame.
+ */
+function bodyAt(
+  weights: Weights,
+  satellites: number,
+  t: number,
+  amplitude: number,
+  scale: number,
+  size: number,
+): Lobe[] {
+  // the level also swells the whole body, so a louder signal is a bigger one
+  const gain = (0.9 + 0.2 * amplitude) * scale;
+  const centre = size / 2;
+  let core = 0;
+  for (const s of STATES) core += weights[s] * coreAt(s, t, amplitude);
+
+  const body: Lobe[] = [{ x: centre, y: centre, r: core * size * gain }];
+
+  for (let i = 0; i < satellites; i++) {
+    let ox = 0;
+    let oy = 0;
+    let radius = 0;
+
+    for (const s of STATES) {
+      const w = weights[s];
+      if (w < 0.001) continue;
+      const { orbit, radius: r } = satelliteAt(s, i, satellites, t, amplitude);
+      const angle = satelliteAngle(s, i, satellites, t);
+      ox += w * Math.cos(angle) * orbit;
+      oy += w * Math.sin(angle) * orbit;
+      radius += w * r;
+    }
+
+    body.push({
+      x: centre + ox * size * gain,
+      y: centre + oy * size * gain,
+      r: radius * size * gain,
+    });
+  }
+
+  return body;
 }
 
 const MatrixOrb = ({
@@ -134,45 +275,54 @@ const MatrixOrb = ({
   level,
   size = 240,
   color,
-  dots = 11,
+  lobes = DEFAULT_LOBES,
   labels,
   caption = true,
   variant = "calamansi",
+  gooey = true,
+  viscosity,
+  threshold = LIQUID_THRESHOLD,
   className,
   style,
   ...props
 }: MatrixOrbProps) => {
-  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const stageRef = useRef<HTMLDivElement>(null);
+  const lobeRefs = useRef<(HTMLSpanElement | null)[]>([]);
   const stateRef = useRef(state);
   const levelRef = useRef(level);
-  const accentRef = useRef(color ?? ACCENTS[variant]);
   const redrawRef = useRef<(() => void) | null>(null);
-  const dpr = useDevicePixelRatio();
+  const filterId = useFuseId("matrix-orb");
 
-  const accent = color ?? ACCENTS[variant];
+  const satellites = Math.min(
+    MAX_LOBES,
+    Math.max(MIN_LOBES, Math.round(lobes)),
+  );
+  const blur = viscosity ?? size * VISCOSITY_RATIO;
   const gap = Math.round(size * 0.055);
+
+  /*
+    One frame's worth of body, worked out once: it goes into the markup so the stage
+    is never empty before the loop starts — which also means a reader without JS, or
+    with motion turned down, sees the orb rather than a hole. The loop takes it from
+    the first frame and never looks back.
+  */
+  const [seed] = useState(() =>
+    bodyAt(soleWeights(state), satellites, 0, envelope(0), SCALE[state], size),
+  );
 
   useEffect(() => {
     stateRef.current = state;
     levelRef.current = level;
-    accentRef.current = accent;
-  }, [state, level, accent]);
+  }, [state, level]);
 
   useEffect(() => {
-    const canvas = canvasRef.current;
-    const ctx = canvas?.getContext("2d");
-    if (!canvas || !ctx) return;
+    const stage = stageRef.current;
+    if (!stage) return;
 
-    // scaling by buffer/size, not dpr, keeps the transform exact when it rounds
-    const buffer = Math.round(size * dpr);
-    canvas.width = canvas.height = buffer;
-    ctx.scale(buffer / size, buffer / size);
-
-    const grid = Math.max(3, Math.round(dots));
-    const half = (grid - 1) / 2;
-    const spacing = (size * 0.74) / (grid - 1);
-    const maxRadius = spacing * 0.6;
-    const center = size / 2;
+    const nodes = lobeRefs.current.filter((node): node is HTMLSpanElement =>
+      Boolean(node),
+    );
+    if (nodes.length === 0) return;
 
     const weights: Record<MatrixOrbState, number> = {
       idle: 0,
@@ -183,71 +333,29 @@ const MatrixOrb = ({
 
     // a non-finite level would stick in the smoother forever
     const levelAt = (t: number) => {
-      const v = levelRef.current;
-      return v === undefined || !Number.isFinite(v)
+      const value = levelRef.current;
+      return value === undefined || !Number.isFinite(value)
         ? envelope(t)
-        : Math.min(1, Math.max(0, v));
+        : Math.min(1, Math.max(0, value));
     };
 
-    /*
-      The `white` palette is the ink, and a canvas cannot paint `currentColor` —
-      so the theme's colour is read off the element, a couple of times a second
-      rather than every frame, and once more whenever the theme flips.
-    */
-    let ink = BRAND_LIME;
-    let inkAt = -Infinity;
-    const dotAt = (t: number) => {
-      const accent = accentRef.current;
-      if (accent) return accent;
-      if (t - inkAt > 0.5) {
-        inkAt = t;
-        ink = getComputedStyle(canvas).color || ink;
-      }
-      return ink;
+    const place = (
+      node: HTMLSpanElement,
+      x: number,
+      y: number,
+      radius: number,
+    ) => {
+      const d = radius * 2;
+      node.style.width = `${d}px`;
+      node.style.height = `${d}px`;
+      node.style.transform = `translate3d(${x - radius}px, ${y - radius}px, 0)`;
     };
-
-    const theme = new MutationObserver(() => {
-      inkAt = -Infinity;
-      redrawRef.current?.();
-    });
-    theme.observe(document.documentElement, {
-      attributes: true,
-      attributeFilter: ["class"],
-    });
 
     const draw = (t: number, amplitude: number, scale: number) => {
-      ctx.clearRect(0, 0, size, size);
-      ctx.fillStyle = dotAt(t);
-
-      for (let iy = 0; iy < grid; iy++) {
-        for (let ix = 0; ix < grid; ix++) {
-          const nx = (ix - half) / half;
-          const ny = (iy - half) / half;
-          const d = Math.hypot(nx, ny);
-          // 1.12, not the square's 1.41 corner, is what makes the outline round
-          if (d > 1.12) continue;
-
-          let blended = 0;
-          for (const s of STATES) {
-            if (weights[s] < 0.001) continue;
-            blended += weights[s] * intensityOf(s, d, nx, ny, t, amplitude);
-          }
-
-          const intensity = Math.min(1, Math.max(0, blended));
-          const radius = maxRadius * Math.exp(-d * d * 1.7) * intensity * scale;
-          // anything under half a device pixel renders as haze, not a dot
-          if (radius * dpr < 0.5) continue;
-
-          ctx.beginPath();
-          ctx.arc(
-            center + (ix - half) * spacing * scale,
-            center + (iy - half) * spacing * scale,
-            radius,
-            0,
-            TAU,
-          );
-          ctx.fill();
-        }
+      const body = bodyAt(weights, satellites, t, amplitude, scale, size);
+      for (let i = 0; i < body.length; i++) {
+        const { x, y, r } = body[i];
+        place(nodes[i], x, y, r);
       }
     };
 
@@ -256,17 +364,15 @@ const MatrixOrb = ({
       window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
     if (reduce) {
+      // one frozen frame of the current state, and a fresh one whenever it changes
       redrawRef.current = () => {
         const current = stateRef.current;
         for (const s of STATES) weights[s] = s === current ? 1 : 0;
-        // a frozen frame still has to follow the theme
-        inkAt = -Infinity;
         draw(0, levelAt(0), SCALE[current]);
       };
       redrawRef.current();
       return () => {
         redrawRef.current = null;
-        theme.disconnect();
       };
     }
 
@@ -302,32 +408,65 @@ const MatrixOrb = ({
     };
     raf = requestAnimationFrame(frame);
 
-    return () => {
-      cancelAnimationFrame(raf);
-      theme.disconnect();
-    };
-    // state, level and colour stay out of the deps on purpose: the loop retargets,
-    // it never restarts
-  }, [size, dots, dpr]);
+    return () => cancelAnimationFrame(raf);
+    // state and level stay out of the deps on purpose: the loop retargets, it never
+    // restarts — and the geometry is in stage shares, so the size is in the deps
+  }, [size, satellites]);
 
   useEffect(() => {
     redrawRef.current?.();
-  }, [state, level, accent]);
+  }, [state, level]);
 
   return (
     <div
       data-slot="matrix-orb"
       data-state={state}
       style={{ gap, ...style }}
-      className={cn(SURFACE, className)}
+      className={cn(SURFACE, ACCENTS[variant], className)}
       {...props}
     >
-      <canvas
-        ref={canvasRef}
-        aria-hidden="true"
-        className="block"
-        style={{ width: size, height: size }}
+      <FuseFilter
+        id={filterId}
+        blur={blur}
+        threshold={threshold}
+        region={FUSE_REGION}
       />
+
+      <div
+        ref={stageRef}
+        aria-hidden="true"
+        className={STAGE}
+        style={{
+          width: size,
+          height: size,
+          color,
+          filter: gooey ? `url(#${filterId})` : undefined,
+        }}
+      >
+        {Array.from({ length: satellites + 1 }, (_, index) => {
+          // the seed is only a first paint; from the first frame the loop owns this
+          const lobe = seed[index];
+
+          return (
+            <span
+              key={index}
+              ref={(node) => {
+                lobeRefs.current[index] = node;
+              }}
+              className={LOBE}
+              style={
+                lobe
+                  ? {
+                      width: lobe.r * 2,
+                      height: lobe.r * 2,
+                      transform: `translate3d(${lobe.x - lobe.r}px, ${lobe.y - lobe.r}px, 0)`,
+                    }
+                  : undefined
+              }
+            />
+          );
+        })}
+      </div>
 
       {caption && (
         <span role="status" aria-live="polite" className={CAPTION}>
