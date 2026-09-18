@@ -175,7 +175,7 @@ export function Demo() {
     featured: true,
     registry: "spotlight-card",
     description:
-      "The plain Calamansi surface as a card: one flat layer clipped to the squircle, in white or the Calamansi, Slate and Citrus palettes.",
+      "The plain Calamansi surface as a card, in white or the Calamansi, Slate and Citrus palettes.",
     credits: [
       "Design inspired by Jay Dwivedi (https://sprrrint.com/jaydwivedi)",
     ],
@@ -266,7 +266,7 @@ export function Demo() {
     registry: "tilt-card",
     dependencies: [{ name: "motion" }],
     description:
-      "A card on the Calamansi squircle surface, with 3D spring tilt physics and an interactive light sheen.",
+      "A Calamansi card that leans towards your pointer, with a light sheen that follows the tilt.",
     credits: [
       "Design inspired by Jay Dwivedi (https://sprrrint.com/jaydwivedi)",
     ],
@@ -374,7 +374,7 @@ export function Demo() {
     isNew: true,
     registry: "marquee",
     description:
-      "An infinite marquee that loops seamlessly, fades its edges and pauses on hover, carrying a palette accent for its items to tint from.",
+      "An infinite marquee that loops seamlessly, fades its edges, pauses on hover and takes a palette accent.",
     source: `${REGISTRY_HOMEPAGE}/blob/main/components/ui/marquee.tsx`,
     interaction:
       "Hover the marquee to hold the loop in place, then move away and it carries on from where it stopped. It stays bare, so the palette is an ink rather than a surface: anything inside that styles from currentColor picks the accent up.",
@@ -628,7 +628,7 @@ export function Demo() {
     registry: "dynamic-island",
     dependencies: [{ name: "motion" }],
     description:
-      "A Calamansi squircle island that eases between a compact bar and a slab as it morphs states — the corner the kit's 28px capped by the brand's share of the box, the content clipped to that same curve — and glows when it alerts.",
+      "A Calamansi island that eases between a compact bar and an expanded slab when tapped, and glows when it alerts.",
     source: `${REGISTRY_HOMEPAGE}/blob/main/components/ui/dynamic-island.tsx`,
     interaction:
       "Click the island to expand it into rich content. Compact and idle hold the brand corner rather than a stadium — the box is short enough that a flat 28px would be clamped to half its height — and the expanded slab takes the kit's 28px outright. In alert it pulses with an alert glow and a tap badge hint.",
@@ -729,7 +729,7 @@ export function Demo() {
       { name: "react-use-measure" },
     ],
     description:
-      "A Calamansi squircle nav whose active pill is fused to the tray by a real metaball: the stage is blurred, the blur is pushed through a steep alpha ramp so any bleed becomes solid material, and the crisp stage is drawn back over the top. The thread parts mid-flight and leaves a bead of the material it was made of behind — the palette at the pill's own seams, the tray's own colour where two quiet items meet.",
+      "A Calamansi nav whose active item pulls out of the tray on a real liquid thread, and merges back when you pick another.",
     source: `${REGISTRY_HOMEPAGE}/blob/main/components/ui/gooey-nav.tsx`,
     interaction:
       "Pick an item and the seams either side of it spring open by pulling the surface back, not by moving the layout — the labels never shift and the bar never changes width. In the gap a thread forms by itself: the blur spreads each surface's alpha into the seam, the ramp at half-alpha turns that bleed into solid material, and because the bar has a height the bridge is starved at its midline — it pinches from the full bar down to a few pixels and then severs at 1.234 of the blur radius, which is where the bead swells to full size and dissolves. Raise the viscosity and the thread reaches further and parts later; lower the threshold and the fused edge softens. Sealing runs the same thread backwards — the neck thickens back into the joint, the bead falls back in — and every drop wears the material of its own seam, the palette where the pill is one of the two surfaces meeting there and the tray's own colour where neither is, so a seam between two quiet items closes with a drop of tray rather than a dot of a palette that is nowhere near it. The swallow that hides the seam only arrives once the two surfaces have met, because it is five times longer than the gap you can see and on one spring a re-merge crossed that whole gap in the frames where a spring is moving fastest, which left the neck living a fifth as long shutting as it did opening. Sealed seams are one continuous bar: every surface keeps the brand corner and extends two radii under its neighbour, so the tray reads as a single shape rather than a row of boxes.",
@@ -1006,7 +1006,7 @@ export function Demo() {
       { name: "react-use-measure" },
     ],
     description:
-      "An iOS-inspired glassmorphism widget: a live digital clock, dynamic weather status, fine grain noise and tactile task cards with spring checkmarks — on its own radius, or the Calamansi squircle corner.",
+      "An iOS-inspired glass widget with a live clock, weather and task cards you can tick off — on its own radius or the Calamansi corner.",
     credits: [
       "Design inspired by Jay Dwivedi (https://sprrrint.com/jaydwivedi)",
     ],
@@ -1101,7 +1101,7 @@ export function Demo() {
       { name: "react-use-measure" },
     ],
     description:
-      "A Calamansi squircle card holding a drifting sunrise mesh that greets you by name, keeps a live clock, leans towards the pointer and cycles motivational lines with a staged reveal.",
+      "A Calamansi card with a drifting sunrise mesh that greets you by name, keeps a live clock and cycles motivational lines.",
     source: `${REGISTRY_HOMEPAGE}/blob/main/components/ui/morning-widget.tsx`,
     interaction:
       "Move the pointer over the card and it leans towards it. The line advances on its own every few seconds, or straight away when you click the card. Hovering holds the rotation so you can finish reading, and on a phone the whole widget scales to the width it is given.",
@@ -1186,7 +1186,7 @@ export function Demo() {
     registry: "github-activity",
     dependencies: [{ name: "motion" }],
     description:
-      "A Calamansi squircle calendar that plots a year of GitHub contributions, with a drawer that stacks the busiest repositories over it.",
+      "A Calamansi calendar that plots a year of GitHub contributions, with a drawer of the busiest repositories.",
     credits: [
       "Component adapted from rare-ui (https://github.com/swamimalode07/rare-ui)",
     ],
@@ -1300,7 +1300,7 @@ export function Demo() {
       { name: "react-use-measure" },
     ],
     description:
-      "A liquid orb on the same metaball fuse the Gooey nav runs: one core and a ring of satellites, joined by necks into a single body that breathes while idle, ripples while listening, and churns — throwing off droplets and taking them back — while it thinks.",
+      "A liquid orb that breathes while idle, ripples while listening and churns up droplets while it thinks.",
     source: `${REGISTRY_HOMEPAGE}/blob/main/components/ui/matrix-orb.tsx`,
     interaction:
       "The body is plain circles and a filter: the stage is blurred, that blur is pushed through a steep alpha ramp so any bleed between the circles becomes solid matter, and the crisp circles are drawn back over the top — so the lobes read as one body whose necks stretch and part. Every state moves the satellites' orbit and radius, which is what merges them into a ball or pulls them off as droplets: idle breathes slowly, listening ripples outward from the core until the lobes detach, and thinking runs each lobe on its own clock so they lap one another. Changing state retargets mid-pulse rather than restarting, blending from what is on screen. Hand it a level from 0 to 1 to drive the amplitude and swell the body from your own audio, turn the fuse off to see the circles underneath, and it holds a still frame when the reader prefers reduced motion.",
