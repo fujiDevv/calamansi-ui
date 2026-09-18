@@ -113,6 +113,53 @@ async function handleAnalytics(request: Request, env: Env): Promise<Response> {
   }
 }
 
+/**
+ * GET/POST /api/mascot-pokes
+ *
+ * Every poke of the mascot is one row. Both verbs answer with the new total, so
+ * the header can settle on the server's number instead of its own guess.
+ */
+async function handleMascotPokes(request: Request, env: Env): Promise<Response> {
+  const visitorId = getVisitorId(request);
+
+  const headers = new Headers({
+    "Content-Type": "application/json",
+    "Cache-Control": "no-store",
+  });
+
+  if (!request.headers.get("Cookie")?.includes(VISITOR_COOKIE)) {
+    headers.append(
+      "Set-Cookie",
+      `${VISITOR_COOKIE}=${visitorId}; Path=/; HttpOnly; SameSite=Lax; Max-Age=31536000; Secure`,
+    );
+  }
+
+  try {
+    if (env?.DB) {
+      if (request.method === "POST") {
+        await env.DB.prepare(`
+          INSERT INTO mascot_pokes (visitor_id)
+          VALUES (?1)
+        `).bind(visitorId).run();
+      }
+
+      const result = await env.DB.prepare(`
+        SELECT COUNT(*) as pokes
+        FROM mascot_pokes
+      `).first<{ pokes: number }>();
+
+      return new Response(
+        JSON.stringify({ pokes: Number(result?.pokes ?? 0) }),
+        { headers },
+      );
+    }
+  } catch {
+    // No database bound yet — answer with the empty count below.
+  }
+
+  return new Response(JSON.stringify({ pokes: 0 }), { status: 200, headers });
+}
+
 async function handleGithubStars(): Promise<Response> {
   try {
     const response = await fetch(
@@ -163,6 +210,10 @@ export default {
 
     if (url.pathname === "/api/analytics") {
       return handleAnalytics(request, env);
+    }
+
+    if (url.pathname === "/api/mascot-pokes") {
+      return handleMascotPokes(request, env);
     }
 
     if (url.pathname === "/api/github-stars") {

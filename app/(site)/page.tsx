@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Calamansi, type CalamansiMood } from "@/components/ui/calamansi";
+import MascotPokeZone from "@/components/MascotPokeZone";
 import CopyButton from "@/components/CopyButton";
 import BentoGrid from "@/components/BentoGrid";
 import {
@@ -123,20 +124,23 @@ export default function Home() {
 
           <div className="lg:col-span-7">
             <div className="flex min-h-[280px] w-full flex-col items-center justify-center gap-4 sm:min-h-[340px] sm:gap-5">
-              <Calamansi
-                variant="primary"
-                size={132}
-                className="shrink-0 drop-shadow-sm sm:hidden"
-              />
-              <Calamansi
-                variant="primary"
-                size={168}
-                className="hidden shrink-0 drop-shadow-sm sm:block"
-              />
+              <MascotPokeZone>
+                <Calamansi
+                  variant="primary"
+                  size={132}
+                  className="shrink-0 drop-shadow-sm sm:hidden"
+                />
+                <Calamansi
+                  variant="primary"
+                  size={168}
+                  className="hidden shrink-0 drop-shadow-sm sm:block"
+                />
+              </MascotPokeZone>
 
               <p className="max-w-xs text-center text-xs leading-relaxed text-muted-foreground">
                 Move your cursor and it will watch you. Pet it back and forth to
-                make it blush. Poke it five times and it goes tart.
+                make it blush. Poke it five times and it goes tart. Every poke
+                counts in the header.
               </p>
 
               <ul className="flex flex-wrap items-end justify-center gap-2.5 sm:gap-6">

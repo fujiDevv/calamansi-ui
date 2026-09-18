@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { CalamansiMark } from "@/components/ui/calamansi";
+import MascotPokeCounter from "@/components/MascotPokeCounter";
 import SiteNav from "@/components/SiteNav";
 
 /**
@@ -23,6 +24,9 @@ export default function SiteHeader() {
         </Link>
 
         <SiteNav className="ml-auto" />
+
+        {/* the running total of pokes landed on the hero mascot */}
+        <MascotPokeCounter />
       </div>
     </header>
   );

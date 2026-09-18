@@ -110,6 +110,7 @@ Calamansi UI is configured to deploy to Cloudflare Workers with Static Assets:
 - **Static Pages:** Next.js compiles into static HTML/CSS/JS in the `out/` directory.
 - **Edge Functions:** `worker.ts` routes edge requests:
   - `/api/analytics`: Queries Cloudflare D1 serverless SQLite for page views and visitor counts.
+  - `/api/mascot-pokes`: Records a poke of the mascot and returns the running total shown in the header.
   - `/api/github-stars`: Fetches and caches GitHub star counts.
   - All other routes: Static assets served directly from edge storage.
 
