@@ -227,6 +227,21 @@ export function FuseFilter({
 }
 
 export type LiquidSegmentProps = {
+  /**
+   * The tag a piece renders as — and, with it, the box its content rides in.
+   *
+   * A bar is a list of pieces, so `li` is the default and a plain list is the parent.
+   * Pass `span` when the bar *is* the contents of a control: a button holds phrasing
+   * content only, so a list item or a block box inside one is markup the browser does
+   * not agree with even though it paints it.
+   */
+  as?: "li" | "span";
+  /**
+   * Extra layout classes on the piece itself — `flex-1` on the segment meant to take
+   * the slack, a fixed width on one that should not. Colour still belongs to `paint`:
+   * the surface is painted *inside* this box, never by it.
+   */
+  className?: string;
   /** True when the seam on that side of this segment is open. */
   seamLeft: boolean;
   seamRight: boolean;
@@ -235,6 +250,13 @@ export type LiquidSegmentProps = {
   atEnd: boolean;
   /** The brand corner, in pixels. */
   radius: number;
+  /**
+   * Hold the corner to this share of the measured height, taking whichever of the two
+   * is smaller — for a bar whose height is not a constant. A command that wraps to two
+   * lines on a phone takes the brand's proportion instead of a corner the taller bar
+   * has outgrown; see `SQUIRCLE_SHARE`.
+   */
+  share?: number;
   /** How far a surface pulls back from an open seam, on each side. */
   pull: number;
   /**
@@ -265,15 +287,19 @@ export type LiquidSegmentProps = {
 };
 
 /**
- * One piece of the bar. Renders an `<li>` so the parent can be a plain list, and
- * paints its own surface there — the children are content, never the surface.
+ * One piece of the bar. Renders an `<li>` by default so the parent can be a plain list
+ * (pass `as="span"` when the bar is a control's contents), and paints its own surface
+ * there — the children are content, never the surface.
  */
 export function LiquidSegment({
+  as = "li",
+  className,
   seamLeft,
   seamRight,
   atStart,
   atEnd,
   radius,
+  share,
   pull,
   seal,
   sever,
@@ -362,8 +388,15 @@ export function LiquidSegment({
     () => `${beadPercent(left.get() * 2, sever, pull * 2)}%`,
   );
 
+  /*
+    The piece and the box its content rides in follow the same tag: `span` keeps the
+    whole bar phrasing content, which is what a button can hold.
+  */
+  const Tag = as;
+  const Content = as === "span" ? motion.span : motion.div;
+
   return (
-    <li data-slot={slot} className="relative flex">
+    <Tag data-slot={slot} className={cn("relative flex", className)}>
       {/*
         The surface is painted, not laid out. That is the whole trick: the content
         never moves and the bar never changes width, so the seams can open and shut
@@ -377,6 +410,7 @@ export function LiquidSegment({
       >
         <Squircle
           radius={radius}
+          share={share}
           /* the kit's curve, stated: the corner is the brand shape, not a radius */
           smoothing={SQUIRCLE_SMOOTHING}
           /* the fuse blurs whatever the stage paints, so the surfaces stay flat */
@@ -406,9 +440,16 @@ export function LiquidSegment({
         the earlier one's label. Only the content is lifted, so the surfaces still
         paint over each other in order, which is what keeps sealed seams seamless.
       */}
-      <motion.div className="relative z-10 flex" style={{ x: shift }}>
+      {/*
+        `min-w-0` so the content box can actually give way. A piece is sized by its
+        contents, and a flex item's automatic minimum is that content's min-content
+        width — which for a label that truncates is the whole label, so the box would
+        refuse to shrink and the text would run out of the bar instead of ellipsing
+        inside it. Nothing else moves: this only removes a floor nothing needs.
+      */}
+      <Content className="relative z-10 flex min-w-0" style={{ x: shift }}>
         {children}
-      </motion.div>
-    </li>
+      </Content>
+    </Tag>
   );
 }

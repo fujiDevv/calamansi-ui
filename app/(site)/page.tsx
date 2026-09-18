@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Calamansi, type CalamansiMood } from "@/components/ui/calamansi";
 import MascotPokeZone from "@/components/MascotPokeZone";
-import CopyButton from "@/components/CopyButton";
+import GooeyCopyButton from "@/components/GooeyCopyButton";
 import BentoGrid from "@/components/BentoGrid";
 import {
   Accordion,
@@ -106,20 +106,24 @@ export default function Home() {
               shadcn CLI, then edit the source like it was always yours.
             </p>
 
-            <CopyButton
+            <GooeyCopyButton
               value={INSTALL_COMMAND}
               label="Copy install command"
-              iconClassName="size-4"
-              className="mt-8 flex h-auto min-h-11 w-full max-w-sm justify-between gap-3 rounded-2xl border border-border bg-card px-4 py-2.5 text-foreground transition-colors hover:border-foreground/20 sm:h-11 sm:rounded-full sm:justify-start sm:py-0 sm:pr-4 sm:pl-5"
+              className="mt-8 max-w-lg"
             >
-              {/* phones wrap the command instead of cutting the component name off */}
-              <code className="min-w-0 flex-1 font-mono text-[11px] leading-5 font-semibold break-words whitespace-normal sm:text-[13px] sm:truncate sm:leading-normal">
+              {/*
+                the command wraps rather than being cut off: it is longer than the
+                bar at most widths, and a truncated install command hides the part
+                worth reading. No `flex-1` either — the text takes the width it
+                needs and leaves the rest of the tray empty before the glyph.
+              */}
+              <code className="min-w-0 font-mono text-[11px] leading-5 font-semibold break-words whitespace-normal sm:text-[13px] sm:leading-normal">
                 npx shadcn@latest add {REGISTRY_REPO}
                 <span className="font-normal text-muted-foreground">
-                  /&lt;component&gt;
+                  /calamansi
                 </span>
               </code>
-            </CopyButton>
+            </GooeyCopyButton>
           </div>
 
           <div className="lg:col-span-7">
