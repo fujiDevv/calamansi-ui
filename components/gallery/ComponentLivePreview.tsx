@@ -307,7 +307,8 @@ function Preview({
 /**
  * A tile is not the place for a shadow: a surface's lift is wider than the tile's
  * padding, so it gets sliced off at the clip edge. Every preview is therefore
- * flattened — the task widget aside, which casts a shadow of its own.
+ * flattened, the task widget included — its shell shadow rides the same var, so
+ * setting it once here reaches both its corners.
  */
 export default function ComponentLivePreview({
   registry,
@@ -316,10 +317,6 @@ export default function ComponentLivePreview({
   registry?: string;
   active?: boolean;
 }) {
-  if (registry === "task-widget") {
-    return <Preview registry={registry} active={active} />;
-  }
-
   return (
     <div style={NO_LIFT} className="h-full w-full">
       <Preview registry={registry} active={active} />

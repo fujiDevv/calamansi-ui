@@ -729,10 +729,10 @@ export function Demo() {
       { name: "react-use-measure" },
     ],
     description:
-      "A Calamansi squircle nav whose active pill is fused to the tray by a real metaball: the stage is blurred, the blur is pushed through a steep alpha ramp so any bleed becomes solid material, and the crisp stage is drawn back over the top. The thread parts mid-flight and leaves a bead of palette juice behind.",
+      "A Calamansi squircle nav whose active pill is fused to the tray by a real metaball: the stage is blurred, the blur is pushed through a steep alpha ramp so any bleed becomes solid material, and the crisp stage is drawn back over the top. The thread parts mid-flight and leaves a bead of the material it was made of behind — the palette at the pill's own seams, the tray's own colour where two quiet items meet.",
     source: `${REGISTRY_HOMEPAGE}/blob/main/components/ui/gooey-nav.tsx`,
     interaction:
-      "Pick an item and the seams either side of it spring open by pulling the surface back, not by moving the layout — the labels never shift and the bar never changes width. In the gap a thread forms by itself: the blur spreads each surface's alpha into the seam, the ramp at half-alpha turns that bleed into solid material, and because the bar has a height the bridge is starved at its midline — it pinches from the full bar down to a few pixels and then severs at 1.234 of the blur radius, which is where the bead swells to full size and dissolves. Raise the viscosity and the thread reaches further and parts later; lower the threshold and the fused edge softens. Sealed seams are one continuous bar: every surface keeps the brand corner and extends two radii under its neighbour, so the tray reads as a single shape rather than a row of boxes.",
+      "Pick an item and the seams either side of it spring open by pulling the surface back, not by moving the layout — the labels never shift and the bar never changes width. In the gap a thread forms by itself: the blur spreads each surface's alpha into the seam, the ramp at half-alpha turns that bleed into solid material, and because the bar has a height the bridge is starved at its midline — it pinches from the full bar down to a few pixels and then severs at 1.234 of the blur radius, which is where the bead swells to full size and dissolves. Raise the viscosity and the thread reaches further and parts later; lower the threshold and the fused edge softens. Sealing runs the same thread backwards — the neck thickens back into the joint, the bead falls back in — and every drop wears the material of its own seam, the palette where the pill is one of the two surfaces meeting there and the tray's own colour where neither is, so a seam between two quiet items closes with a drop of tray rather than a dot of a palette that is nowhere near it. The swallow that hides the seam only arrives once the two surfaces have met, because it is five times longer than the gap you can see and on one spring a re-merge crossed that whole gap in the frames where a spring is moving fastest, which left the neck living a fifth as long shutting as it did opening. Sealed seams are one continuous bar: every surface keeps the brand corner and extends two radii under its neighbour, so the tray reads as a single shape rather than a row of boxes.",
     props: [
       {
         name: "items",
@@ -763,7 +763,7 @@ export function Demo() {
         default: '"calamansi"',
         options: ["white", "calamansi", "slate", "citrus"],
         description:
-          "Palette the active pill, its neck and its bead are painted in. Flat shades of the family's mid stop rather than its gradients, because the liquid has to meet the pill edge to edge.",
+          "Palette the active pill is painted in, and with it the drop at each of its own seams. Flat shades of the family's mid stop rather than its gradients, because the liquid has to meet the pill edge to edge.",
       },
       {
         name: "size",
@@ -810,7 +810,7 @@ export function Demo() {
         type: "boolean",
         default: "true",
         description:
-          "Leave a bead of juice behind when the thread severs — the detail that makes the move read as a liquid rather than a slide.",
+          "Leave a bead behind when the thread severs — the detail that makes the move read as a liquid rather than a slide. The drop wears the material of its own seam: the palette where the pill is one of the two surfaces meeting there, the tray's own colour where neither is.",
       },
       {
         name: "className",
@@ -845,10 +845,10 @@ export function Demo() {
       { name: "react-use-measure" },
     ],
     description:
-      "A Calamansi duration field: hours, minutes and a save button fused into one bar by a real metaball thread. Press the pen and the pieces pull apart on the goo, commit and they merge back — leaving a bead of palette juice where the thread parted.",
+      "A Calamansi duration field: hours, minutes and a save button fused into one bar by a real metaball thread. Press the pen and the pieces pull apart on the goo, commit and they merge back — leaving a bead of what the seam is made of where the thread parted: the palette at the save button's own seam, the tray's own colour between the two fields.",
     source: `${REGISTRY_HOMEPAGE}/blob/main/components/ui/duration-picker.tsx`,
     interaction:
-      'At rest both seams are sealed, so the bar reads as one piece of material: the fields collapse to their digits and the whole thing says "1 Hr. 30 Min.". Press the pen and the seams open by pulling the surfaces apart rather than moving the layout — the fields keep their place, the numbers spring from their collapsed width to a fixed one, and the units lean into the split. The thread between the pieces is real metaball geometry: the stage is blurred, the blur is pushed through a steep alpha ramp so any bleed becomes solid material, and the crisp stage is drawn back over the top. Because the bar has a height the bridge is starved at its midline — it pinches from the full bar down to a few pixels and then severs at 1.234 of the blur radius, which is where the bead swells to full size and dissolves. Committing with the tick, or Enter in either field, merges the pieces back and fires `onConfirm`; a number past the ceiling is refused with a nudge and taken as the nearest legal value.',
+      'At rest both seams are sealed, so the bar reads as one piece of material: the fields collapse to their digits and the whole thing says "1 Hr. 30 Min.". Press the pen and the seams open by pulling the surfaces apart rather than moving the layout — the fields keep their place, the numbers spring from their collapsed width to a fixed one, and the units lean into the split. The thread between the pieces is real metaball geometry: the stage is blurred, the blur is pushed through a steep alpha ramp so any bleed becomes solid material, and the crisp stage is drawn back over the top. Because the bar has a height the bridge is starved at its midline — it pinches from the full bar down to a few pixels and then severs at 1.234 of the blur radius, which is where the bead swells to full size and dissolves. Committing with the tick, or Enter in either field, merges the pieces back on the same thread in reverse — the surfaces meet, the neck thickens into the joint, and the swallow that seals them waits until they have touched — and fires `onConfirm`; a number past the ceiling is refused with a nudge and taken as the nearest legal value.',
     props: [
       {
         name: "value",
@@ -965,7 +965,8 @@ export function Demo() {
         name: "bead",
         type: "boolean",
         default: "true",
-        description: "Leave a bead of juice behind when the thread severs.",
+        description:
+          "Leave a bead behind when the thread severs. The drop wears the material of its own seam: the palette at the save button's, the tray's own colour between the two fields.",
       },
       {
         name: "disabled",

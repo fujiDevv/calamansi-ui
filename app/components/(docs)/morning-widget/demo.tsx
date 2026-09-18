@@ -1,13 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import { RotateCcw, Sparkles } from "lucide-react";
 import {
   MorningWidget,
   type MorningWidgetVariant,
   type MotivationQuote,
 } from "@/components/ui/morning-widget";
-import { cn } from "@/lib/utils";
 
 /** The swatches mirror each palette's mesh: its blobs over its base. */
 const VARIANTS: {
@@ -37,64 +35,37 @@ const VARIANTS: {
   },
 ];
 
-const PACKS: { id: string; label: string; quotes: MotivationQuote[] }[] = [
+/**
+ * The set the card reads from — the founder pack this demo has always opened on, kept
+ * as plain data now that the pack switcher is gone.
+ */
+const QUOTES: MotivationQuote[] = [
   {
-    id: "founder",
-    label: "Founder",
-    quotes: [
-      {
-        text: "You have to start delegating tasks, now go carpe diem :)",
-        emphasis: ["delegating tasks", "carpe diem"],
-      },
-      {
-        text: "Ship it, then make it better. Momentum beats polish.",
-        emphasis: ["Ship it", "Momentum"],
-      },
-      {
-        text: "Small bets, compounding wins.",
-        emphasis: ["compounding wins"],
-      },
-      {
-        text: "Talk to users before you touch the pixels.",
-        emphasis: ["Talk to users"],
-      },
-    ],
+    text: "You have to start delegating tasks, now go carpe diem :)",
+    emphasis: ["delegating tasks", "carpe diem"],
   },
   {
-    id: "focus",
-    label: "Deep work",
-    quotes: [
-      {
-        text: "One task, one window, one hour. Guard it.",
-        emphasis: ["one hour"],
-      },
-      {
-        text: "Depth beats speed. Close the tabs you are not using.",
-        emphasis: ["Depth beats speed"],
-      },
-      {
-        text: "Protect the first ninety minutes of the day.",
-        emphasis: ["ninety minutes"],
-      },
-      {
-        text: "Progress is quiet. Keep going.",
-        emphasis: ["Keep going"],
-      },
-    ],
+    text: "Ship it, then make it better. Momentum beats polish.",
+    emphasis: ["Ship it", "Momentum"],
+  },
+  {
+    text: "Small bets, compounding wins.",
+    emphasis: ["compounding wins"],
+  },
+  {
+    text: "Talk to users before you touch the pixels.",
+    emphasis: ["Talk to users"],
   },
 ];
 
-const CONTROL =
-  "inline-flex h-8 items-center gap-1.5 rounded-full border border-border/70 bg-card shadow-2xs px-3 text-xs font-semibold text-foreground/80 transition-colors hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring";
-
+/**
+ * The palette and the widget, and nothing else: the name field, the pack switcher, the
+ * format and tilt toggles and the reset button that used to sit above it are gone. The
+ * widget keeps its own defaults for everything they used to set — the greeting goes to
+ * "Friend", the clock reads 12h, and the card still leans towards the pointer.
+ */
 export default function MorningWidgetDemo() {
-  const [name, setName] = useState("Josh");
-  const [packId, setPackId] = useState(PACKS[0]?.id ?? "founder");
-  const [timeFormat, setTimeFormat] = useState<"12h" | "24h">("12h");
-  const [tilt, setTilt] = useState(true);
   const [variant, setVariant] = useState<MorningWidgetVariant>("calamansi");
-
-  const pack = PACKS.find((item) => item.id === packId) ?? PACKS[0];
   const currentVariant = VARIANTS.find((v) => v.id === variant) ?? VARIANTS[0];
 
   return (
@@ -143,81 +114,7 @@ export default function MorningWidgetDemo() {
         </span>
       </div>
 
-      {/* Controls bar */}
-      <div className="flex w-full max-w-md flex-wrap items-center justify-center gap-2 rounded-xl sm:max-w-none">
-        <label className="flex items-center gap-2 rounded-full border border-border/70 bg-card shadow-2xs py-1 pr-1 pl-3 text-xs font-semibold text-muted-foreground">
-          <span>To</span>
-          <input
-            value={name}
-            onChange={(event) => setName(event.target.value)}
-            maxLength={16}
-            aria-label="Name shown in the greeting"
-            className="h-6 w-24 rounded-full bg-muted/60 px-2.5 text-xs font-semibold text-foreground outline-none focus-visible:ring-2 focus-visible:ring-ring"
-          />
-        </label>
-
-        <div className="flex items-center gap-1 rounded-full border border-border/70 bg-card shadow-2xs p-1">
-          {PACKS.map((item) => (
-            <button
-              key={item.id}
-              type="button"
-              onClick={() => setPackId(item.id)}
-              aria-pressed={packId === item.id}
-              className={cn(
-                "h-6 rounded-full px-2.5 text-xs font-semibold transition-colors",
-                packId === item.id
-                  ? "bg-primary text-primary-foreground"
-                  : "text-muted-foreground hover:text-foreground",
-              )}
-            >
-              {item.label}
-            </button>
-          ))}
-        </div>
-
-        <button
-          type="button"
-          onClick={() =>
-            setTimeFormat((prev) => (prev === "12h" ? "24h" : "12h"))
-          }
-          className={CONTROL}
-        >
-          Format: {timeFormat}
-        </button>
-
-        <button
-          type="button"
-          onClick={() => setTilt((prev) => !prev)}
-          aria-pressed={tilt}
-          className={cn(CONTROL, tilt && "text-foreground")}
-        >
-          <Sparkles className={cn("size-3.5", tilt && "text-primary")} />
-          Tilt: {tilt ? "on" : "off"}
-        </button>
-
-        <button
-          type="button"
-          onClick={() => {
-            setName("Josh");
-            setPackId(PACKS[0]?.id ?? "founder");
-            setTimeFormat("12h");
-            setTilt(true);
-            setVariant("calamansi");
-          }}
-          className={CONTROL}
-          title="Reset the demo"
-        >
-          <RotateCcw className="size-3.5" />
-        </button>
-      </div>
-
-      <MorningWidget
-        name={name.trim() || "Friend"}
-        quotes={pack?.quotes}
-        timeFormat={timeFormat}
-        tilt={tilt}
-        variant={variant}
-      />
+      <MorningWidget quotes={QUOTES} variant={variant} />
 
       <p className="max-w-md text-center text-xs font-medium text-muted-foreground">
         Click the card to skip to the next line. Hovering holds it so you can

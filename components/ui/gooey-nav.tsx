@@ -59,6 +59,15 @@ const VARIANTS: Record<
 const TRAY = "bg-border";
 
 /**
+ * The tray's own colour as an ink, for the bead of a seam that has no palette in it.
+ *
+ * The bead is painted with `currentColor`, which is why the palettes carry an ink
+ * class beside their paint — so the tray needs one too, or a seam between two quiet
+ * items would wear a colour that is nowhere near it.
+ */
+const TRAY_INK = "text-border";
+
+/**
  * Radii in the kit's proportion, and the gap each size opens.
  *
  * The kit pairs a 28px corner with a 64px pill, which is 0.44 of its height, and
@@ -272,7 +281,15 @@ export function GooeyNav({
               seal={seal}
               sever={sever}
               bead={bead}
-              beadFill={palette.juice}
+              /*
+                The bead sits at this segment's left seam, so it wears the material of
+                that seam — which is the same question as whether the seam is open: the
+                palette where the pill is one of the two surfaces meeting there, the
+                tray's own colour where it is not. A seam between two quiet items then
+                closes with a drop of tray rather than a dot of a palette that is
+                nowhere near it.
+              */
+              beadFill={open(index) ? palette.juice : TRAY_INK}
               paint={cn(TRAY, index === active && palette.paint)}
               reduced={reduced}
               slot="gooey-nav-segment"

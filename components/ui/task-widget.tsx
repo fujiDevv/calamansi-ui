@@ -9,7 +9,13 @@ import {
   type KeyboardEvent,
   type ReactNode,
 } from "react";
-import { motion, useReducedMotion } from "motion/react";
+import {
+  motion,
+  useMotionValue,
+  useReducedMotion,
+  useSpring,
+  useTransform,
+} from "motion/react";
 import {
   Check,
   Coffee,
@@ -20,7 +26,7 @@ import {
   Sun,
   Users,
 } from "lucide-react";
-import { Squircle } from "@/lib/squircle";
+import { Squircle, squircleLift } from "@/lib/squircle";
 import { cn } from "@/lib/utils";
 
 export type TaskItem = {
@@ -149,17 +155,29 @@ const ROUNDED_SHELL = [
   "dark:border-white/10 bg-gradient-to-br transition-colors duration-500",
 ].join(" ");
 
-/** Its cast shadow, plus the two inset highlights that give the glass its depth. */
+/**
+ * Its cast shadow, plus the two inset highlights that give the glass its depth.
+ *
+ * Both ride the kit's flattening var rather than sitting on the shell directly: a
+ * preview — the docs panel sets it —is no place for a shadow, and a shadow declared
+ * here would be the one surface that ignored it.
+ */
 const ROUNDED_SHADOW =
   "0 32px 64px -16px rgba(0, 0, 0, 0.35), inset 0 -4px 20px 8px rgba(255, 255, 255, 0.4), inset 0 -10px 4px rgba(0, 0, 0, 0.2)";
 
 /**
  * On the brand corner the surface is a clipped layer, so the cast shadow rides on
- * the wrapper as a filter and the insets move onto the layer itself.
+ * the wrapper as a filter and the insets move inside the layer. Both go through
+ * `squircleLift`: a preview flattens the corner's shadow the same way it flattens
+ * the widget's own, and a declaration that skipped the var would be the one shadow
+ * it could not reach.
  */
 const SQUIRCLE_SHADOW = "drop-shadow(0 26px 44px rgba(0, 0, 0, 0.32))";
 const SQUIRCLE_INSETS =
-  "[box-shadow:inset_0_-4px_20px_8px_rgba(255,255,255,0.4),inset_0_-10px_4px_rgba(0,0,0,0.2)]";
+  "inset 0 -4px 20px 8px rgba(255, 255, 255, 0.4), inset 0 -10px 4px rgba(0, 0, 0, 0.2)";
+
+/** The bottom indicator's spring — the weight its `transition` named all along. */
+const INDICATOR_SPRING = { stiffness: 400, damping: 35 };
 
 /**
  * An iOS-inspired glassmorphism widget with live time, weather, and tactile interactive task cards.
@@ -191,7 +209,6 @@ export function TaskWidget({
     time: "9:41",
     ampm: "AM",
   });
-  const [scrollProgress, setScrollProgress] = useState(0);
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [canScroll, setCanScroll] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
@@ -200,6 +217,22 @@ export function TaskWidget({
   const shouldReduceMotion = useReducedMotion();
   const filterId = useId().replace(/[^a-zA-Z0-9]/g, "");
   const blurFilterId = `${filterId}blur`;
+
+  /*
+    The deck's scroll progress is a motion value rather than state. As state it
+    changed on every scroll frame and re-rendered the whole deck for it — six cards
+    and their grain filters reconciled dozens of times a second, on the main thread,
+    at exactly the moment the compositor is busy re-sampling a backdrop blur. A
+    motion value writes the one style that actually moves, and it lets the bottom
+    indicator run the spring it has always asked for: the width used to come from a
+    plain style, so that spring never had an animation to apply to.
+  */
+  const scrollProgress = useMotionValue(0);
+  const smoothProgress = useSpring(scrollProgress, INDICATOR_SPRING);
+  const indicatorWidth = useTransform(
+    shouldReduceMotion ? scrollProgress : smoothProgress,
+    (progress) => `${Math.round(45 + progress * 55)}%`,
+  );
 
   const activeTasks = controlledTasks ?? internalTasks;
   const currentVariant = VARIANT_STYLES[variant] ?? VARIANT_STYLES.calamansi;
@@ -261,12 +294,12 @@ export function TaskWidget({
     setIsScrolled(el.scrollTop > 12);
 
     if (maxScroll <= 0) {
-      setScrollProgress(0);
+      scrollProgress.set(0);
       return;
     }
     const progress = Math.min(1, Math.max(0, el.scrollTop / maxScroll));
-    setScrollProgress(progress);
-  }, []);
+    scrollProgress.set(progress);
+  }, [scrollProgress]);
 
   // Clear active task highlight timeout on unmount
   useEffect(() => {
@@ -351,16 +384,18 @@ export function TaskWidget({
         className,
       )}
       /* a clip takes a box shadow with it, so on the squircle the cast shadow is a
-         filter on the wrapper instead of a box shadow on the shell */
+         filter on the wrapper instead of a box shadow on the shell — and both go
+         through `squircleLift`, so a preview can switch the whole thing off */
       style={
-        squircle ? { filter: SQUIRCLE_SHADOW } : { boxShadow: ROUNDED_SHADOW }
+        squircle
+          ? { filter: squircleLift(SQUIRCLE_SHADOW) }
+          : { boxShadow: squircleLift(ROUNDED_SHADOW) }
       }
     >
       {squircle ? (
         <Squircle
           className={cn(
             "bg-gradient-to-br transition-colors duration-500",
-            SQUIRCLE_INSETS,
             currentVariant.bg,
           )}
           border="text-white/80 dark:text-white/10"
@@ -368,6 +403,16 @@ export function TaskWidget({
           /* the widget casts the shadow above, so the kit's lift would double it */
           lift={false}
         >
+          {/*
+            The glass lip, drawn on the layer rather than the shell so it takes the
+            squircle, and through `squircleLift` so a preview drops it with the cast
+            shadow — a utility class here was the shadow that survived flattening.
+          */}
+          <span
+            aria-hidden="true"
+            className="pointer-events-none absolute inset-0 block"
+            style={{ boxShadow: squircleLift(SQUIRCLE_INSETS) }}
+          />
           {surface}
         </Squircle>
       ) : (
@@ -448,8 +493,28 @@ export function TaskWidget({
                 {activeTasks.map((task, index) => {
                   const isActive = activeTaskId === task.id;
                   const isChecked = Boolean(task.completed);
+                  /*
+                    The deck frosts toward its tail. `veilDepth` is how far past
+                    the fold a card sits — 0 on the first veiled one, 1 by the
+                    third — so the blur, the mask and the grain all ride a single
+                    ramp. Two neighbouring cards stepping between two fixed
+                    strengths is a seam, and the eye finds a seam long before it
+                    reads the frost itself.
+                  */
+                  const veilDepth = canScroll
+                    ? Math.min(1, Math.max(0, (index - 1) / 2))
+                    : 0;
                   const hasItemBlur = canScroll && index >= 1;
-                  const isHalfBlur = index === 1;
+                  const veilBlur = `blur(${10 + 6 * veilDepth}px)`;
+                  /* where the veil gives out, measured up from the card's bottom */
+                  const veilFade = Math.round(65 * (1 - veilDepth));
+                  const veilMask =
+                    veilFade > 0
+                      ? `linear-gradient(to top, rgba(0,0,0,1) 0%, rgba(0,0,0,0.85) ${Math.round(
+                          veilFade * 0.46,
+                        )}%, rgba(0,0,0,0) ${veilFade}%)`
+                      : "linear-gradient(to top, rgba(0,0,0,1) 0%, rgba(0,0,0,1) 100%)";
+                  const grainOpacity = 0.25 + 0.3 * veilDepth;
                   const itemFilterId = `${blurFilterId}-${String(task.id).replace(/[^a-zA-Z0-9]/g, "")}`;
 
                   return (
@@ -538,9 +603,7 @@ export function TaskWidget({
                                   opacity: !canScroll || isScrolled ? 0 : 1,
                                   y:
                                     !canScroll || isScrolled
-                                      ? isHalfBlur
-                                        ? 6
-                                        : 10
+                                      ? 6 + 4 * veilDepth
                                       : 0,
                                 }
                           }
@@ -550,30 +613,43 @@ export function TaskWidget({
                           }}
                           className="pointer-events-none absolute inset-0 z-10 overflow-hidden rounded-2xl sm:rounded-3xl"
                           style={{
-                            backdropFilter: isHalfBlur
-                              ? "blur(10px)"
-                              : "blur(16px)",
-                            WebkitBackdropFilter: isHalfBlur
-                              ? "blur(10px)"
-                              : "blur(16px)",
-                            maskImage: isHalfBlur
-                              ? "linear-gradient(to top, rgba(0,0,0,1) 0%, rgba(0,0,0,0.85) 30%, rgba(0,0,0,0) 65%)"
-                              : "linear-gradient(to top, rgba(0,0,0,1) 0%, rgba(0,0,0,1) 100%)",
-                            WebkitMaskImage: isHalfBlur
-                              ? "linear-gradient(to top, rgba(0,0,0,1) 0%, rgba(0,0,0,0.85) 30%, rgba(0,0,0,0) 65%)"
-                              : "linear-gradient(to top, rgba(0,0,0,1) 0%, rgba(0,0,0,1) 100%)",
+                            backdropFilter: veilBlur,
+                            WebkitBackdropFilter: veilBlur,
+                            maskImage: veilMask,
+                            WebkitMaskImage: veilMask,
                           }}
                         >
-                          {/* Tactile Sandblasted Grain Noise Filter */}
-                          <svg className="pointer-events-none absolute inset-0 size-full opacity-55 mix-blend-overlay">
+                          {/*
+                            Tactile sandblasted grain. The noise is greyed, then its
+                            own alpha is pushed through a steep ramp so a pixel is
+                            either grain or clear — letting every pixel sit
+                            half-transparent over the glass is what made this read as
+                            a fog of dirt rather than a frosted surface, and the ramp
+                            keeps the speckle crisp enough to see in either theme.
+                          */}
+                          <svg
+                            className="pointer-events-none absolute inset-0 size-full mix-blend-overlay"
+                            style={{ opacity: grainOpacity }}
+                          >
                             <filter id={itemFilterId}>
+                              {/*
+                              A seed per card. feTurbulence defaults to 0, and every
+                              card here is the same width, so one seed tiles the
+                              identical speckle behind each frosted one — a repeat the
+                              eye catches well before it reads grain.
+                            */}
                               <feTurbulence
                                 type="fractalNoise"
-                                baseFrequency="0.85"
-                                numOctaves="3"
+                                baseFrequency="0.8"
+                                numOctaves="2"
                                 stitchTiles="stitch"
+                                seed={index + 1}
                               />
                               <feColorMatrix type="saturate" values="0" />
+                              <feColorMatrix
+                                type="matrix"
+                                values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 3 -1"
+                              />
                             </filter>
                             <rect
                               width="100%"
@@ -586,9 +662,9 @@ export function TaskWidget({
                           <div
                             className={cn(
                               "size-full",
-                              isHalfBlur
-                                ? "bg-gradient-to-t from-black/25 via-white/10 to-transparent dark:from-black/45 dark:via-white/5"
-                                : "bg-gradient-to-t from-black/40 via-white/10 to-white/5 dark:from-black/60 dark:via-white/5",
+                              veilDepth >= 1
+                                ? "bg-gradient-to-t from-black/40 via-white/10 to-white/5 dark:from-black/60 dark:via-white/5"
+                                : "bg-gradient-to-t from-black/25 via-white/10 to-transparent dark:from-black/45 dark:via-white/5",
                             )}
                           />
                         </motion.div>
@@ -606,11 +682,7 @@ export function TaskWidget({
           <div className="h-1.5 w-32 rounded-full bg-white/20 p-0.5 backdrop-blur-xs sm:w-36">
             <motion.div
               className="h-full rounded-full bg-white shadow-xs"
-              style={{
-                width: `${Math.round(45 + scrollProgress * 55)}%`,
-                margin: "0 auto",
-              }}
-              transition={{ type: "spring", stiffness: 400, damping: 35 }}
+              style={{ width: indicatorWidth, margin: "0 auto" }}
             />
           </div>
         </div>

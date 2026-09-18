@@ -82,7 +82,7 @@ export type LiquidMetrics = {
   blur: number;
   /** Where the thread severs, in pixels. */
   sever: number;
-  /** The sealed extension, in pixels. */
+  /** The sealed extension, in pixels — also the depth of the derived swallow. */
   seal: number;
   /** How far a surface pulls back from an open seam, on each side. */
   pull: number;
@@ -135,6 +135,32 @@ export function beadPercent(gap: number, sever: number, open: number) {
   const fade = Math.min(BEAD_FADE, 1 - peak);
   const past = (travel - peak) / fade;
   return past >= 1 ? 0 : BEAD_SIZE * 100 * (1 - past);
+}
+
+/**
+ * The share of a retraction the swallow is allowed to reach over: the last quarter.
+ *
+ * The swallow is the part of a sealed seam's geometry that nobody can be looking at —
+ * by the time a surface has travelled this far in, the two have met and the fuse has
+ * already fused them — so the rule can be as blunt as "not until it is nearly home".
+ */
+export const SWALLOW_REACH = 0.25;
+
+/**
+ * How much of a surface's swallow has arrived, from how far it has retracted.
+ *
+ * 0 while the surface is still out at its seam — a gap is something to look at, and
+ * the machinery that hides a sealed seam has no business moving while one is open —
+ * and 1 once it is home, so a sealed seam seals exactly as deep as it always did.
+ * Eased, not linear, so the swallow has no rate of its own to arrive with.
+ */
+export function swallowShare(retracted: number, pull: number) {
+  // a seam that never opens is already sealed everywhere it can be
+  if (pull <= 0) return 1;
+
+  const reach = SWALLOW_REACH * pull;
+  const s = Math.min(1, Math.max(0, (reach - retracted) / reach));
+  return s * s * (3 - 2 * s);
 }
 
 /**
@@ -211,13 +237,21 @@ export type LiquidSegmentProps = {
   radius: number;
   /** How far a surface pulls back from an open seam, on each side. */
   pull: number;
-  /** The sealed extension: enough to cover a neighbour's whole corner. */
+  /**
+   * The sealed extension: enough to cover a neighbour's whole corner, and the depth
+   * a surface swallows once it is home. It arrives late on purpose — see
+   * `swallowShare`.
+   */
   seal: number;
   /** Where the thread severs, in pixels. */
   sever: number;
   /** Leave a bead of this segment's liquid at the sever. */
   bead?: boolean;
-  /** The bead's colour, as a class, so it can follow the theme. */
+  /**
+   * The bead's ink, as a class — it is painted with `currentColor`. This is the colour
+   * of the material at that seam: the palette where the pill is one of the two surfaces
+   * meeting there, the tray's own colour where it is not.
+   */
   beadFill?: string;
   /** The surface paint. Colour only — the behaviour classes are the primitive's. */
   paint: string;
@@ -251,23 +285,63 @@ export function LiquidSegment({
   beadSlot = `${slot}-bead`,
   children,
 }: LiquidSegmentProps) {
-  const left = useSpring(atStart ? 0 : seamLeft ? pull : -seal, LIQUID_SPRING);
-  const right = useSpring(atEnd ? 0 : seamRight ? pull : -seal, LIQUID_SPRING);
+  /*
+    Only the retraction is sprung — the part of the move you can see.
+
+    A surface has further to travel than the gap it leaves: to seal a seam it must
+    also swallow itself `seal` deep under its neighbour, so the neighbour's corner is
+    covered and the bar reads as one piece. While both rode one spring, which is how
+    this started, that swallow owned five sixths of the travel — so a re-merge crossed
+    its whole visible gap in the spring's first frames, where a spring is moving
+    fastest, and the thread was there and gone before the eye had it. Measured on the
+    bar, the neck lived 25ms shutting against 120ms opening: the separation read as
+    liquid and the re-merge read as a snap.
+
+    With the swallow out of the spring, both directions move the same distance through
+    the same curve, so they are one move played backwards.
+  */
+  const retractLeft = useSpring(!atStart && seamLeft ? pull : 0, LIQUID_SPRING);
+  const retractRight = useSpring(!atEnd && seamRight ? pull : 0, LIQUID_SPRING);
 
   useEffect(() => {
     const to = {
-      left: atStart ? 0 : seamLeft ? pull : -seal,
-      right: atEnd ? 0 : seamRight ? pull : -seal,
+      left: !atStart && seamLeft ? pull : 0,
+      right: !atEnd && seamRight ? pull : 0,
     };
 
     if (reduced) {
-      left.jump(to.left);
-      right.jump(to.right);
+      retractLeft.jump(to.left);
+      retractRight.jump(to.right);
     } else {
-      left.set(to.left);
-      right.set(to.right);
+      retractLeft.set(to.left);
+      retractRight.set(to.right);
     }
-  }, [atStart, atEnd, seamLeft, seamRight, pull, seal, reduced, left, right]);
+  }, [
+    atStart,
+    atEnd,
+    seamLeft,
+    seamRight,
+    pull,
+    reduced,
+    retractLeft,
+    retractRight,
+  ]);
+
+  /*
+    The swallow is derived from the retraction rather than sprung beside it: it waits
+    for the retraction to come home and then eases in. Nothing is lost by the wait — a
+    swallow is the one move nobody can be watching, since the fuse has fused the two
+    surfaces long before it starts — and the wait is the whole point: it keeps the
+    travel the eye reads free of the travel it cannot.
+  */
+  const left = useTransform(() => {
+    const retracted = retractLeft.get();
+    return retracted - (atStart ? 0 : seal * swallowShare(retracted, pull));
+  });
+  const right = useTransform(() => {
+    const retracted = retractRight.get();
+    return retracted - (atEnd ? 0 : seal * swallowShare(retracted, pull));
+  });
 
   /*
     Content rides with the shape — but only a retraction moves the visible edge. A

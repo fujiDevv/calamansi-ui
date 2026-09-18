@@ -107,6 +107,15 @@ const VARIANTS: Record<
 const TRAY = "bg-border";
 
 /**
+ * The tray's own colour as an ink, for the bead of a seam that has no palette in it.
+ *
+ * The bead is painted with `currentColor`, which is why the palettes carry an ink
+ * class beside their paint — so the tray needs one too, or a seam between two quiet
+ * items would wear a colour that is nowhere near it.
+ */
+const TRAY_INK = "text-border";
+
+/**
  * Radii in the kit's share of the bar — 16 on 40, 20 on 48, 24 on 56, which is
  * 0.40 to 0.43 of the height against the 0.44 of the kit's own pill — plus how far
  * the seams open and how wide a field grows once it is live.
@@ -532,7 +541,12 @@ function DurationPicker({
           seal={seal}
           sever={sever}
           bead={bead}
-          beadFill={palette.juice}
+          /*
+            The bead sits at this segment's left seam, so it wears the material of
+            that seam. This one is between the hours and the minutes, which are both
+            tray: a drop of tray, not a dot of the palette, which is not in this seam.
+          */
+          beadFill={TRAY_INK}
           paint={TRAY}
           reduced={reduced}
           slot="duration-picker-segment"
