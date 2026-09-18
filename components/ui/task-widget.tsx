@@ -146,9 +146,8 @@ export function TaskWidget({
   className,
 }: TaskWidgetProps) {
   const [internalTasks, setInternalTasks] = useState<TaskItem[]>(defaultTasks);
-  const [activeTaskId, setActiveTaskId] = useState<string | number | null>(
-    defaultTasks[0]?.id ?? null,
-  );
+  const [activeTaskId, setActiveTaskId] = useState<string | number | null>(null);
+  const activeTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [currentTime, setCurrentTime] = useState<{
     time: string;
     ampm: string;
@@ -233,8 +232,26 @@ export function TaskWidget({
     setScrollProgress(progress);
   }, []);
 
+  // Clear active task highlight timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (activeTimeoutRef.current) {
+        clearTimeout(activeTimeoutRef.current);
+      }
+    };
+  }, []);
+
   const toggleTask = (taskId: string | number) => {
     setActiveTaskId(taskId);
+
+    // Auto-remove the white highlight after 2.5 seconds
+    if (activeTimeoutRef.current) {
+      clearTimeout(activeTimeoutRef.current);
+    }
+    activeTimeoutRef.current = setTimeout(() => {
+      setActiveTaskId((current) => (current === taskId ? null : current));
+    }, 2500);
+
     if (onTaskToggle) {
       const task = activeTasks.find((t) => t.id === taskId);
       onTaskToggle(taskId, !task?.completed);
@@ -260,7 +277,7 @@ export function TaskWidget({
   return (
     <div
       className={cn(
-        "relative flex w-full max-w-[780px] flex-col justify-between overflow-hidden rounded-[28px] border-4 border-white/80 p-4 sm:rounded-[88px] sm:border-[6px] sm:p-8 lg:p-10",
+        "relative flex w-full max-w-[780px] flex-col justify-between overflow-hidden rounded-[36px] border-4 border-white/80 p-5 sm:rounded-[64px] sm:border-[5px] sm:p-8 lg:rounded-[88px] lg:border-[6px] lg:p-10",
         "bg-gradient-to-br shadow-2xl transition-colors duration-500",
         "dark:border-white/10",
         currentVariant.bg,
@@ -341,9 +358,9 @@ export function TaskWidget({
           min-content width and a wider clock (switching 12h to 24h) overflows the row, pushing the
           deck past the card's overflow-hidden edge.
         */}
-        <div className="flex min-w-0 flex-1 flex-col md:max-w-[420px]">
+        <div className="flex min-w-0 flex-1 flex-col w-full md:max-w-[420px]">
           {/* Section Header */}
-          <div className="mb-3 flex items-center justify-between px-2 select-none">
+          <div className="mb-2.5 flex items-center justify-between px-1.5 select-none sm:mb-3 sm:px-2">
             <h2 className="text-xs font-bold tracking-wider text-white/60 uppercase sm:text-sm">
               {title}
             </h2>
@@ -357,7 +374,7 @@ export function TaskWidget({
             <div
               ref={scrollRef}
               onScroll={handleScroll}
-              className="flex max-h-[250px] flex-col gap-2.5 overflow-y-auto p-1 pr-2 scroll-smooth [scrollbar-width:thin] [scrollbar-color:rgba(255,255,255,0.25)_transparent] sm:max-h-[280px] sm:gap-3"
+              className="flex max-h-[250px] flex-col gap-2.5 overflow-y-auto p-1 pr-1.5 scroll-smooth [scrollbar-width:thin] [scrollbar-color:rgba(255,255,255,0.25)_transparent] sm:max-h-[280px] sm:gap-3 sm:pr-2"
             >
               {activeTasks.map((task, index) => {
                 const isActive = activeTaskId === task.id;
@@ -375,7 +392,7 @@ export function TaskWidget({
                     onClick={() => toggleTask(task.id)}
                     onKeyDown={(e) => handleKeyDown(e, task.id)}
                     className={cn(
-                      "group relative flex h-16 w-full shrink-0 cursor-pointer items-center justify-between gap-3 overflow-hidden rounded-xl px-3.5 transition-all duration-300 sm:h-20 sm:gap-3.5 sm:rounded-3xl sm:px-6",
+                      "group relative flex h-16 w-full shrink-0 cursor-pointer items-center justify-between gap-3 overflow-hidden rounded-2xl px-4 transition-all duration-300 sm:h-20 sm:gap-3.5 sm:rounded-3xl sm:px-6",
                       "border backdrop-blur-md outline-hidden focus-visible:ring-2 focus-visible:ring-white/80",
                       isActive
                         ? "border-white/70 bg-white/80 text-foreground shadow-lg dark:border-white/20 dark:bg-white/15 dark:text-white"
@@ -390,7 +407,7 @@ export function TaskWidget({
                     {/* Custom Tactile Checkbox */}
                     <div
                       className={cn(
-                        "relative z-0 flex size-8 shrink-0 items-center justify-center rounded-lg border-2 transition-all duration-200 sm:size-9 sm:rounded-xl",
+                        "relative z-0 flex size-8 shrink-0 items-center justify-center rounded-xl border-2 transition-all duration-200 sm:size-9",
                         isChecked
                           ? "border-primary bg-primary text-primary-foreground shadow-xs dark:border-primary dark:bg-primary"
                           : "border-foreground/40 bg-transparent dark:border-white/40",
@@ -457,7 +474,7 @@ export function TaskWidget({
                           duration: 0.35,
                           ease: [0.16, 1, 0.3, 1],
                         }}
-                        className="pointer-events-none absolute inset-0 z-10 overflow-hidden rounded-xl sm:rounded-3xl"
+                        className="pointer-events-none absolute inset-0 z-10 overflow-hidden rounded-2xl sm:rounded-3xl"
                         style={{
                           backdropFilter: isHalfBlur ? "blur(10px)" : "blur(16px)",
                           WebkitBackdropFilter: isHalfBlur ? "blur(10px)" : "blur(16px)",
@@ -507,8 +524,8 @@ export function TaskWidget({
       </div>
 
       {/* Bottom Symmetrical Home Indicator Bar */}
-      <div className="relative z-10 mt-6 flex justify-center">
-        <div className="h-1.5 w-36 rounded-full bg-white/20 p-0.5 backdrop-blur-xs">
+      <div className="relative z-10 mt-5 flex justify-center sm:mt-6">
+        <div className="h-1.5 w-32 rounded-full bg-white/20 p-0.5 backdrop-blur-xs sm:w-36">
           <motion.div
             className="h-full rounded-full bg-white shadow-xs"
             style={{
