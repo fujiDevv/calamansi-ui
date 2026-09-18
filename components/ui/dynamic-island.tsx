@@ -31,12 +31,22 @@ const ALERT_GLOW = "drop-shadow(0 0 22px rgba(255, 65, 54, 0.75))";
  * was measured — so the shape would hold its final path for the whole morph and get
  * squashed on the way there, pinching the corners. Moving the real box lets the
  * clip path be re-measured every frame, so the pill stays a pill while it grows
- * into the slab. The content eases its own radius to match, or its clip would turn
- * into an oval partway through the collapse.
+ * into the slab. The content rides inside that same clipped layer, so it is cut by
+ * the curve itself and never by a second, squarer one — and its padding eases with
+ * the box, or it would jump the moment the state flips.
  */
 const MORPH_EASE = "ease-[cubic-bezier(0.22,1,0.36,1)] duration-500";
 const BOX_MORPH = `transition-[width,height,max-width] ${MORPH_EASE} motion-reduce:transition-none`;
-const CONTENT_MORPH = `transition-[border-radius] ${MORPH_EASE} motion-reduce:transition-none`;
+const PADDING_MORPH = `transition-[padding] ${MORPH_EASE} motion-reduce:transition-none`;
+
+/**
+ * The content swap runs on the box's own curve, and gets out of the way faster
+ * than it arrives: while the pill is shrinking the outgoing layout is still inside
+ * it, so a long goodbye is exactly the clipped frame that reads as broken.
+ */
+const SWAP_EASE: [number, number, number, number] = [0.22, 1, 0.36, 1];
+const SWAP_IN = { duration: 0.18, ease: SWAP_EASE };
+const SWAP_OUT = { duration: 0.1, ease: SWAP_EASE };
 
 const VARIANTS: Record<DynamicIslandVariant, { paint: string; ink: string }> = {
   white: {
@@ -66,8 +76,15 @@ const VARIANTS: Record<DynamicIslandVariant, { paint: string; ink: string }> = {
   },
 };
 
-/** The content layer above the surface. */
-const CONTENT = ["relative z-10 flex size-full", CONTENT_MORPH].join(" ");
+/**
+ * The content layer, inside the surface. The surface is `pointer-events-none`, so
+ * this re-enables them for itself — the island's own buttons have to stay live —
+ * and it takes no radius of its own: the shape clips it.
+ */
+const CONTENT = [
+  "relative flex size-full pointer-events-auto",
+  PADDING_MORPH,
+].join(" ");
 
 /** The icon chip, tinted from the surface ink so it reads on any palette. */
 const ICON_BADGE = [
@@ -187,72 +204,81 @@ export const DynamicIsland = forwardRef<HTMLDivElement, DynamicIslandProps>(
             filter={
               isAlert ? squircleLift(SQUIRCLE_LIFT, ALERT_GLOW) : undefined
             }
-          />
-
-          <div
-            className={cn(
-              CONTENT,
-              // the surface is a separate clipped layer, so the content clips
-              // itself to match: a pill while collapsed, the slab radius when
-              // expanded. The pill radius is a finite 20px so it can ease into the
-              // slab — `rounded-full` is an infinite radius and would jump, and on a
-              // 36px row it clamps to the same half-height pill anyway. No vertical
-              // padding either — the surface's padding already insets the row, and
-              // more would push it past the pill.
-              isExpanded
-                ? "flex-col justify-between overflow-hidden rounded-[24px] p-4 sm:p-5"
-                : "items-center justify-between overflow-hidden rounded-[20px] px-3.5",
-            )}
           >
-            <AnimatePresence mode="wait" initial={false}>
-              {isExpanded ? (
-                <motion.div
-                  key="expanded"
-                  initial={{ opacity: 0, scale: 0.96, y: 2 }}
-                  animate={{ opacity: 1, scale: 1, y: 0 }}
-                  exit={{ opacity: 0, scale: 0.96, y: 2 }}
-                  transition={{ duration: 0.18 }}
-                  className="relative flex size-full flex-col justify-between gap-3"
-                >
-                  {expandedContent}
-                </motion.div>
-              ) : (
-                <motion.div
-                  key="collapsed"
-                  initial={{ opacity: 0, y: -4 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: 4 }}
-                  transition={{ duration: 0.15 }}
-                  className="relative flex size-full items-center justify-between gap-3"
-                >
-                  <div className="flex min-w-0 items-center gap-2.5">
-                    {iconElement}
-                    {title && (
-                      <div className="truncate text-xs font-semibold tracking-tight">
-                        {title}
+            {/*
+              The content is a child of the surface rather than a sibling of it, so
+              the very path that paints the shape is the one that clips the content:
+              mid-collapse the pill swallows the layout along its own curve, instead
+              of a rectangle cutting it off at a corner the surface has already
+              rounded away. No vertical padding while collapsed either — the surface
+              insets the row, and more would push it past the pill.
+            */}
+            <div
+              className={cn(
+                CONTENT,
+                isExpanded
+                  ? "flex-col justify-between p-4 sm:p-5"
+                  : "items-center justify-between px-3.5",
+              )}
+            >
+              <AnimatePresence mode="wait" initial={false}>
+                {isExpanded ? (
+                  <motion.div
+                    key="expanded"
+                    initial={reduceMotion ? false : { opacity: 0, y: 6 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={
+                      reduceMotion
+                        ? { opacity: 0 }
+                        : { opacity: 0, y: -6, transition: SWAP_OUT }
+                    }
+                    transition={reduceMotion ? { duration: 0 } : SWAP_IN}
+                    className="relative flex size-full flex-col justify-between gap-3"
+                  >
+                    {expandedContent}
+                  </motion.div>
+                ) : (
+                  <motion.div
+                    key="collapsed"
+                    initial={reduceMotion ? false : { opacity: 0, y: -6 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={
+                      reduceMotion
+                        ? { opacity: 0 }
+                        : { opacity: 0, y: 6, transition: SWAP_OUT }
+                    }
+                    transition={reduceMotion ? { duration: 0 } : SWAP_IN}
+                    className="relative flex size-full items-center justify-between gap-3"
+                  >
+                    <div className="flex min-w-0 items-center gap-2.5">
+                      {iconElement}
+                      {title && (
+                        <div className="truncate text-xs font-semibold tracking-tight">
+                          {title}
+                        </div>
+                      )}
+                      {showPulse && (
+                        <span
+                          aria-hidden="true"
+                          className="relative flex size-1.5 shrink-0"
+                        >
+                          {!reduceMotion && (
+                            <span className="absolute inline-flex size-full animate-ping rounded-full bg-current opacity-60" />
+                          )}
+                          <span className="relative inline-flex size-1.5 rounded-full bg-current" />
+                        </span>
+                      )}
+                    </div>
+                    {trailing && (
+                      <div className="flex shrink-0 items-center gap-2 text-xs font-medium text-current/75">
+                        {trailing}
                       </div>
                     )}
-                    {showPulse && (
-                      <span
-                        aria-hidden="true"
-                        className="relative flex size-1.5 shrink-0"
-                      >
-                        {!reduceMotion && (
-                          <span className="absolute inline-flex size-full animate-ping rounded-full bg-current opacity-60" />
-                        )}
-                        <span className="relative inline-flex size-1.5 rounded-full bg-current" />
-                      </span>
-                    )}
-                  </div>
-                  {trailing && (
-                    <div className="flex shrink-0 items-center gap-2 text-xs font-medium text-current/75">
-                      {trailing}
-                    </div>
-                  )}
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+          </Squircle>
 
           {/* Alert badge tap hint */}
           {isAlert && (

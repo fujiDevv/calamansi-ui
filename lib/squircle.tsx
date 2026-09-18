@@ -64,9 +64,11 @@ export type SquircleProps = {
    * (`"text-border"`). A border cannot follow a squircle — a 1px rect stops
    * being useful well before the corner, which begins two radii in — so this
    * strokes the same path that clips the surface and lets the clip trim the
-   * outer half away, leaving a crisp 1px line inside the shape.
+   * outer half away, leaving a crisp line inside the shape.
    */
   border?: string;
+  /** Width of that line in pixels. Default: 1 */
+  borderWidth?: number;
   /** Drawn inside the shape and clipped to it — glare, grain, a lit border. */
   children?: ReactNode;
 };
@@ -78,6 +80,7 @@ export function Squircle({
   lift = true,
   filter,
   border,
+  borderWidth = 1,
   children,
 }: SquircleProps) {
   const [ref, bounds] = useMeasure();
@@ -124,7 +127,8 @@ export function Squircle({
                 d={path}
                 className={border}
                 stroke="currentColor"
-                strokeWidth={2}
+                /* only the inner half of the stroke survives the clip */
+                strokeWidth={borderWidth * 2}
               />
             </svg>
           ) : (
@@ -137,7 +141,7 @@ export function Squircle({
               )}
               style={{
                 borderRadius: radius,
-                boxShadow: "inset 0 0 0 1px currentColor",
+                boxShadow: `inset 0 0 0 ${borderWidth}px currentColor`,
               }}
             />
           ))}

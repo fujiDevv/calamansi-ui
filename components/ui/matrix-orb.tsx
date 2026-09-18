@@ -24,6 +24,11 @@ export type MatrixOrbProps = ComponentProps<"div"> & {
   dots?: number;
   /** Caption under the orb, per state. */
   labels?: Partial<Record<MatrixOrbState, string>>;
+  /**
+   * Show that caption. Default: true — turn it off when the orb is a small
+   * decorative indicator rather than a status the reader is reading.
+   */
+  caption?: boolean;
   /** Accent palette the dots are painted in. Default: "calamansi" */
   variant?: MatrixOrbVariant;
 };
@@ -131,6 +136,7 @@ const MatrixOrb = ({
   color,
   dots = 11,
   labels,
+  caption = true,
   variant = "calamansi",
   className,
   style,
@@ -323,9 +329,11 @@ const MatrixOrb = ({
         style={{ width: size, height: size }}
       />
 
-      <span role="status" aria-live="polite" className={CAPTION}>
-        {labels?.[state] ?? LABELS[state]}
-      </span>
+      {caption && (
+        <span role="status" aria-live="polite" className={CAPTION}>
+          {labels?.[state] ?? LABELS[state]}
+        </span>
+      )}
     </div>
   );
 };

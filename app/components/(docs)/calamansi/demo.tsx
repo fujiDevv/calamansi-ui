@@ -46,20 +46,9 @@ export default function CalamansiDemo() {
     VARIANTS.find((v) => v.id === variant) ?? VARIANTS[0];
 
   return (
-    <div className="flex h-full flex-col items-center justify-center gap-5 p-3 sm:gap-6 sm:p-6">
-      {/* Header: Title and Description */}
-      <div className="flex flex-col items-center gap-1.5 text-center">
-        <p className="font-runde text-lg font-semibold tracking-tight text-foreground">
-          Calamansi mascot
-        </p>
-        <p className="max-w-sm text-xs text-muted-foreground">
-          A tiny citrus fruit that blinks, follows your cursor, blushes when you
-          pet it, and goes tart if you poke it too much.
-        </p>
-      </div>
-
+    <div className="flex h-full w-full flex-col items-center justify-center gap-6 p-4 sm:gap-8 sm:p-10">
       {/* Tab Controls: Texture, Colour Variant, and Expression */}
-      <div className="flex flex-col items-center justify-center gap-2.5 sm:gap-3">
+      <div className="flex flex-col items-center justify-center gap-2.5 sm:gap-4">
         {/* Texture Selection Tabs */}
         <div className="flex items-center rounded-full border border-border/70 bg-card/60 p-1 shadow-2xs backdrop-blur-xs">
           {TEXTURES.map((option) => (

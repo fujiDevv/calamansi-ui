@@ -118,7 +118,7 @@
       "name": "dynamic-island",
       "type": "registry:ui",
       "title": "Dynamic Island",
-      "description": "A Calamansi squircle island that eases between pill and slab as it morphs states, and glows when it alerts.",
+      "description": "A Calamansi squircle island that eases between pill and slab as it morphs states — the content clipped to that same curve — and glows when it alerts.",
       "dependencies": ["motion", "figma-squircle", "react-use-measure"],
       "registryDependencies": ["utils", "squircle"],
       "files": [
@@ -132,9 +132,14 @@
       "name": "task-widget",
       "type": "registry:ui",
       "title": "Task Widget",
-      "description": "An iOS-inspired glassmorphism widget featuring a live digital clock, dynamic weather status, fine grain noise, and tactile task cards with spring checkmarks.",
-      "dependencies": ["motion", "lucide-react"],
-      "registryDependencies": ["utils"],
+      "description": "An iOS-inspired glassmorphism widget with a live digital clock, dynamic weather status, fine grain noise and tactile task cards — on its own radius, or the Calamansi squircle corner.",
+      "dependencies": [
+        "motion",
+        "lucide-react",
+        "figma-squircle",
+        "react-use-measure"
+      ],
+      "registryDependencies": ["utils", "squircle"],
       "files": [
         {
           "path": "components/ui/task-widget.tsx",
@@ -142,7 +147,8 @@
         }
       ]
     },
-    {      "name": "morning-widget",
+    {
+      "name": "morning-widget",
       "type": "registry:ui",
       "title": "Morning Widget",
       "description": "A Calamansi squircle card holding a drifting sunrise mesh that greets you by name, keeps a live clock with rolling digits, leans towards the pointer and cycles motivational lines with a staged reveal.",
@@ -152,30 +158,21 @@
         "figma-squircle",
         "react-use-measure"
       ],
-      "registryDependencies": [
-        "utils",
-        "squircle"
-      ],
+      "registryDependencies": ["utils", "squircle"],
       "files": [
         {
           "path": "components/ui/morning-widget.tsx",
           "type": "registry:ui"
         }
       ]
-    },    {
+    },
+    {
       "name": "github-activity",
       "type": "registry:ui",
       "title": "GitHub Activity",
       "description": "A Calamansi squircle calendar plotting a year of GitHub contributions, with a drawer stacking the busiest repositories over it.",
-      "dependencies": [
-        "motion",
-        "figma-squircle",
-        "react-use-measure"
-      ],
-      "registryDependencies": [
-        "utils",
-        "squircle"
-      ],
+      "dependencies": ["motion", "figma-squircle", "react-use-measure"],
+      "registryDependencies": ["utils", "squircle"],
       "files": [
         {
           "path": "components/ui/github-activity.tsx",
@@ -189,9 +186,7 @@
       "title": "Matrix Orb",
       "description": "A sphere of dots on a bare canvas that breathes while idle, ripples while listening and orbits while it thinks.",
       "dependencies": [],
-      "registryDependencies": [
-        "utils"
-      ],
+      "registryDependencies": ["utils"],
       "files": [
         {
           "path": "components/ui/matrix-orb.tsx",

@@ -374,16 +374,24 @@ export function Demo() {
     isNew: true,
     registry: "marquee",
     description:
-      "An infinite marquee that loops seamlessly, fades its edges and pauses on hover.",
+      "An infinite marquee that loops seamlessly, fades its edges and pauses on hover, carrying a palette accent for its items to tint from.",
     source: `${REGISTRY_HOMEPAGE}/blob/main/components/ui/marquee.tsx`,
     interaction:
-      "Hover the marquee to hold the loop in place, then move away and it carries on from where it stopped.",
+      "Hover the marquee to hold the loop in place, then move away and it carries on from where it stopped. It stays bare, so the palette is an ink rather than a surface: anything inside that styles from currentColor picks the accent up.",
     props: [
       {
         name: "children",
         type: "ReactNode",
         required: true,
         description: "The row to loop. Rendered twice for a seamless seam.",
+      },
+      {
+        name: "variant",
+        type: '"white" | "calamansi" | "slate" | "citrus"',
+        default: '"calamansi"',
+        options: ["white", "calamansi", "slate", "citrus"],
+        description:
+          "Accent palette the row carries. The marquee stays bare, so this is the ink its items tint from rather than a surface; White is the neutral end, the page's own ink.",
       },
       {
         name: "duration",
@@ -620,7 +628,7 @@ export function Demo() {
     registry: "dynamic-island",
     dependencies: [{ name: "motion" }],
     description:
-      "A Calamansi squircle island that eases between pill and slab as it morphs states, and glows when it alerts.",
+      "A Calamansi squircle island that eases between pill and slab as it morphs states — the content clipped to that same curve — and glows when it alerts.",
     source: `${REGISTRY_HOMEPAGE}/blob/main/components/ui/dynamic-island.tsx`,
     interaction:
       "Click the island to expand it into rich content. In compact and idle states it shows a compact status pill; in alert it pulses with an alert glow and a tap badge hint.",
@@ -715,9 +723,14 @@ export function Demo() {
     isNew: true,
     featured: true,
     registry: "task-widget",
-    dependencies: [{ name: "motion" }, { name: "lucide-react" }],
+    dependencies: [
+      { name: "motion" },
+      { name: "lucide-react" },
+      { name: "figma-squircle" },
+      { name: "react-use-measure" },
+    ],
     description:
-      "An iOS-inspired glassmorphism widget featuring a live digital clock, dynamic weather status, fine grain noise, and tactile task cards with spring checkmarks. Inspired by Jay Dwivedi's design on Sprrrint.",
+      "An iOS-inspired glassmorphism widget: a live digital clock, dynamic weather status, fine grain noise and tactile task cards with spring checkmarks — on its own radius, or the Calamansi squircle corner.",
     credits: [
       "Design inspired by Jay Dwivedi (https://sprrrint.com/jaydwivedi)",
     ],
@@ -773,6 +786,14 @@ export function Demo() {
         description: "Glass tint background gradient and specular accents.",
       },
       {
+        name: "corner",
+        type: '"rounded" | "squircle"',
+        default: '"rounded"',
+        options: ["rounded", "squircle"],
+        description:
+          'Shell corner. "rounded" is the widget\'s own large radius, the shape it shipped with; "squircle" swaps the surface onto the kit\'s clipped squircle layer, which repaints the lip and the inset highlights along the new curve.',
+      },
+      {
         name: "className",
         type: "string",
         description: "Extra classes merged onto the widget container.",
@@ -784,6 +805,7 @@ export function Demo() {
   return (
     <TaskWidget
       variant="calamansi"
+      corner="rounded"
       title="Today's Priorities"
     />
   )
@@ -1053,6 +1075,13 @@ export function Demo() {
         type: "Partial<Record<MatrixOrbState, string>>",
         description:
           'Caption under the orb, per state. Defaults to "Idle", "Listening" and "Thinking".',
+      },
+      {
+        name: "caption",
+        type: "boolean",
+        default: "true",
+        description:
+          "Show the caption under the orb. Turn it off when the orb is a small decorative indicator instead of a status the reader is reading.",
       },
       {
         name: "className",

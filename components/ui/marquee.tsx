@@ -3,9 +3,26 @@
 import { useId, type CSSProperties, type ReactNode } from "react";
 import { cn } from "@/lib/utils";
 
+export type MarqueeVariant = "white" | "calamansi" | "slate" | "citrus";
+
+/**
+ * The palette is the accent the row carries, not a surface: the marquee stays
+ * bare, so it can be dropped on any background. Anything inside that styles from
+ * `currentColor` picks the accent up — `calamansi` is the brand green by default,
+ * and `white` is the neutral end of the range, the page's own ink.
+ */
+const VARIANTS: Record<MarqueeVariant, string> = {
+  white: "text-foreground",
+  calamansi: "text-[#5c7a67] dark:text-[#b4e84c]",
+  slate: "text-[#687396] dark:text-[#a99fd6]",
+  citrus: "text-[#b87152] dark:text-[#ffc93d]",
+};
+
 export type MarqueeProps = {
   children: ReactNode;
   className?: string;
+  /** Accent palette the row carries. Default: "calamansi" */
+  variant?: MarqueeVariant;
   /** Seconds for one full loop. Default: 30 */
   duration?: number;
   /** Scroll the other way. Default: false */
@@ -27,11 +44,13 @@ export type MarqueeProps = {
  *
  * Renders multiple clones moving synchronously by exactly their own width
  * plus gap, creating a continuous and seamless loop on any screen width. It is
- * deliberately bare — no panel, no border — so it can sit on any surface.
+ * deliberately bare — no panel, no border — so it can sit on any surface, and it
+ * carries the palette as an accent for its items to tint from.
  */
 export function Marquee({
   children,
   className,
+  variant = "calamansi",
   duration = 30,
   reverse = false,
   pauseOnHover = true,
@@ -51,6 +70,7 @@ export function Marquee({
     <div
       className={cn(
         "group relative flex w-full overflow-hidden",
+        VARIANTS[variant],
         vertical ? "flex-col" : "flex-row",
         className,
       )}

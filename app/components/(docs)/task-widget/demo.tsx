@@ -4,6 +4,7 @@ import { useState } from "react";
 import {
   TaskWidget,
   type TaskItem,
+  type TaskWidgetCorner,
   type TaskWidgetVariant,
 } from "@/components/ui/task-widget";
 import { Coffee, Layers, Link2, PenTool, Sparkles, Users } from "lucide-react";
@@ -76,10 +77,10 @@ const VARIANTS: {
 
 export default function TaskWidgetDemo() {
   const [variant, setVariant] = useState<TaskWidgetVariant>("calamansi");
+  const [corner, setCorner] = useState<TaskWidgetCorner>("rounded");
   const [timeFormat, setTimeFormat] = useState<"12h" | "24h">("12h");
   const [tasks, setTasks] = useState<TaskItem[]>(INITIAL_TASKS);
-  const currentVariant =
-    VARIANTS.find((v) => v.id === variant) ?? VARIANTS[0];
+  const currentVariant = VARIANTS.find((v) => v.id === variant) ?? VARIANTS[0];
 
   const handleToggle = (taskId: string | number, completed: boolean) => {
     setTasks((prev) =>
@@ -134,6 +135,17 @@ export default function TaskWidgetDemo() {
         >
           Format: {timeFormat}
         </button>
+
+        <button
+          type="button"
+          onClick={() =>
+            setCorner((prev) => (prev === "rounded" ? "squircle" : "rounded"))
+          }
+          aria-label="Toggle the shell corner"
+          className="rounded-full border border-border/70 bg-card/60 px-3.5 py-2 text-xs font-semibold text-muted-foreground shadow-2xs backdrop-blur-xs transition-colors hover:text-foreground"
+        >
+          Corner: {corner === "rounded" ? "Radius" : "Squircle"}
+        </button>
       </div>
 
       {/* Main Interactive Widget */}
@@ -142,6 +154,7 @@ export default function TaskWidgetDemo() {
           tasks={tasks}
           onTaskToggle={handleToggle}
           variant={variant}
+          corner={corner}
           timeFormat={timeFormat}
           title="Today's Focus"
         />
@@ -149,8 +162,8 @@ export default function TaskWidgetDemo() {
 
       <p className="max-w-md text-center text-xs text-muted-foreground">
         Click any task card to focus and toggle completion. Scroll the tasks
-        deck to smoothly animate away the overflow blur and expand the progress indicator.
-        Inspired by{" "}
+        deck to smoothly animate away the overflow blur and expand the progress
+        indicator. Inspired by{" "}
         <a
           href="https://sprrrint.com/jaydwivedi"
           target="_blank"
