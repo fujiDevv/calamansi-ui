@@ -1,24 +1,33 @@
 "use client";
 
 import { useEffect, useRef, useState, type ComponentProps } from "react";
-import { FuseFilter, LIQUID_THRESHOLD, useFuseId } from "@/lib/liquid";
+import { Liquid } from "liquid-gooey";
+import { LIQUID_THRESHOLD } from "@/lib/liquid";
 import { cn } from "@/lib/utils";
 
 /**
  * ─────────────────────────────────────────────────────────────────────────────
  * THE LIQUID ORB
  *
- * One core and a ring of satellites, all of them plain circles — and the same
- * metaball fuse the Gooey nav and the Duration picker run: the stage is blurred,
- * that blur is pushed through a steep alpha ramp so any bleed between the circles
- * becomes solid material, and the crisp shapes are drawn back over the top. What
- * lands on screen is a single soft body whose lobes are joined by necks, and the
- * motion is what that body does with them: it breathes, it ripples, it churns and
- * throws off droplets that fall back in.
+ * One core and a ring of satellites, all of them plain circles — and the fuse
+ * underneath them is `liquid-gooey`'s, the same one behind the site's nav: the group
+ * holds a silhouette layer where the goo is blurred and ramped into solid material,
+ * and the circles ride above it crisp and *unpainted*, existing only to be measured.
+ * What lands on screen is a single soft body whose lobes are joined by necks, and
+ * the motion is what that body does with them: it breathes, it ripples, it churns
+ * and throws off droplets that fall back in.
  *
- * The satellite geometry is the whole animation, so it is a plain request-animation
- * loop writing transforms — no canvas, no re-render per frame, and nothing to read
- * back off the DOM. A lobe's colour is `currentColor`, so the palette and the theme
+ * Handing the fuse to the library is what buys the body its edge and its depth: the
+ * silhouette can take a displacement noise that makes the boundary read as liquid
+ * instead of as arcs meeting at exact angles, and it can cast a real shadow and wear
+ * an inset rim — both painted on the merged shape, necks and all, which is the one
+ * thing a filter on a stage element could never do.
+ *
+ * The satellite geometry is still the whole animation, and it is still a plain
+ * request-animation loop writing transforms — no canvas, no re-render per frame. The
+ * library keeps up because every item is told to `observe`: rather than animating
+ * items from props itself, it reads each circle's box per frame and mirrors it into
+ * the silhouette. A lobe's colour is `currentColor`, so the palette and the theme
  * both come for free.
  * ─────────────────────────────────────────────────────────────────────────────
  */
@@ -49,7 +58,10 @@ export type MatrixOrbProps = ComponentProps<"div"> & {
   caption?: boolean;
   /** Ink the body is painted in. Default: "calamansi" */
   variant?: MatrixOrbVariant;
-  /** Run the fuse at all. Off, the circles simply overlap. Default: true */
+  /**
+   * Run the fuse at all. Off, the blur goes with it and the circles stay crisp and
+   * simply overlap. Default: true
+   */
   gooey?: boolean;
   /**
    * The blur behind the fuse, in pixels — how far a lobe reaches for its neighbour
@@ -62,6 +74,19 @@ export type MatrixOrbProps = ComponentProps<"div"> & {
    * stretches before it parts. Default: 19
    */
   threshold?: number;
+  /**
+   * Max px the body's boundary undulates — the fluid edge. Defaults to 0.012 of the
+   * stage, so the wobble keeps its proportion; 0 gives back the calm, geometric edge.
+   */
+  waviness?: number;
+  /** Noise frequency of the undulation. Lower = longer, lazier waves. */
+  wavinessFreq?: number;
+  /**
+   * `box-shadow` syntax for the body, painted on the *merged* silhouette — so `inset`
+   * layers draw a rim inside its edge. Defaults to the kit's cast plus a glass
+   * hairline; pass "none" for a bare orb.
+   */
+  shadow?: string;
 };
 
 const TAU = Math.PI * 2;
@@ -133,12 +158,43 @@ const SURFACE =
 const CAPTION =
   "rounded-full bg-current/10 px-2.5 py-1 text-[10px] font-semibold tracking-[0.16em] text-muted-foreground uppercase ring-1 ring-current/20";
 
-/** The fuse blurs whatever the stage paints, so the circles have to stay crisp. */
+/** The group the silhouette is measured against. Nothing on it paints. */
 const STAGE = "relative block";
-const LOBE = "absolute top-0 left-0 rounded-full bg-current";
 
-/** How far outside the stage the fuse is allowed to paint. */
-const FUSE_REGION = { x: "-30%", y: "-30%", width: "160%", height: "160%" };
+/**
+ * A lobe is geometry and nothing else.
+ *
+ * It used to be the paint — `bg-current`, blurred and ramped by a filter on the
+ * stage. The surface lives in the silhouette layer now, and a circle that painted
+ * itself would sit *over* the goo and cover the necks with its own crisp edge. What
+ * is left is the box the library measures, and the corner that makes it a circle:
+ * `rounded-full` is where the blob gets its radius from.
+ */
+const LOBE = "absolute top-0 left-0 rounded-full";
+
+/**
+ * The undulation, as a share of the stage, when the caller does not name one.
+ *
+ * A geometric edge is the one thing a metaball body never has: left alone, the fused
+ * silhouette is a run of arcs meeting at exact angles. A little displacement noise is
+ * all it takes for the boundary to read as liquid — and it travels, because the noise
+ * field is fixed in the silhouette's own space while the lobes move through it.
+ */
+const WAVINESS_RATIO = 0.012;
+
+/**
+ * How the body sits on its surface: a real cast shadow under the merged silhouette,
+ * and a hairline rim inside its edge, so the glass still reads on the dark theme,
+ * where a black shadow has nothing to fall on. Neither is a box-shadow on anything —
+ * the silhouette filter paints both, which is what lets them follow the goo: the cast
+ * spreads from the body's own shape and the rim traces it, necks and all.
+ *
+ * The cast is spread-less on purpose. The library hands those to a GPU drop-shadow on
+ * the whole layer and keeps only the rim in the SVG filter, which is much the cheaper
+ * of the two.
+ */
+const ORB_SHADOW =
+  "0 18px 36px rgba(0, 0, 0, 0.45), inset 0 0 0 1px rgb(255 255 255 / 0.22)";
 
 // no Math.abs here, its corners read as a snap at every trough
 function envelope(t: number) {
@@ -282,29 +338,32 @@ const MatrixOrb = ({
   gooey = true,
   viscosity,
   threshold = LIQUID_THRESHOLD,
+  waviness,
+  wavinessFreq,
+  shadow = ORB_SHADOW,
   className,
   style,
   ...props
 }: MatrixOrbProps) => {
-  const stageRef = useRef<HTMLDivElement>(null);
   const lobeRefs = useRef<(HTMLSpanElement | null)[]>([]);
   const stateRef = useRef(state);
   const levelRef = useRef(level);
   const redrawRef = useRef<(() => void) | null>(null);
-  const filterId = useFuseId("matrix-orb");
 
   const satellites = Math.min(
     MAX_LOBES,
     Math.max(MIN_LOBES, Math.round(lobes)),
   );
   const blur = viscosity ?? size * VISCOSITY_RATIO;
+  const wave = waviness ?? size * WAVINESS_RATIO;
   const gap = Math.round(size * 0.055);
 
   /*
-    One frame's worth of body, worked out once: it goes into the markup so the stage
-    is never empty before the loop starts — which also means a reader without JS, or
-    with motion turned down, sees the orb rather than a hole. The loop takes it from
-    the first frame and never looks back.
+    One frame's worth of body, worked out once: it goes into the markup as each
+    circle's first box, so the silhouette has something to be built from the moment
+    the library measures it and the loop has a sensible place to start from. The
+    loop takes it over on the first frame and never looks back — and under reduced
+    motion it is the frame that is drawn.
   */
   const [seed] = useState(() =>
     bodyAt(soleWeights(state), satellites, 0, envelope(0), SCALE[state], size),
@@ -316,9 +375,6 @@ const MatrixOrb = ({
   }, [state, level]);
 
   useEffect(() => {
-    const stage = stageRef.current;
-    if (!stage) return;
-
     const nodes = lobeRefs.current.filter((node): node is HTMLSpanElement =>
       Boolean(node),
     );
@@ -425,48 +481,55 @@ const MatrixOrb = ({
       className={cn(SURFACE, ACCENTS[variant], className)}
       {...props}
     >
-      <FuseFilter
-        id={filterId}
-        blur={blur}
-        threshold={threshold}
-        region={FUSE_REGION}
-      />
-
-      <div
-        ref={stageRef}
+      {/*
+        The group is the stage: the library sizes its silhouette to this box and
+        measures every circle inside it against it. Nothing here paints — `fill` is
+        the body's colour, and the palette's accent class on the wrapper is what
+        `currentColor` resolves to.
+      */}
+      <Liquid
         aria-hidden="true"
+        fill={color ?? "currentColor"}
+        blur={gooey ? blur : 0}
+        contrast={threshold}
+        waviness={gooey ? wave : 0}
+        wavinessFreq={wavinessFreq}
+        shadow={shadow}
         className={STAGE}
-        style={{
-          width: size,
-          height: size,
-          color,
-          filter: gooey ? `url(#${filterId})` : undefined,
-        }}
+        style={{ width: size, height: size }}
       >
         {Array.from({ length: satellites + 1 }, (_, index) => {
-          // the seed is only a first paint; from the first frame the loop owns this
+          // the seed is only the first box; from the first frame the loop owns this
           const lobe = seed[index];
 
           return (
-            <span
-              key={index}
-              ref={(node) => {
-                lobeRefs.current[index] = node;
-              }}
-              className={LOBE}
-              style={
-                lobe
-                  ? {
-                      width: lobe.r * 2,
-                      height: lobe.r * 2,
-                      transform: `translate3d(${lobe.x - lobe.r}px, ${lobe.y - lobe.r}px, 0)`,
-                    }
-                  : undefined
-              }
-            />
+            /*
+              `observe` is the whole contract. Without it the library animates the
+              item itself from `x`/`y` props — a React render per frame, which this
+              animation is far too fast for. Told to observe, it reads each circle's
+              box every frame and mirrors it into the silhouette, so the loop can
+              keep writing transforms straight onto the DOM.
+            */
+            <Liquid.Item key={index} observe>
+              <span
+                ref={(node) => {
+                  lobeRefs.current[index] = node;
+                }}
+                className={LOBE}
+                style={
+                  lobe
+                    ? {
+                        width: lobe.r * 2,
+                        height: lobe.r * 2,
+                        transform: `translate3d(${lobe.x - lobe.r}px, ${lobe.y - lobe.r}px, 0)`,
+                      }
+                    : undefined
+                }
+              />
+            </Liquid.Item>
           );
         })}
-      </div>
+      </Liquid>
 
       {caption && (
         <span role="status" aria-live="polite" className={CAPTION}>
