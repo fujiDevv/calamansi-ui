@@ -29,7 +29,7 @@ type FooterLink = {
  */
 const LINKS: FooterLink[] = [
   { label: "Home", href: "/", external: false },
-  { label: "Docs", href: "/components/introduction", external: false },
+  { label: "Components", href: "/components/introduction", external: false },
   { label: "GitHub", href: SITE_LINKS.repo, external: true, icon: GithubLogo },
   { label: "X", href: SITE_LINKS.x, external: true, icon: XLogo },
   {
