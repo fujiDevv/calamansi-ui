@@ -152,7 +152,7 @@ function SidebarShellContent({
             className="fixed inset-0 bg-background/80 backdrop-blur-sm"
             onClick={() => setMobileOpen(false)}
           />
-          <div className="relative z-50 flex h-full w-[min(18rem,85vw)] flex-col overflow-y-auto border-r border-border bg-background px-6 pt-5 pb-8 shadow-2xl">
+          <div className="relative z-50 flex h-full w-[min(18rem,85vw)] flex-col overflow-hidden border-r border-border bg-background px-6 pt-5 pb-8 shadow-2xl">
             <div className="mb-6 flex items-center justify-between gap-4">
               <span className={EYEBROW}>Navigation</span>
               <button
@@ -171,7 +171,9 @@ function SidebarShellContent({
 
       {/* Sidebar rail + content column, on the same 96rem gutter as the marketing pages */}
       <div className="mx-auto flex w-full max-w-[96rem] flex-1 items-start">
-        <aside className="sticky top-16 hidden h-[calc(100vh-4rem)] w-60 shrink-0 overflow-y-auto border-r border-border pt-8 pb-12 pl-6 sm:top-20 sm:h-[calc(100vh-5rem)] sm:pl-10 md:block">
+        {/* a column, so the sidebar can be the scroller and its edge fade lands
+            on the rail rather than at the end of the list */}
+        <aside className="sticky top-16 hidden h-[calc(100vh-4rem)] w-60 shrink-0 flex-col overflow-hidden border-r border-border pl-6 sm:top-20 sm:h-[calc(100vh-5rem)] sm:pl-10 md:flex">
           <DocSidebar />
         </aside>
 

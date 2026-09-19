@@ -2,6 +2,7 @@
 
 import { useState, type ComponentProps, type ReactNode } from "react";
 import { motion } from "motion/react";
+import { playSfx } from "@/lib/sfx-client";
 import { cn } from "@/lib/utils";
 
 const CopyGlyph = () => (
@@ -58,6 +59,7 @@ export default function CopyButton({
     try {
       await navigator.clipboard.writeText(value);
       setCopied(true);
+      playSfx("tick");
       setTimeout(() => setCopied(false), 1500);
     } catch {}
   };

@@ -1,6 +1,7 @@
 "use client";
 
 import { Moon, Sun } from "lucide-react";
+import { playSfx } from "@/lib/sfx-client";
 import { cn } from "@/lib/utils";
 
 export default function ThemeToggle({
@@ -15,10 +16,8 @@ export default function ThemeToggle({
         const nextIsDark = !document.documentElement.classList.contains("dark");
 
         document.documentElement.classList.toggle("dark", nextIsDark);
-        localStorage.setItem(
-          "calamansi-theme",
-          nextIsDark ? "dark" : "light",
-        );
+        localStorage.setItem("calamansi-theme", nextIsDark ? "dark" : "light");
+        playSfx("toggle");
       }}
       aria-label="Toggle theme"
       className={cn(

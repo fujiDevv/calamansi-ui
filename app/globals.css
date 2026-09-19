@@ -123,8 +123,7 @@
   --shadow-xs: 0 1px 3px 0px hsl(0 0% 0% / 0.05);
   --shadow-sm:
     0 1px 3px 0px hsl(0 0% 0% / 0.1), 0 1px 2px -1px hsl(0 0% 0% / 0.1);
-  --shadow:
-    0 1px 3px 0px hsl(0 0% 0% / 0.1), 0 1px 2px -1px hsl(0 0% 0% / 0.1);
+  --shadow: 0 1px 3px 0px hsl(0 0% 0% / 0.1), 0 1px 2px -1px hsl(0 0% 0% / 0.1);
   --shadow-md:
     0 1px 3px 0px hsl(0 0% 0% / 0.1), 0 2px 4px -1px hsl(0 0% 0% / 0.1);
   --shadow-lg:
@@ -197,6 +196,58 @@
   --shadow-xl: var(--shadow-xl);
   --shadow-2xl: var(--shadow-2xl);
   --shadow-primary-inset: inset 0 0 12px rgb(255 255 255 / 0.72);
+}
+
+/* ── the sidebar's travelling dot ─────────────────────────────────────────
+   The active marker is one element shared between rows (a motion `layoutId`),
+   and it mounts fresh on the row it lands on. That mount is what lets these
+   keyframes play once per landing: the colour it is arriving from sits in
+   --dot-from and the one it lands on in --dot-to, set inline on the element.
+   No fill-mode, so both settle back onto the row's own class colour. */
+@keyframes dot-crossfade {
+  from {
+    background-color: var(--dot-from, currentColor);
+  }
+  to {
+    background-color: var(--dot-to, currentColor);
+  }
+}
+
+.dot-crossfade {
+  animation: dot-crossfade var(--dot-flight, 350ms) ease-out;
+}
+
+/* The name is swept from the old section's ink into the new one as the dot
+   lands, so the colour arrives with the marker rather than before it. */
+@keyframes name-hit {
+  from {
+    color: var(--dot-from, currentColor);
+  }
+  to {
+    color: var(--dot-to, currentColor);
+  }
+}
+
+.name-hit {
+  animation: name-hit var(--dot-flight, 350ms) ease-out;
+}
+
+/* Fades a scrolling list at both edges; the 3rem stops match the nav's py-12. */
+.fade-mask-y {
+  -webkit-mask-image: linear-gradient(
+    to bottom,
+    transparent 0,
+    #000 3rem,
+    #000 calc(100% - 3rem),
+    transparent 100%
+  );
+  mask-image: linear-gradient(
+    to bottom,
+    transparent 0,
+    #000 3rem,
+    #000 calc(100% - 3rem),
+    transparent 100%
+  );
 }
 
 @keyframes accordion-down {

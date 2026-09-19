@@ -15,6 +15,7 @@ import {
   liquidMetrics,
   useFuseId,
 } from "@/lib/liquid";
+import { playSfx } from "@/lib/sfx-client";
 import { SQUIRCLE_RADIUS, SQUIRCLE_SHARE } from "@/lib/squircle";
 import { cn } from "@/lib/utils";
 
@@ -120,6 +121,7 @@ export default function GooeyCopyButton({
     }
 
     setCopied(true);
+    playSfx("tick");
     clearTimeout(timer.current);
     timer.current = setTimeout(() => setCopied(false), COPIED_MS);
   };

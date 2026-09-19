@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import { Star } from "lucide-react";
 import { GithubLogo } from "@/components/logos";
+import SoundToggle from "@/components/SoundToggle";
 import ThemeToggle from "@/components/ThemeToggle";
 import {
   formatStars,
@@ -93,6 +94,7 @@ export default function SiteNav({ className }: { className?: string }) {
 
       <span aria-hidden="true" className="hidden h-4 w-px bg-border sm:block" />
 
+      <SoundToggle className={TOGGLE} />
       <ThemeToggle className={TOGGLE} />
     </nav>
   );
