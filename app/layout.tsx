@@ -32,26 +32,36 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+/**
+ * The files live in `app/fonts`, not `public/fonts`. `next/font` emits its own
+ * hashed copy into the build and the pages reference only that one, so the same
+ * bytes sitting in `public/` would ship to the CDN as a second, unreferenced set.
+ *
+ * These are also the *subset* faces, written by `scripts/subset-fonts.mjs` from
+ * the untouched originals in `assets/fonts`: `next/font/local` does not subset,
+ * so the full faces would put every script the foundry ships on the first paint.
+ * `bun run build` runs the subset step first; `bun run fonts:build` runs it alone.
+ */
 const openRunde = localFont({
   variable: "--font-open-runde",
   src: [
     {
-      path: "../public/fonts/OpenRunde-Regular.woff2",
+      path: "./fonts/OpenRunde-Regular.woff2",
       weight: "400",
       style: "normal",
     },
     {
-      path: "../public/fonts/OpenRunde-Medium.woff2",
+      path: "./fonts/OpenRunde-Medium.woff2",
       weight: "500",
       style: "normal",
     },
     {
-      path: "../public/fonts/OpenRunde-Semibold.woff2",
+      path: "./fonts/OpenRunde-Semibold.woff2",
       weight: "600",
       style: "normal",
     },
     {
-      path: "../public/fonts/OpenRunde-Bold.woff2",
+      path: "./fonts/OpenRunde-Bold.woff2",
       weight: "700",
       style: "normal",
     },

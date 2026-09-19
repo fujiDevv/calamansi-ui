@@ -22,7 +22,13 @@ import {
 import { SITE_AUTHOR, SITE_LINKS, SITE_REPO } from "@/lib/site";
 import { Squircle } from "@/lib/squircle";
 
-const ARTWORK = "/brand/calamansi-orchard1.png";
+/**
+ * WebP rather than the PNG the art arrived as. `images.unoptimized` is on (a
+ * static export has no image optimiser behind it) so whatever sits here is what
+ * the browser downloads: the same 1448x1086 frame is 104 KB as WebP against
+ * 1.6 MB as PNG.
+ */
+const ARTWORK = "/brand/calamansi-orchard1.webp";
 
 /**
  * The brand shape, straight from the component kit. It replaces `rounded-xl`,

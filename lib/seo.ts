@@ -18,7 +18,7 @@ export const SITE_APP_ICON = "/icon-512.png";
 export const SITE_KEYWORDS = [
   "calamansi-ui",
   "calamansi ui",
-  "calamansi-ui.dev",
+  "calamansi-ui.com",
   "calamansi ui components",
   "calamansi",
   "calamansi components",

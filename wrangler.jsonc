@@ -4,7 +4,11 @@
   "main": "worker.ts",
   "assets": {
     "directory": "./out",
-    "binding": "ASSETS"
+    "binding": "ASSETS",
+    // Serve the exported 404.html for any path the export does not contain.
+    // Without this the asset handler answers 404 with an empty body, so the
+    // branded not-found page the build produces is never used.
+    "not_found_handling": "404-page"
   },
   "compatibility_date": "2026-03-01",
   "compatibility_flags": [

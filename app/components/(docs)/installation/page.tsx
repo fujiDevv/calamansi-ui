@@ -7,7 +7,8 @@ import { REGISTRY_REPO } from "@/lib/components";
 export const dynamic = "force-static";
 
 export const metadata: Metadata = {
-  title: "Installation - Calamansi UI",
+  /* the layout appends the brand through its title template */
+  title: "Installation",
   description:
     "Learn how to set up your project and install Calamansi UI components with the shadcn CLI.",
 };

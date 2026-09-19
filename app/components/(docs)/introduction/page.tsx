@@ -7,7 +7,8 @@ import { cn } from "@/lib/utils";
 export const dynamic = "force-static";
 
 export const metadata: Metadata = {
-  title: "Introduction - Calamansi UI",
+  /* the layout appends the brand through its title template */
+  title: "Introduction",
   description:
     "An open-source registry of animated React components designed for Next.js, Tailwind CSS, and the shadcn CLI.",
 };

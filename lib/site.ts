@@ -7,14 +7,16 @@
  * robots.txt, llms.txt, the footer, the highlights card and the install command
  * shown across the site.
  *
- * SITE_URL is the one value still waiting on a decision — point it at the real
- * domain before deploying.
+ * SITE_URL and SITE_DOMAIN are the canonical origin: every absolute URL the
+ * site emits is built from them, so they have to name the domain that actually
+ * answers. Canonicalising to a host that does not resolve points the whole site
+ * at nowhere.
  * ─────────────────────────────────────────────────────────────────────────────
  */
 
-export const SITE_URL = "https://calamansi-ui.dev";
+export const SITE_URL = "https://calamansi-ui.com";
 
-export const SITE_DOMAIN = "calamansi-ui.dev";
+export const SITE_DOMAIN = "calamansi-ui.com";
 
 export const SITE_NAME = "Calamansi UI";
 
@@ -24,7 +26,7 @@ export const SITE_ALT_NAMES = [
   "Calamansi UI",
   "calamansi-ui",
   "Calamansi UI Components",
-  "calamansi-ui.dev",
+  "calamansi-ui.com",
 ];
 
 export const SITE_TAGLINE = "Calamansi UI - Animated React Components";

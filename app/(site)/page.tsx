@@ -24,7 +24,11 @@ import {
 import { cn } from "@/lib/utils";
 
 export const metadata: Metadata = {
-  title: SITE_TAGLINE,
+  /*
+    `absolute`, because the tagline already carries the brand name: through the
+    layout's `%s | Calamansi UI` template the title would name it twice.
+  */
+  title: { absolute: SITE_TAGLINE },
   description: SITE_DESCRIPTION,
   alternates: {
     canonical: "/",

@@ -4,9 +4,10 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "shadcn build && next build",
+    "build": "node scripts/subset-fonts.mjs && shadcn build && next build",
     "registry:build": "shadcn build",
     "assets:build": "node scripts/generate-assets.mjs",
+    "fonts:build": "node scripts/subset-fonts.mjs",
     "start": "next start",
     "preview": "wrangler dev",
     "deploy": "wrangler deploy",
@@ -40,6 +41,7 @@
     "eslint-config-next": "16.2.9",
     "prettier": "3.8.4",
     "shadcn": "^4.11.0",
+    "subset-font": "^2.7.0",
     "tailwindcss": "^4",
     "typescript": "^5",
     "wrangler": "^4.132.0"
