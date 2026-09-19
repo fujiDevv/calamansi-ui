@@ -91,7 +91,12 @@ export default function DurationPickerDemo() {
           Tap the pen to edit the duration
         </p>
 
-        <DurationPicker value={value} onChange={setValue} variant={variant} />
+        <DurationPicker
+          value={value}
+          onChange={setValue}
+          variant={variant}
+          size="sm"
+        />
       </div>
     </div>
   );

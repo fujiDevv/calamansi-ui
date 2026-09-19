@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Citrus, Leaf, Sun } from "lucide-react";
+import { Citrus, Leaf } from "lucide-react";
 import {
   SpotlightCard,
   type SpotlightCardVariant,
@@ -49,13 +49,6 @@ const CARDS = [
     icon: <Citrus className="size-5" />,
     badge: "Themed",
   },
-  {
-    title: "Blush",
-    subtitle: "Or set the radius",
-    body: "Pass cornerRadius and cornerSmoothing to tighten the curve or flatten it into a rounded rectangle.",
-    icon: <Sun className="size-5" />,
-    badge: "Tunable",
-  },
 ];
 
 export default function SpotlightCardDemo() {
@@ -98,7 +91,13 @@ export default function SpotlightCardDemo() {
         </span>
       </div>
 
-      <div className="grid w-full max-w-4xl gap-4 sm:gap-5 md:grid-cols-3">
+      {/*
+        Two cards, not three. The palette control above already demonstrates that
+        the surface reads in both themes, and the caption below already covers
+        cornerRadius — so the third card was restating what was on screen twice
+        over. Two also sit better in a row than three did across the column.
+      */}
+      <div className="grid w-full max-w-3xl gap-4 sm:gap-5 md:grid-cols-2">
         {CARDS.map((card) => (
           <SpotlightCard
             key={card.title}

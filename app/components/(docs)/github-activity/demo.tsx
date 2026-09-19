@@ -115,10 +115,19 @@ export default function GitHubActivityDemo() {
         would shave the drop shadow off at the padding box.
       */}
       <div className="flex w-full justify-center p-3 sm:p-4">
+        {/*
+          Shrunk through `cellSize`, not a wrapper scale. The card sizes itself from
+          the cell — width and height both follow it — so this is a real 28% off the
+          slab rather than a transform. It also has to be: the drawer animates with
+          motion `layout`/`layoutId`, and those project in page coordinates, so under
+          an ancestor `scale` the shared avatars and the panel land short of their
+          target. A smaller day keeps every measurement in the space it was built in.
+        */}
         <GitHubActivity
           username={USERNAME}
           variant={variant}
           months={months}
+          cellSize={8}
           showMonths
           open={open}
           onOpenChange={setOpen}

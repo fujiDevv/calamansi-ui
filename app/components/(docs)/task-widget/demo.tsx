@@ -148,16 +148,26 @@ export default function TaskWidgetDemo() {
         </button>
       </div>
 
-      {/* Main Interactive Widget */}
+      {/*
+        Main Interactive Widget.
+
+        Scaled down rather than narrowed. The widget's type is written in fixed
+        sizes — its clock is `text-5xl sm:text-7xl lg:text-8xl` — so a narrower
+        column would only reflow it and leave the numerals looking larger against
+        a thinner card, not smaller. `scale` shrinks all of it together, and it is
+        the same lever the gallery tiles pull (at a harder 0.38).
+      */}
       <div className="flex w-full justify-center p-0 sm:p-2">
-        <TaskWidget
-          tasks={tasks}
-          onTaskToggle={handleToggle}
-          variant={variant}
-          corner={corner}
-          timeFormat={timeFormat}
-          title="Today's Focus"
-        />
+        <div className="w-full max-w-[780px] scale-[0.7]">
+          <TaskWidget
+            tasks={tasks}
+            onTaskToggle={handleToggle}
+            variant={variant}
+            corner={corner}
+            timeFormat={timeFormat}
+            title="Today's Focus"
+          />
+        </div>
       </div>
 
       <p className="max-w-md text-center text-xs text-muted-foreground">

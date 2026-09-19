@@ -79,7 +79,7 @@ export default function SidebarDemo() {
       <Sidebar
         {...sample}
         onChange={(index) => setActive(index)}
-        className="w-full max-w-xs shrink-0 px-3"
+        className="w-full max-w-56 shrink-0 px-3"
       />
 
       <div className="flex min-w-0 flex-col gap-4">

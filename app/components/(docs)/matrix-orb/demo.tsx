@@ -72,7 +72,7 @@ export default function MatrixOrbDemo() {
 
       {/* Main Interactive Component */}
       <div className="flex w-full justify-center p-3 sm:p-4">
-        <MatrixOrb state="listening" variant={variant} size={240} />
+        <MatrixOrb state="listening" variant={variant} size={168} />
       </div>
     </div>
   );

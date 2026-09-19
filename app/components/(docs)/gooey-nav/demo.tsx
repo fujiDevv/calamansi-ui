@@ -93,6 +93,7 @@ export default function GooeyNavDemo() {
           value={active}
           onChange={setActive}
           variant={variant}
+          size="sm"
         />
       </div>
     </div>

@@ -114,7 +114,16 @@ export default function MorningWidgetDemo() {
         </span>
       </div>
 
-      <MorningWidget quotes={QUOTES} variant={variant} />
+      {/*
+        Held to a share of the column rather than laid out full width. Every size
+        inside the widget is written in `cqw` against its own `@container`, so
+        narrowing the box it sits in scales the whole card — the mesh, the clock,
+        the line — in proportion, with no transform and so no leftover layout box.
+        70% of the 519px it would otherwise reach.
+      */}
+      <div className="w-[70%] max-w-[363px]">
+        <MorningWidget quotes={QUOTES} variant={variant} />
+      </div>
 
       <p className="max-w-md text-center text-xs font-medium text-muted-foreground">
         Click the card to skip to the next line. Hovering holds it so you can

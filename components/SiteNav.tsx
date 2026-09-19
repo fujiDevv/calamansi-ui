@@ -71,15 +71,15 @@ const REDUCED_MOTION_QUERY = "(prefers-reduced-motion: reduce)";
  * the foot of a column. SPREAD is how far off straight-up the outermost pair
  * leans; the rest are spaced evenly between, so five icons land on an arc.
  *
- * At this radius and spread the settled arc is five unmistakable targets: 71px
- * between neighbouring centres, so 35px of clear air between the pills. The goo
- * therefore lives in the *burst*, not in the resting state — folded away every
- * icon is stacked on the handle's own seat, which is one merged blob, and each
- * one necks out of it as it leaves (measured: 72px out after the first frame,
- * overshooting to 123, settled at exactly 112). The arc is compact too: about
- * 130px of rise, against the 236px the old column reached.
+ * At this radius and spread the settled arc is five unmistakable targets: 86px
+ * between neighbouring centres, so 42px of clear air between the pills — the same
+ * clearance the 36px pills carried at a radius of 112, held as the pills grew. The
+ * goo therefore lives in the *burst*, not in the resting state — folded away every
+ * icon is stacked on the handle's own seat, which is one merged blob, and each one
+ * necks out of it as it leaves. From the handle the arc rises 158px to the top of
+ * the highest pill.
  */
-const RADIUS = 112;
+const RADIUS = 136;
 const SPREAD = 74;
 /** Left to right, in degrees off vertical: what each icon bursts out along. */
 const ANGLES = [-SPREAD, -SPREAD / 2, 0, SPREAD / 2, SPREAD];
@@ -120,15 +120,16 @@ const LIQUID_SHADOW =
  * The group has to be big enough to hold the whole open fan — that box is the
  * filter region, so anything travelling past its edge would be clipped — but the
  * *items* must not inherit that size, or each blob would be painted as a
- * 256px bar instead of a pill. So the group carries the footprint and each item is
+ * 320px bar instead of a pill. So the group carries the footprint and each item is
  * pinned to a single pill at the foot of the box, which is the handle's own seat:
  * folded away, all six are stacked exactly here.
  *
  * The seat is centred by `left` rather than `-translate-x-1/2`, because the library
  * writes its own inline `transform` on this element — a Tailwind translate here
- * would simply be overwritten by it.
+ * would simply be overwritten by it. The `left` offset is half a pill, so it
+ * tracks the size below.
  */
-const ITEM_BOX = "absolute bottom-0 left-[calc(50%-18px)] size-9";
+const ITEM_BOX = "absolute bottom-0 left-[calc(50%-22px)] size-11";
 
 /** How much a folded-away icon is still shrunk by, so the closed group is one pill. */
 const FOLDED_SCALE = 0.9;
@@ -138,7 +139,7 @@ const FOLDED_SCALE = 0.9;
  * so it brings no background, border or shadow of its own.
  */
 const PILL =
-  "pointer-events-auto flex size-9 items-center justify-center rounded-full text-muted-foreground outline-none hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring [&_svg]:size-4";
+  "pointer-events-auto flex size-11 items-center justify-center rounded-full text-muted-foreground outline-none hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring [&_svg]:size-5";
 
 /**
  * A folded-away button is faded out, and that fade is deliberately *not* on the
@@ -332,7 +333,7 @@ export default function SiteNav({
         title={open ? "Close navigation" : "Open navigation"}
         className={cn(PILL, FOLDED, "text-primary hover:text-primary")}
       >
-        <CalamansiMark className="size-5" />
+        <CalamansiMark className="size-6" />
       </button>
     </Liquid.Item>
   );
@@ -382,7 +383,7 @@ export default function SiteNav({
           onBlur={onFocusLeave}
         >
           {/*
-            w-64 h-40 holds the arc's full reach — 251 × 148 is what the radius and
+            w-80 h-48 holds the arc's full reach — 306 × 180 is what the radius and
             spread actually need, so there is a little slack each way. The box is
             the filter region, so the goo cannot paint outside it: too small and the
             outer icons would be cut off. The handle sits at the foot of the box,
@@ -391,7 +392,7 @@ export default function SiteNav({
           <Liquid
             fill={LIQUID_FILL}
             shadow={LIQUID_SHADOW}
-            className="pointer-events-none relative h-40 w-64"
+            className="pointer-events-none relative h-48 w-80"
           >
             {fan()}
             {trigger}

@@ -128,11 +128,20 @@ export default function DynamicIslandDemo() {
           Tap island to expand or collapse
         </p>
 
+        {/*
+          The island takes its size from its own state map, so there is no size prop
+          to hand it — a wrapper scale is the lever the demo has. Safe here, and
+          not everywhere: nothing inside measures its own box or animates with motion
+          `layout`, so scaling the box scales one coherent shape. The squircle is
+          clipped in the island's own coordinates from its layout box, so the whole
+          surface scales together rather than the path shrinking out from under it.
+        */}
         {mode === "media" && (
           <DynamicIsland
             state={islandState}
             onStateChange={setIslandState}
             variant={variant}
+            className="scale-[0.8]"
             pulse
             icon={<Music2 className="size-3.5" />}
             title="Solaris — Citrus Beat"
@@ -216,6 +225,7 @@ export default function DynamicIslandDemo() {
             state={islandState}
             onStateChange={setIslandState}
             variant={variant}
+            className="scale-[0.8]"
             icon={<Timer className="size-3.5" />}
             title="Focus Session"
             trailing={
@@ -262,6 +272,7 @@ export default function DynamicIslandDemo() {
             state={islandState}
             onStateChange={setIslandState}
             variant={variant}
+            className="scale-[0.8]"
             icon={<Headphones className="size-3.5" />}
             title="Citrus Buds Pro"
             trailing={

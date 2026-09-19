@@ -103,7 +103,18 @@ export function Squircle({
   borderWidth = 1,
   children,
 }: SquircleProps) {
-  const [ref, bounds] = useMeasure();
+  /*
+    Measured with the element's own layout box, not its visual one. The path below
+    is clipped in the surface's coordinate space, so any ancestor transform has to
+    stay out of the measurement: a scaled surface is a scaled shape, not a shape
+    built for the shrunken box. Without `offsetSize`, `getBoundingClientRect`
+    reports the transformed box, and a surface under a `scale` (the previews shrink
+    their demos to fit a tile) gets a path covering only that fraction of itself —
+    so it paints that fraction and clips the rest away. `offsetWidth`/`offsetHeight`
+    are layout metrics and ignore transforms, which is the box a clip path wants
+    anyway: `path()` resolves against the border box.
+  */
+  const [ref, bounds] = useMeasure({ offsetSize: true });
 
   /*
     The share only applies once there is a box to take a share of — before that the

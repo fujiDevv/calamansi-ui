@@ -139,7 +139,7 @@ function SidebarShellContent({
 
   return (
     // pb-* is the nav's band — the handle floats over the page's bottom-centre
-    <div className="flex min-h-screen flex-col bg-background pb-12 sm:pb-14">
+    <div className="flex min-h-screen flex-col bg-background pb-16 sm:pb-20">
       <DocsHeader mobileOpen={mobileOpen} setMobileOpen={setMobileOpen} />
 
       {/* Mobile Drawer */}

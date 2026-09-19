@@ -83,11 +83,11 @@ export default function MarqueeDemo() {
       </div>
 
       {/* The display row tints from the palette accent the marquee carries */}
-      <Marquee variant={variant} duration={26} gap={44}>
+      <Marquee variant={variant} duration={26} gap={31}>
         {WORDS.map((word, index) => (
           <span
             key={word}
-            className={`shrink-0 font-runde text-4xl font-bold tracking-tight sm:text-6xl ${
+            className={`shrink-0 font-runde text-3xl font-bold tracking-tight sm:text-5xl ${
               index % 2 === 1 ? "opacity-45" : ""
             }`}
           >

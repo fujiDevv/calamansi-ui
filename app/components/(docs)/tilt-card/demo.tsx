@@ -71,7 +71,12 @@ export default function TiltCardDemo() {
         </span>
       </div>
 
-      <div className="grid w-full max-w-3xl gap-5 sm:grid-cols-2 sm:gap-6">
+      {/*
+        max-w-xl is as narrow as this grid goes: the cards are grid-sized, and
+        their two-column value list ellipsizes rather than wraps — "reduced
+        motion" measures 80px at text-xs/600, which the 576px grid just holds.
+      */}
+      <div className="grid w-full max-w-xl gap-5 sm:grid-cols-2 sm:gap-6">
         <TiltCard
           maxTilt={16}
           variant={variant}

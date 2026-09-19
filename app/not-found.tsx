@@ -31,7 +31,7 @@ export const metadata: Metadata = {
 
 export default function NotFound() {
   return (
-    <div className="flex min-h-screen flex-col overflow-x-clip pb-12 sm:pb-14">
+    <div className="flex min-h-screen flex-col overflow-x-clip pb-16 sm:pb-20">
       <SiteHeader />
       <main className="flex-1">
         <NotFoundBody />

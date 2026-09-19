@@ -13,7 +13,7 @@ export default function CalamansiDemo() {
     <div className="flex h-full w-full flex-col items-center justify-center gap-3 p-4 sm:p-10">
       <Calamansi
         variant="primary"
-        size={144}
+        size={100}
         className="shrink-0 drop-shadow-sm transition-transform duration-200"
       />
 

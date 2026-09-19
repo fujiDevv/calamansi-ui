@@ -84,7 +84,7 @@ export default function NumberTickerDemo() {
         <NumberTicker
           value={value}
           variant={variant}
-          className="text-4xl font-semibold tracking-tight sm:text-7xl"
+          className="text-2xl font-semibold tracking-tight sm:text-5xl"
         />
         <p className="mt-3 text-[10px] font-semibold uppercase tracking-[0.24em] text-muted-foreground">
           Kalansing

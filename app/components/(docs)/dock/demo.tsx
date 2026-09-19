@@ -110,7 +110,13 @@ export default function DockDemo() {
         below, and about 28px to the sides — it is a filter, so it is cut exactly like the icons).
       */}
       <div className="-mt-16 -mb-12 flex w-full max-w-full justify-start overflow-x-auto overscroll-x-contain px-8 pt-16 pb-12 [scrollbar-width:none] sm:w-auto sm:justify-center">
-        <Dock variant={variant}>
+        {/*
+          The dock scales from its own props, so it is asked for a smaller one
+          rather than wrapped in a transform: 70% of the defaults (48 / 78 / 130).
+          The items take their size from the dock, and each icon is already sized as
+          a share of its item, so the whole row comes down together.
+        */}
+        <Dock variant={variant} size={34} magnify={55} reach={91}>
           {ITEMS.map(({ label, Icon }) => (
             <DockItem
               key={label}
