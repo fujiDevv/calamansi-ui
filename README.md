@@ -18,6 +18,10 @@
   <img src="https://img.shields.io/badge/License-MIT-black?style=flat-square" alt="License" />
 </p>
 
+<p align="center">
+  <img src="./public/opengraph-image.png" alt="Calamansi UI — a citrus UI kit for React and Next.js" width="100%" />
+</p>
+
 ---
 
 ## Overview
