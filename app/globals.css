@@ -33,6 +33,11 @@
   --border: oklch(0.923 0.012 122);
   --input: oklch(0.923 0.012 122);
   --ring: #b4e84c;
+  /* The floating nav's own edge. On this theme the silhouette's fill (--border)
+     is a hair off the page it floats over, so the bar carries a hairline instead
+     of the cast shadow that separates it in the dark theme — see SiteNav, which
+     paints it as an inset ring so it follows the goo rather than a box. */
+  --nav-border: oklch(0.265 0.028 128 / 0.18);
   --chart-1: #b4e84c;
   --chart-2: #dcdf3f;
   --chart-3: #ffc93d;
@@ -96,6 +101,8 @@
   --border: #222222;
   --input: #222222;
   --ring: #b4e84c;
+  /* Lifted grey on black needs no edge: the shadow is doing the work here. */
+  --nav-border: transparent;
   --chart-1: #b4e84c;
   --chart-2: #dcdf3f;
   --chart-3: #ffc93d;

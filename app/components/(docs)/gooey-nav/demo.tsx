@@ -4,35 +4,20 @@ import { useState } from "react";
 import { BookOpen, Home, Layers, Sparkles } from "lucide-react";
 import {
   GooeyNav,
+  GOOEY_NAV_PAINT,
   type GooeyNavItem,
   type GooeyNavVariant,
 } from "@/components/ui/gooey-nav";
 
-const VARIANTS: {
-  id: GooeyNavVariant;
-  label: string;
-  gradient: string;
-}[] = [
-  {
-    id: "white",
-    label: "White",
-    gradient: "linear-gradient(135deg, #ffffff 0%, #e9e9ec 50%, #d4d4d8 100%)",
-  },
-  {
-    id: "calamansi",
-    label: "Calamansi",
-    gradient: "linear-gradient(135deg, #8fa37d 0%, #5c7a67 50%, #39564a 100%)",
-  },
-  {
-    id: "slate",
-    label: "Slate Glass",
-    gradient: "linear-gradient(135deg, #a79cb7 0%, #687396 50%, #4a5a7f 100%)",
-  },
-  {
-    id: "citrus",
-    label: "Warm Citrus",
-    gradient: "linear-gradient(135deg, #d69f7e 0%, #b87152 50%, #7d4128 100%)",
-  },
+/*
+  Labels only: the swatch paints itself from the component's own palette map, so what
+  you click and what the pill wears are the same string rather than two copies of it.
+*/
+const VARIANTS: { id: GooeyNavVariant; label: string }[] = [
+  { id: "white", label: "White" },
+  { id: "calamansi", label: "Calamansi" },
+  { id: "slate", label: "Slate Glass" },
+  { id: "citrus", label: "Warm Citrus" },
 ];
 
 /** The icons carry no size: each size preset sets them from the labels. */
@@ -73,7 +58,7 @@ export default function GooeyNavDemo() {
                     ? "scale-110 shadow-md ring-2 ring-primary ring-offset-2 ring-offset-background"
                     : "opacity-80 ring-1 ring-foreground/10 hover:opacity-100"
                 }`}
-                style={{ background: option.gradient }}
+                style={{ background: GOOEY_NAV_PAINT[option.id] }}
               />
             );
           })}
@@ -85,19 +70,24 @@ export default function GooeyNavDemo() {
       </div>
 
       {/*
-        The stage the bar sits on, the same frame the Dynamic Island demo uses.
+        The box card, the same frame the Dynamic Island demo uses: a min-height
+        stage with a caption at the top, so the three demos read as one set.
 
-        It has to be a *different* colour from the docs preview behind it: this
-        component's tray is painted with `bg-border`, which is exactly what the
-        preview is made of, so on the bare panel the bar had nothing to read
-        against. The island's stage is a tinted card, but tinting this one would
-        land on the tray's own grey — so it goes the other way and wears the
-        page's surface, which is the one thing the tray never is.
+        Two deliberate departures from the island's card, both load-bearing.
 
-        No `overflow-hidden` here either: the goo filter paints outside the
-        component's box, and a clip would slice the neck off mid-flight.
+        The fill is `bg-background` rather than the island's tinted `bg-card/40`:
+        this component's tray is painted with `bg-border`, which is exactly what
+        the docs preview behind it is made of, so the card has to be a colour the
+        tray never is — and tinting lands right back on that grey.
+
+        No `overflow-hidden` either: the goo filter paints outside the component's
+        box, and a clip would slice the neck off mid-flight.
       */}
-      <div className="relative flex w-full items-center justify-center rounded-3xl border border-border/70 bg-background p-6 sm:p-10">
+      <div className="relative flex min-h-[300px] w-full flex-col items-center justify-center rounded-3xl border border-border/70 bg-background p-6 sm:p-10">
+        <p className="mb-4 text-[11px] font-medium tracking-wide text-muted-foreground uppercase">
+          Tap a tab to slide the goo
+        </p>
+
         <GooeyNav
           items={ITEMS}
           value={active}

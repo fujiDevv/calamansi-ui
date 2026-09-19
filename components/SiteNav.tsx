@@ -98,9 +98,21 @@ const SWELL = {
 /** Less motion asks to be told, not travelled to. */
 const SNAP = { duration: 0 } as const;
 
-/** The liquid: one paint under every button, one shadow on the merged shape. */
+/**
+ * The liquid: one paint under every button, one shadow on the merged shape.
+ *
+ * The cast shadow is the whole of the nav's separation in the dark theme, where a
+ * lifted grey reads against black on its own. In light mode the same grey is a hair
+ * off the page behind it, so the bar carries an edge instead — and it is an *inset*
+ * layer, which the library paints as a ring inside the merged silhouette rather than
+ * as a box-shadow, so the hairline traces the goo and not the group's box. It is the
+ * one thing that must not be a class: the silhouette is SVG-filtered, so nothing we
+ * put on an element would land on it. `--nav-border` is the ink, and it is
+ * transparent in the dark theme.
+ */
 const LIQUID_FILL = "var(--border)";
-const LIQUID_SHADOW = "0 14px 34px -16px rgba(0, 0, 0, 0.5)";
+const LIQUID_SHADOW =
+  "0 14px 34px -16px rgba(0, 0, 0, 0.5), inset 0 0 0 1px var(--nav-border)";
 
 /**
  * Every piece is its own pill, whatever the group's box is doing.

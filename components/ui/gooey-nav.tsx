@@ -28,32 +28,56 @@ export type GooeyNavSize = "xs" | "sm" | "md" | "lg";
  * active pill is small and the seam has to read as one colour meeting another.
  * `juice` is the same colour as a text class: the bead is the one thing painted
  * with `currentColor`, and a class is what lets it follow the theme.
+ *
+ * `flat` is the same light-theme colour again as a value rather than a class, for
+ * whoever has to paint a palette instead of wearing it — see `GOOEY_NAV_PAINT`.
  */
 const VARIANTS: Record<
   GooeyNavVariant,
-  { paint: string; juice: string; ink: string }
+  { paint: string; juice: string; ink: string; flat: string }
 > = {
   white: {
     paint: "bg-white dark:bg-[#1c1c1f]",
     juice: "text-white dark:text-[#1c1c1f]",
     ink: "text-foreground",
+    flat: "#ffffff",
   },
   calamansi: {
     paint: "bg-[#5c7a67] dark:bg-[#16221a]",
     juice: "text-[#5c7a67] dark:text-[#16221a]",
     ink: "text-white",
+    flat: "#5c7a67",
   },
   slate: {
     paint: "bg-[#687396] dark:bg-[#1e293b]",
     juice: "text-[#687396] dark:text-[#1e293b]",
     ink: "text-white",
+    flat: "#687396",
   },
   citrus: {
     paint: "bg-[#b87152] dark:bg-[#22120b]",
     juice: "text-[#b87152] dark:text-[#22120b]",
     ink: "text-white",
+    flat: "#b87152",
   },
 };
+
+/**
+ * Each palette as a plain colour, for anything that has to *show* a palette rather
+ * than be one: a picker's swatch, a legend, a preview of the pill before you pick it.
+ *
+ * Tailwind classes are for wearing — this is the painted form, and it is read off
+ * `VARIANTS` rather than written out a second time, so a palette edit lands in both.
+ * It gives the palette's own light-theme hue: the dark theme's is a shade of the page
+ * the bar sits on rather than a colour of its own, so it would tell you nothing about
+ * what you are choosing.
+ */
+export const GOOEY_NAV_PAINT = {
+  white: VARIANTS.white.flat,
+  calamansi: VARIANTS.calamansi.flat,
+  slate: VARIANTS.slate.flat,
+  citrus: VARIANTS.citrus.flat,
+} satisfies Record<GooeyNavVariant, string>;
 
 /** The tray: the kit's hairline grey, flat so the palette can be the only mark. */
 const TRAY = "bg-border";

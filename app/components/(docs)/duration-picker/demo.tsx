@@ -76,14 +76,21 @@ export default function DurationPickerDemo() {
       </div>
 
       {/*
-        The stage the picker sits on — the same frame as the Dynamic Island and
-        Gooey Nav demos, and there for the same reason: the picker's tray is
-        painted with `bg-border`, which is what the docs preview behind it is
-        made of, so it needs a surface of a different colour to be visible at all.
+        The box card, the same frame as the Dynamic Island and Gooey Nav demos: a
+        min-height stage with a caption at the top, so the three read as one set.
 
-        No `overflow-hidden`: the goo filter paints outside the component's box.
+        Two deliberate departures from the island's card. The fill is
+        `bg-background`, not the island's tinted `bg-card/40`: the picker's tray is
+        painted with `bg-border`, which is what the docs preview behind it is made
+        of, so the card must be a colour the tray never is.
+
+        And no `overflow-hidden`: the goo filter paints outside the component's box.
       */}
-      <div className="relative flex w-full items-center justify-center rounded-3xl border border-border/70 bg-background p-6 sm:p-10">
+      <div className="relative flex min-h-[300px] w-full flex-col items-center justify-center rounded-3xl border border-border/70 bg-background p-6 sm:p-10">
+        <p className="mb-4 text-[11px] font-medium tracking-wide text-muted-foreground uppercase">
+          Tap the pen to edit the duration
+        </p>
+
         <DurationPicker value={value} onChange={setValue} variant={variant} />
       </div>
     </div>
