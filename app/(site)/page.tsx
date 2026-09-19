@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Calamansi, type CalamansiMood } from "@/components/ui/calamansi";
+import MascotPokeCounter from "@/components/MascotPokeCounter";
 import MascotPokeZone from "@/components/MascotPokeZone";
 import GooeyCopyButton from "@/components/GooeyCopyButton";
 import BentoGrid from "@/components/BentoGrid";
@@ -76,30 +77,38 @@ export default function Home() {
     <div className="w-full">
       <section
         aria-labelledby="hero-title"
-        className={cn(SHELL, "pt-10 pb-14 sm:pt-16 sm:pb-20")}
+        className={cn(SHELL, "pt-8 pb-12 sm:pt-16 sm:pb-20")}
       >
-        <p className="flex flex-wrap items-center gap-x-3 gap-y-1.5">
+        {/*
+          two columns on a phone, one run on anything wider: as a wrapping row
+          the dot separators ended up leading a line whenever the list broke, so
+          the narrow layout drops them and keeps the facts as a block.
+        */}
+        <ul className="grid grid-cols-2 gap-x-4 gap-y-2 sm:flex sm:flex-wrap sm:items-center sm:gap-x-3 sm:gap-y-1.5">
           {FACTS.map((fact, index) => (
-            <span key={fact.value} className="flex items-center gap-3">
+            <li key={fact.value} className="flex min-w-0 items-center gap-3">
               {index > 0 && (
-                <span aria-hidden="true" className="text-muted-foreground/50">
+                <span
+                  aria-hidden="true"
+                  className="hidden text-muted-foreground/50 sm:inline"
+                >
                   &middot;
                 </span>
               )}
-              <span className={EYEBROW}>{fact.value}</span>
-            </span>
+              <span className={cn(EYEBROW, "min-w-0")}>{fact.value}</span>
+            </li>
           ))}
-        </p>
+        </ul>
 
         <h1
           id="hero-title"
-          className="mt-6 font-runde text-[clamp(2.75rem,12vw,9.5rem)] leading-[0.92] font-bold tracking-tight sm:mt-8"
+          className="mt-5 font-runde text-[clamp(2.5rem,11.5vw,9.5rem)] leading-[0.92] font-bold tracking-tight sm:mt-8"
         >
           Components{" "}
           <span className="text-muted-foreground">with a little sour.</span>
         </h1>
 
-        <div className="mt-10 grid gap-10 border-t border-border pt-10 sm:mt-14 sm:pt-12 lg:grid-cols-12 lg:gap-14">
+        <div className="mt-8 grid gap-8 border-t border-border pt-8 sm:mt-14 sm:gap-10 sm:pt-12 lg:grid-cols-12 lg:gap-14">
           <div className="lg:col-span-5">
             <p className="max-w-md text-base leading-relaxed text-muted-foreground">
               {components.length} components, one file each. Install with the
@@ -127,7 +136,7 @@ export default function Home() {
           </div>
 
           <div className="lg:col-span-7">
-            <div className="flex min-h-[280px] w-full flex-col items-center justify-center gap-4 sm:min-h-[340px] sm:gap-5">
+            <div className="flex min-h-[260px] w-full flex-col items-center justify-center gap-4 sm:min-h-[340px] sm:gap-5">
               <MascotPokeZone>
                 <Calamansi
                   variant="primary"
@@ -143,9 +152,12 @@ export default function Home() {
 
               <p className="max-w-xs text-center text-xs leading-relaxed text-muted-foreground">
                 Move your cursor and it will watch you. Pet it back and forth to
-                make it blush. Poke it five times and it goes tart. Every poke
-                counts in the header.
+                make it blush. Poke it five times and it goes tart.
               </p>
+
+              {/* the running tally sits under the mascot it counts, in the
+                  same pill language as the nav */}
+              <MascotPokeCounter className="h-8 gap-2 rounded-full bg-card px-3.5 ring-1 ring-border/70 sm:h-9 sm:px-4" />
 
               <ul className="flex flex-wrap items-end justify-center gap-2.5 sm:gap-6">
                 {MOODS.map((mood) => (

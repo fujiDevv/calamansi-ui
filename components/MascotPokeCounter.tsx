@@ -61,9 +61,10 @@ function OdometerDigit({
 }
 
 /**
- * The running total of mascot pokes, in the header. The number is an odometer —
- * each digit rolls to its new value — and the whole figure pops once so a poke
- * registers even when only the ones column moves.
+ * The running total of mascot pokes, which the hero sits under the mascot it is
+ * counting. The number is an odometer — each digit rolls to its new value — and
+ * the whole figure pops once so a poke registers even when only the ones column
+ * moves.
  *
  * The count is global and lives at the edge (see /api/mascot-pokes), so pokes
  * from every visitor land on the same number.
@@ -141,13 +142,15 @@ export default function MascotPokeCounter({
                 <OdometerDigit
                   key={characters.length - index}
                   value={character}
-                  delay={reduceMotion ? 0 : (characters.length - index - 1) * 0.045}
+                  delay={
+                    reduceMotion ? 0 : (characters.length - index - 1) * 0.045
+                  }
                   reduceMotion={reduceMotion}
                 />
               ))}
             </span>
 
-            <span className="hidden text-[10px] font-semibold tracking-[0.14em] text-muted-foreground uppercase min-[560px]:inline">
+            <span className="text-[10px] font-semibold tracking-[0.14em] text-muted-foreground uppercase">
               pokes
             </span>
           </>
