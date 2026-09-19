@@ -5,14 +5,6 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useId, useState, type CSSProperties } from "react";
 import {
-  Bot,
-  Compass,
-  LayoutGrid,
-  MessagesSquare,
-  SlidersHorizontal,
-  Sparkles,
-} from "lucide-react";
-import {
   CATEGORY_LABELS,
   CATEGORY_ORDER,
   components,
@@ -82,16 +74,6 @@ function nameTransition(active: boolean, travelling: boolean) {
 
 type SectionId = ComponentCategory;
 type DotColor = SectionId | "foreground";
-
-/** A glyph per section, so the list scans by shape as well as by name. */
-const SECTION_ICON = {
-  display: LayoutGrid,
-  effects: Sparkles,
-  navigation: Compass,
-  inputs: SlidersHorizontal,
-  feedback: MessagesSquare,
-  ai: Bot,
-} satisfies Record<SectionId, typeof LayoutGrid>;
 
 /** Each section's ink, which the dot and the name sweep borrow. */
 const SECTION_COLOR: Record<SectionId, string> = {
@@ -291,14 +273,9 @@ export default function DocSidebar({
 
       <ul className="mt-5 flex flex-col">
         {SECTIONS.map((section) => {
-          const Icon = SECTION_ICON[section.id];
-
           return (
             <li key={section.id} className="mt-5">
-              <div className={cn(EYEBROW, "flex items-center gap-1.5 py-1")}>
-                <Icon className="size-3.5 shrink-0" aria-hidden="true" />
-                <span>{section.label}</span>
-              </div>
+              <div className={cn(EYEBROW, "py-1")}>{section.label}</div>
 
               <ul className="mt-1 flex flex-col gap-1">
                 {section.concepts.map((concept) => {
