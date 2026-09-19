@@ -1,8 +1,11 @@
 import type { Metadata } from "next";
+import { ArrowUpRight } from "lucide-react";
+import { Button } from "@/components/ui/Button";
 import { Calamansi, type CalamansiMood } from "@/components/ui/calamansi";
 import MascotPokeCounter from "@/components/MascotPokeCounter";
 import MascotPokeZone from "@/components/MascotPokeZone";
 import GooeyCopyButton from "@/components/GooeyCopyButton";
+import GithubStarsButton from "@/components/GithubStarsButton";
 import BentoGrid from "@/components/BentoGrid";
 import {
   Accordion,
@@ -133,6 +136,24 @@ export default function Home() {
                 </span>
               </code>
             </GooeyCopyButton>
+
+            {/*
+              Two ways out of the install moment: go and look at what there is,
+              or go and put a star on it. Same height as the tray above, so the
+              three read as one stack.
+
+              Explore points at the first entry in the registry — the same place
+              the nav's "Components" goes — because /components itself is still a
+              notFound() stub.
+            */}
+            <div className="mt-4 flex flex-wrap items-center gap-2.5">
+              <Button href="/components/calamansi" variant="primary" size="md">
+                Explore components
+                <ArrowUpRight className="size-4" />
+              </Button>
+
+              <GithubStarsButton />
+            </div>
           </div>
 
           <div className="lg:col-span-7">

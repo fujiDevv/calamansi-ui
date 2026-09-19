@@ -25,6 +25,7 @@ import { Marquee } from "@/components/ui/marquee";
 import { MatrixOrb } from "@/components/ui/matrix-orb";
 import { MorningWidget } from "@/components/ui/morning-widget";
 import { NumberTicker } from "@/components/ui/number-ticker";
+import { Sidebar, type SidebarSection } from "@/components/ui/sidebar";
 import { SpotlightCard } from "@/components/ui/spotlight-card";
 import { TaskWidget } from "@/components/ui/task-widget";
 import { TiltCard } from "@/components/ui/tilt-card";
@@ -70,6 +71,26 @@ const PREVIEW_REPOS: RepoContribution[] = [
 
 const MARQUEE_TAGS_1 = ["Juicy", "Fresh", "Sour", "Citrus", "Zesty"];
 const MARQUEE_TAGS_2 = ["React 19", "Next.js", "Tailwind", "Motion", "shadcn"];
+
+/**
+ * Two sections with two inks, so the tile shows the marker crossing from one
+ * colour into the other. The rows are deliberately href-less: a gallery tile
+ * should not navigate out from under the pointer.
+ */
+// A sample nav for the tile, the same shape the docs demo uses: no routes, and
+// one ink per section so the marker has something to crossfade between.
+const PREVIEW_SIDEBAR: SidebarSection[] = [
+  {
+    label: "Product",
+    color: "#b4e84c",
+    items: [{ label: "Overview" }, { label: "Features" }],
+  },
+  {
+    label: "Reference",
+    color: "#7aa2ff",
+    items: [{ label: "Guides" }, { label: "API" }, { label: "Changelog" }],
+  },
+];
 
 function Preview({
   registry,
@@ -295,6 +316,23 @@ function Preview({
         <div className="flex h-full w-full items-center justify-center overflow-hidden p-4">
           <div className="pointer-events-none scale-[0.55] select-none">
             <MatrixOrb state={active ? "thinking" : "listening"} size={240} />
+          </div>
+        </div>
+      );
+
+    case "sidebar":
+      return (
+        // hovering picks another row across the two sections, so the tile shows
+        // the marker arcing and changing ink on its own
+        <div className="flex h-full w-full items-stretch justify-center overflow-hidden p-3">
+          <div className="flex w-full max-w-[200px] overflow-hidden rounded-xl border border-border/80 bg-card/40">
+            <Sidebar
+              sections={PREVIEW_SIDEBAR}
+              value={active ? 4 : 1}
+              marker="pip"
+              navLabel="Preview navigation"
+              className="w-full px-2.5"
+            />
           </div>
         </div>
       );

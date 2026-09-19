@@ -1,5 +1,9 @@
 import { Fragment } from "react";
 import type { ComponentProp } from "@/lib/components";
+import {
+  docSurfaceClassName,
+  docSurfaceMutedClassName,
+} from "@/lib/page-layout";
 
 type PropsTableProps = {
   props: ComponentProp[];
@@ -15,7 +19,9 @@ function typeLines(prop: ComponentProp) {
 
 function PropName({ prop }: { prop: ComponentProp }) {
   return (
-    <code className="inline-flex items-center whitespace-nowrap rounded-md bg-muted px-2 py-1 font-mono text-xs text-foreground">
+    <code
+      className={`inline-flex items-center whitespace-nowrap rounded-md ${docSurfaceMutedClassName} px-2 py-1 font-mono text-xs text-foreground`}
+    >
       {prop.name}
       {prop.required && <span className="text-primary">*</span>}
     </code>
@@ -45,7 +51,7 @@ export default function PropsTable({ props }: PropsTableProps) {
         {props.map((prop) => (
           <li
             key={prop.name}
-            className="rounded-lg border border-border bg-card p-3.5"
+            className={`rounded-lg border border-border p-3.5 ${docSurfaceClassName}`}
           >
             <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
               <PropName prop={prop} />
@@ -58,7 +64,7 @@ export default function PropsTable({ props }: PropsTableProps) {
               <PropTypes prop={prop} />
             </div>
 
-            <p className="mt-2 text-sm leading-relaxed text-foreground">
+            <p className="mt-2 text-[13px] leading-relaxed text-foreground">
               {prop.description}
             </p>
           </li>
@@ -87,7 +93,7 @@ export default function PropsTable({ props }: PropsTableProps) {
               </div>
 
               <div className="border-b border-border px-1 py-4">
-                <p className="pt-0.5 text-sm leading-relaxed text-foreground">
+                <p className="pt-0.5 text-[13px] leading-relaxed text-foreground">
                   {prop.description}
                 </p>
               </div>

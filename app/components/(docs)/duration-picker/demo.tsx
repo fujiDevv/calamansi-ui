@@ -75,8 +75,15 @@ export default function DurationPickerDemo() {
         </span>
       </div>
 
-      {/* Main Interactive Component */}
-      <div className="flex w-full justify-center p-3 sm:p-4">
+      {/*
+        The stage the picker sits on — the same frame as the Dynamic Island and
+        Gooey Nav demos, and there for the same reason: the picker's tray is
+        painted with `bg-border`, which is what the docs preview behind it is
+        made of, so it needs a surface of a different colour to be visible at all.
+
+        No `overflow-hidden`: the goo filter paints outside the component's box.
+      */}
+      <div className="relative flex w-full items-center justify-center rounded-3xl border border-border/70 bg-background p-6 sm:p-10">
         <DurationPicker value={value} onChange={setValue} variant={variant} />
       </div>
     </div>

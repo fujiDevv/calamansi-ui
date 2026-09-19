@@ -84,8 +84,20 @@ export default function GooeyNavDemo() {
         </span>
       </div>
 
-      {/* Main Interactive Component */}
-      <div className="flex w-full justify-center p-3 sm:p-4">
+      {/*
+        The stage the bar sits on, the same frame the Dynamic Island demo uses.
+
+        It has to be a *different* colour from the docs preview behind it: this
+        component's tray is painted with `bg-border`, which is exactly what the
+        preview is made of, so on the bare panel the bar had nothing to read
+        against. The island's stage is a tinted card, but tinting this one would
+        land on the tray's own grey — so it goes the other way and wears the
+        page's surface, which is the one thing the tray never is.
+
+        No `overflow-hidden` here either: the goo filter paints outside the
+        component's box, and a clip would slice the neck off mid-flight.
+      */}
+      <div className="relative flex w-full items-center justify-center rounded-3xl border border-border/70 bg-background p-6 sm:p-10">
         <GooeyNav
           items={ITEMS}
           value={active}

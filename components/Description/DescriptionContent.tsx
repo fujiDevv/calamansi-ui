@@ -37,6 +37,14 @@ function SectionLabel({
 /** Every block below the lead is separated by a rule, not by a gap. */
 const SECTION = "flex flex-col gap-3 border-t border-border pt-8";
 
+/**
+ * The two sections you actually came for — installing it and using it — get the
+ * same rule in the site's lime instead of the hairline grey, so they are findable
+ * at a glance on a page that is otherwise all rules. The labels keep their grey
+ * ink: two coloured rules are a signpost, two coloured headings are noise.
+ */
+const SECTION_ACCENT = "flex flex-col gap-3 border-t-2 border-primary pt-8";
+
 export default function DescriptionContent({
   item,
   showSourceHint = true,
@@ -48,21 +56,21 @@ export default function DescriptionContent({
       {showHeading && (
         <div className="flex flex-col gap-3">
           <SectionLabel as="h1">{item?.name ?? "Component"}</SectionLabel>
-          <p className="max-w-3xl font-sans text-2xl leading-relaxed font-semibold text-foreground">
+          <p className="max-w-3xl font-sans text-lg leading-relaxed font-semibold text-foreground sm:text-xl">
             {item?.description ?? "This component is not available yet."}
           </p>
         </div>
       )}
 
       {item?.registry && (
-        <div className={SECTION}>
+        <div className={SECTION_ACCENT}>
           <SectionLabel as="h2">Installation</SectionLabel>
           <InstallCommand item={item} />
         </div>
       )}
 
       {item?.usage && (
-        <div className={SECTION}>
+        <div className={SECTION_ACCENT}>
           <SectionLabel as="h2">How to use</SectionLabel>
           <PanelCode
             code={item.usage}
@@ -76,7 +84,7 @@ export default function DescriptionContent({
       {item?.props && item.props.length > 0 && (
         <div className={SECTION}>
           <SectionLabel as="h2">Props</SectionLabel>
-          <p className="max-w-3xl text-sm leading-relaxed text-foreground">
+          <p className="max-w-3xl text-[13px] leading-relaxed text-foreground">
             Options you can pass to customize this component.
           </p>
           <PropsTable props={item.props} />
@@ -97,7 +105,7 @@ export default function DescriptionContent({
       {item?.registry && showSourceHint && (
         <div className={SECTION}>
           <SectionLabel as="h2">Source Code</SectionLabel>
-          <p className="max-w-3xl text-sm leading-relaxed text-foreground">
+          <p className="max-w-3xl text-[13px] leading-relaxed text-foreground">
             {PANEL_INFO.sourceHint}
           </p>
         </div>
@@ -107,7 +115,7 @@ export default function DescriptionContent({
         <div className={SECTION}>
           <SectionLabel as="h2">Credits</SectionLabel>
 
-          <ul className="flex max-w-3xl flex-col gap-2 text-sm leading-relaxed text-foreground">
+          <ul className="flex max-w-3xl flex-col gap-2 text-[13px] leading-relaxed text-foreground">
             {item.credits.map((credit) => {
               const match = credit.match(/^(.*?)(https?:\/\/[^\s)]+)(.*)$/);
               if (match) {

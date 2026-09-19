@@ -176,9 +176,6 @@ export function Demo() {
     registry: "spotlight-card",
     description:
       "The plain Calamansi surface as a card, in white or the Calamansi, Slate and Citrus palettes.",
-    credits: [
-      "Design inspired by Jay Dwivedi (https://sprrrint.com/jaydwivedi)",
-    ],
     source: `${REGISTRY_HOMEPAGE}/blob/main/components/ui/spotlight-card.tsx`,
     interaction:
       "Nothing moves: the card is the branding itself. Pick a palette, pass cornerRadius and cornerSmoothing to reshape the corner, and drop any content inside it.",
@@ -1390,6 +1387,150 @@ export function Demo() {
 
 export function Demo() {
   return <MatrixOrb state="thinking" variant="calamansi" />
+}`,
+  },
+  {
+    name: "Sidebar",
+    href: "/components/sidebar",
+    category: "navigation",
+    isNew: true,
+    featured: true,
+    registry: "sidebar",
+    dependencies: [{ name: "motion" }, { name: "lucide-react" }],
+    description:
+      "A sidebar of sections whose single active marker arcs between rows and crossfades out of one section's ink into the next, as a static rail or as the same panel in a drawer.",
+    source: `${REGISTRY_HOMEPAGE}/blob/main/components/ui/sidebar.tsx`,
+    interaction:
+      "One marker serves the whole list, so picking a row reads as it travelling rather than a second row lighting up, and the path is not a straight line — the marker bows out to the left, and the bow scales with how far it is going, so adjacent hops barely bend and a jump across the nav swings wide. It lands carrying the ink of the section it arrived in, crossfading out of the one it left on the way, which is what makes a jump between sections a different gesture from a step within one. When the arc closes the label is shoved aside, so the label reads as pushed by the marker rather than moving on its own. The drawer is the same panel, not a second implementation of it, so nothing about the list has to be kept in step between the two.",
+    props: [
+      {
+        name: "sections",
+        type: "SidebarSection[]",
+        description:
+          "`{ label, color, items }` — an eyebrow, the section's ink, and its rows. A row is a label, or `{ label, href, icon, badge, disabled }`; one with an href renders as a link, one without as a button.",
+      },
+      {
+        name: "activeHref",
+        type: "string",
+        description:
+          "The row to mark, matched against an item's href — the route-driven case. A route the nav does not contain leaves the marker off rather than parked on the wrong row.",
+      },
+      {
+        name: "value",
+        type: "number",
+        description: "Active row as a flat index, for controlled use.",
+      },
+      {
+        name: "defaultValue",
+        type: "number",
+        default: "0",
+        description:
+          "Active row as a flat index on mount. Ignored once `activeHref` or `value` is given.",
+      },
+      {
+        name: "onChange",
+        type: "(index: number, item: SidebarItem) => void",
+        description: "Fired with the flat index and the row that was picked.",
+      },
+      {
+        name: "onNavigate",
+        type: "(item: SidebarItem) => void",
+        description:
+          "Fired on every selection, whatever drives the active row. This is where a drawer gets closed.",
+      },
+      {
+        name: "header",
+        type: "ReactNode",
+        description:
+          "Sits above the list and does not scroll — a wordmark, a project switcher.",
+      },
+      {
+        name: "footer",
+        type: "ReactNode",
+        description:
+          "Pinned below the list and does not scroll — an account row, a version.",
+      },
+      {
+        name: "variant",
+        type: '"rail" | "drawer"',
+        default: '"rail"',
+        options: ["rail", "drawer"],
+        description:
+          "The static panel, or the sliding overlay. Both draw the same list, so they can be mounted side by side.",
+      },
+      {
+        name: "open",
+        type: "boolean",
+        default: "false",
+        description: "Whether the drawer is showing. Drawers only.",
+      },
+      {
+        name: "onOpenChange",
+        type: "(open: boolean) => void",
+        description:
+          "Fired when the drawer asks to close — Escape, the scrim, the close button. The page behind it is locked and unlocked for you.",
+      },
+      {
+        name: "navLabel",
+        type: "string",
+        default: '"Sidebar"',
+        description: "The nav's accessible name, and the drawer's dialog name.",
+      },
+      {
+        name: "marker",
+        type: '"dot" | "pip" | "bar" | "glow"',
+        default: '"dot"',
+        options: ["dot", "pip", "bar", "glow"],
+        description:
+          "Shape of the active marker: a plain dot, the citrus-seed pip, a slim bar, or a dot carrying its own glow.",
+      },
+      {
+        name: "markerColor",
+        type: "string",
+        default: "var(--primary, #b4e84c)",
+        description:
+          "Marker colour, and the fallback for any section that does not bring its own.",
+      },
+      {
+        name: "fade",
+        type: "boolean",
+        default: "true",
+        description:
+          "Fade a list that overflows at both edges, with the 3rem of padding the stops are matched to — at rest the rows sit inside the opaque zone. The padding comes and goes with the fade, so turning it off leaves no dead space.",
+      },
+      {
+        name: "className",
+        type: "string",
+        description:
+          "The panel's own box — width, position and borders. The rail does not position itself, so sticking it is your call: `sticky top-20 h-[calc(100vh-5rem)] w-60`.",
+      },
+    ],
+    usage: `import { Sidebar } from "@/components/ui/sidebar"
+
+export function Demo() {
+  const [open, setOpen] = useState(false)
+
+  return (
+    <>
+      {/* beside the content, from md up */}
+      <Sidebar
+        sections={SECTIONS}
+        activeHref={pathname}
+        marker="pip"
+        className="sticky top-20 hidden h-[calc(100vh-5rem)] w-60 md:flex"
+      />
+
+      {/* the same panel, over it, on a phone */}
+      <Sidebar
+        variant="drawer"
+        sections={SECTIONS}
+        activeHref={pathname}
+        open={open}
+        onOpenChange={setOpen}
+        onNavigate={() => setOpen(false)}
+      />
+    </>
+  )
 }`,
   },
 ];

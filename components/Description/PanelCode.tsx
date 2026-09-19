@@ -1,6 +1,7 @@
 "use client";
 
 import { Highlight, themes } from "prism-react-renderer";
+import { docSurfaceClassName } from "@/lib/page-layout";
 import { cn } from "@/lib/utils";
 import CopyButton from "../CopyButton";
 
@@ -24,7 +25,7 @@ export default function PanelCode({
   copyable = false,
 }: PanelCodeProps) {
   return (
-    <div className={cn("overflow-hidden bg-card", className)}>
+    <div className={cn("overflow-hidden", docSurfaceClassName, className)}>
       {(fileName || copyable) && (
         <div className="flex min-h-10 items-center justify-between border-b border-border px-3">
           <span className="truncate font-mono text-[11px] text-muted-foreground">
@@ -51,7 +52,7 @@ export default function PanelCode({
             data-language={language}
             className={cn(
               prismClassName,
-              "min-h-0 w-full overflow-auto p-4 font-mono text-xs leading-6",
+              "min-h-0 w-full overflow-auto p-4 font-mono text-[11px] leading-5",
               contentClassName,
             )}
             style={{ ...style, margin: 0, backgroundColor: "transparent" }}

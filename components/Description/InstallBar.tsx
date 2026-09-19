@@ -14,6 +14,10 @@ import {
   type ComponentItem,
   type PackageManager,
 } from "@/lib/components";
+import {
+  docSurfaceMutedClassName,
+  docSurfacePopoverClassName,
+} from "@/lib/page-layout";
 import { cn } from "@/lib/utils";
 import CopyButton from "../CopyButton";
 
@@ -106,7 +110,7 @@ export default function InstallBar({ item }: { item: ComponentItem }) {
   return (
     <div
       ref={ref}
-      className="flex items-center rounded-full border border-border bg-background/90 p-1.5 backdrop-blur"
+      className="flex items-center rounded-full border border-border bg-border/90 p-1.5 backdrop-blur dark:bg-background/90"
     >
       <motion.button
         layout={reduceMotion ? false : "size"}
@@ -117,7 +121,7 @@ export default function InstallBar({ item }: { item: ComponentItem }) {
         transition={{
           layout: { duration: 0.24, ease: EASE, delay: open ? 0 : 0.1 },
         }}
-        className="flex h-7 shrink-0 cursor-pointer items-center justify-center rounded-full bg-muted px-3 text-xs font-medium"
+        className={`flex h-7 shrink-0 cursor-pointer items-center justify-center rounded-full ${docSurfaceMutedClassName} px-3 text-xs font-medium`}
       >
         {/* an invisible copy of the active label sizes the pill, so layout can animate the width while both labels crossfade in place */}
         <span aria-hidden className="grid place-items-center">
@@ -166,7 +170,7 @@ export default function InstallBar({ item }: { item: ComponentItem }) {
                   onClick={() => setMenuOpen((v) => !v)}
                   aria-expanded={menuOpen}
                   aria-label="Change package manager"
-                  className="flex h-7 cursor-pointer items-center gap-1.5 rounded-full bg-muted px-2.5 text-xs font-medium"
+                  className={`flex h-7 cursor-pointer items-center gap-1.5 rounded-full ${docSurfaceMutedClassName} px-2.5 text-xs font-medium`}
                 >
                   {pm}
                   <ChevronsUpDown className="size-3 opacity-45" />
@@ -179,7 +183,7 @@ export default function InstallBar({ item }: { item: ComponentItem }) {
                       animate={{ opacity: 1, y: 0 }}
                       exit={{ opacity: 0, y: -4 }}
                       transition={{ duration: 0.12, ease: "easeOut" }}
-                      className="absolute left-0 top-full z-50 mt-1.5 rounded-xl border border-border bg-popover p-1 shadow-lg"
+                      className={`absolute left-0 top-full z-50 mt-1.5 rounded-xl border border-border p-1 shadow-lg ${docSurfacePopoverClassName}`}
                     >
                       {PACKAGE_MANAGERS.map((manager) => (
                         <li key={manager}>

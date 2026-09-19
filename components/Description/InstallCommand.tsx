@@ -7,6 +7,7 @@ import {
   type ComponentItem,
   type PackageManager,
 } from "@/lib/components";
+import { docSurfaceClassName } from "@/lib/page-layout";
 import { cn } from "@/lib/utils";
 import { LOGOS } from "../logos";
 import CopyButton from "../CopyButton";
@@ -17,7 +18,9 @@ export default function InstallCommand({ item }: { item: ComponentItem }) {
   if (!command) return null;
 
   return (
-    <div className="overflow-hidden rounded-xl border border-border bg-card">
+    <div
+      className={`overflow-hidden rounded-xl border border-border ${docSurfaceClassName}`}
+    >
       <div className="flex items-center gap-1 overflow-x-auto border-b border-border px-2 py-2 [scrollbar-width:none]">
         {PACKAGE_MANAGERS.map((manager) => {
           const Logo = LOGOS[manager];

@@ -14,6 +14,7 @@ import {
   X,
 } from "lucide-react";
 import { activeComponent, components } from "@/lib/components";
+import { docSurfaceClassName } from "@/lib/page-layout";
 import { NO_LIFT } from "@/lib/squircle";
 import { cn } from "@/lib/utils";
 import DescriptionContent from "../Description/DescriptionContent";
@@ -30,7 +31,7 @@ const EYEBROW =
 
 /** The header's tab treatment: a lime rule under the active one. */
 const TAB =
-  "flex cursor-pointer items-center gap-2 border-b-2 pb-2.5 text-sm font-medium transition-colors duration-150 ease-out";
+  "flex cursor-pointer items-center gap-2 border-b-2 pb-2.5 text-[13px] font-medium transition-colors duration-150 ease-out";
 
 export default function SidebarShell({
   children,
@@ -137,7 +138,8 @@ function SidebarShellContent({
       : null;
 
   return (
-    <div className="flex min-h-screen flex-col bg-background">
+    // pb-* is the nav's band — the handle floats over the page's bottom-centre
+    <div className="flex min-h-screen flex-col bg-background pb-12 sm:pb-14">
       <DocsHeader mobileOpen={mobileOpen} setMobileOpen={setMobileOpen} />
 
       {/* Mobile Drawer */}
@@ -152,7 +154,7 @@ function SidebarShellContent({
             className="fixed inset-0 bg-background/80 backdrop-blur-sm"
             onClick={() => setMobileOpen(false)}
           />
-          <div className="relative z-50 flex h-full w-[min(18rem,85vw)] flex-col overflow-hidden border-r border-border bg-background px-6 pt-5 pb-8 shadow-2xl">
+          <div className="relative z-50 flex h-full w-[min(18rem,85vw)] flex-col overflow-hidden bg-background px-6 pt-5 pb-8 shadow-2xl">
             <div className="mb-6 flex items-center justify-between gap-4">
               <span className={EYEBROW}>Navigation</span>
               <button
@@ -173,7 +175,9 @@ function SidebarShellContent({
       <div className="mx-auto flex w-full max-w-[96rem] flex-1 items-start">
         {/* a column, so the sidebar can be the scroller and its edge fade lands
             on the rail rather than at the end of the list */}
-        <aside className="sticky top-16 hidden h-[calc(100vh-4rem)] w-60 shrink-0 flex-col overflow-hidden border-r border-border pl-6 sm:top-20 sm:h-[calc(100vh-5rem)] sm:pl-10 md:flex">
+        {/* from lg there is no bar above it — the nav is the rail beside it — so
+            the column sticks to the top of the viewport rather than under a bar */}
+        <aside className="sticky top-16 hidden h-[calc(100vh-4rem)] w-64 shrink-0 flex-col overflow-hidden pl-6 sm:top-20 sm:h-[calc(100vh-5rem)] sm:pl-10 md:flex lg:top-0 lg:h-screen">
           <DocSidebar />
         </aside>
 
@@ -184,7 +188,11 @@ function SidebarShellContent({
         */}
         <main
           key={pathname}
-          className="min-w-0 flex-1 px-6 pt-8 pb-16 sm:px-10 sm:pt-10"
+          /* mx-auto against a max-w-4xl: the column used to run the full width of
+             the frame, which left the prose stranded in a very wide measure and
+             the preview panel wider than the components in it needed. It is
+             centred in what is left beside the rail. */
+          className="mx-auto min-w-0 w-full max-w-4xl flex-1 px-6 pt-8 pb-16 sm:px-10 sm:pt-10"
         >
           {item ? (
             <div className="flex min-w-0 flex-col">
@@ -215,11 +223,11 @@ function SidebarShellContent({
 
               {/* Title & Description */}
               <div className="mt-5 flex flex-col gap-3">
-                <h1 className="font-runde text-[clamp(2rem,5vw,3.25rem)] leading-[0.98] font-bold tracking-tight text-foreground">
+                <h1 className="font-runde text-[clamp(1.6rem,3.4vw,2.25rem)] leading-[1.02] font-bold tracking-tight text-foreground">
                   {item.name}
                 </h1>
                 {item.description && (
-                  <p className="max-w-2xl text-base leading-relaxed text-muted-foreground sm:text-lg">
+                  <p className="max-w-2xl text-sm leading-relaxed text-muted-foreground sm:text-base">
                     {item.description}
                   </p>
                 )}
@@ -294,10 +302,11 @@ function SidebarShellContent({
                        slice one off anyway — every surface inside renders flat */
                     style={NO_LIFT}
                     className={cn(
-                      // the preview follows the site theme: the surfaces are white in
-                      // light mode and their dark counterpart in dark mode, so what
-                      // you see here is what the component looks like on your site
-                      "flex items-center justify-center border border-border bg-card text-foreground",
+                      // the shared doc grey, not a white sheet: `--border` is the fill
+                      // the liquid components paint themselves with, so previewing
+                      // them on it is the surface they were drawn against
+                      docSurfaceClassName,
+                      "flex items-center justify-center border border-border text-foreground",
                       isFullscreen
                         ? "fixed inset-0 z-50 m-0 h-screen w-screen overflow-y-auto rounded-none border-0 bg-background p-4 sm:p-8"
                         : "relative mt-6 min-h-[280px] w-full overflow-hidden rounded-xl p-4 sm:min-h-[400px] sm:p-7 md:p-10",
@@ -305,7 +314,7 @@ function SidebarShellContent({
                   >
                     {/* Fullscreen header chip */}
                     {isFullscreen && (
-                      <div className="absolute top-4 left-4 z-30 flex items-center gap-2 rounded-lg border border-border/80 bg-card/85 px-3 py-1.5 text-xs font-medium text-muted-foreground shadow-2xs backdrop-blur-md sm:top-6 sm:left-6">
+                      <div className="absolute top-4 left-4 z-30 flex items-center gap-2 rounded-lg border border-border/80 bg-border/85 px-3 py-1.5 text-xs font-medium text-muted-foreground shadow-2xs backdrop-blur-md sm:top-6 sm:left-6 dark:bg-card/85">
                         <span className="font-semibold text-foreground">
                           {item.name}
                         </span>
@@ -314,45 +323,25 @@ function SidebarShellContent({
                       </div>
                     )}
 
-                    {/* Preview controls */}
-                    <div
-                      className={cn(
-                        "absolute z-30 flex items-center gap-2",
-                        isFullscreen
-                          ? "top-4 right-4 sm:top-6 sm:right-6"
-                          : "top-3 right-3",
-                      )}
-                    >
-                      <button
-                        type="button"
-                        onClick={() => setIsFullscreen(!isFullscreen)}
-                        aria-label={
-                          isFullscreen
-                            ? "Exit full screen"
-                            : "Full screen preview"
-                        }
-                        title={
-                          isFullscreen
-                            ? "Exit full screen (Esc)"
-                            : "Full screen preview"
-                        }
-                        className="flex items-center gap-1.5 rounded-lg border border-border/80 bg-background/85 px-2.5 py-1.5 text-xs font-medium text-muted-foreground shadow-2xs backdrop-blur-md transition-all duration-150 hover:border-border hover:bg-background hover:text-foreground hover:shadow-xs active:scale-95"
-                      >
-                        {isFullscreen ? (
-                          <>
-                            <Minimize2 className="size-3.5" />
-                            <span>Exit full screen</span>
-                          </>
-                        ) : (
-                          <>
-                            <Maximize2 className="size-3.5" />
-                            <span className="hidden sm:inline">
-                              Full screen
-                            </span>
-                          </>
-                        )}
-                      </button>
-                    </div>
+                    {/*
+                      The way out, and only that: the way in is the tab row's Full
+                      screen button, so the preview itself stays bare until it is
+                      covering the page and you need a way back off it.
+                    */}
+                    {isFullscreen && (
+                      <div className="absolute top-4 right-4 z-30 flex items-center gap-2 sm:top-6 sm:right-6">
+                        <button
+                          type="button"
+                          onClick={() => setIsFullscreen(false)}
+                          aria-label="Exit full screen"
+                          title="Exit full screen (Esc)"
+                          className="flex items-center gap-1.5 rounded-lg border border-border/80 bg-border/85 px-2.5 py-1.5 text-xs font-medium text-muted-foreground shadow-2xs backdrop-blur-md transition-all duration-150 hover:border-border hover:bg-border hover:text-foreground hover:shadow-xs active:scale-95 dark:bg-background/85 dark:hover:bg-background"
+                        >
+                          <Minimize2 className="size-3.5" />
+                          <span>Exit full screen</span>
+                        </button>
+                      </div>
+                    )}
 
                     {children}
                   </div>
