@@ -154,7 +154,7 @@ function SidebarShellContent({
             className="fixed inset-0 bg-background/80 backdrop-blur-sm"
             onClick={() => setMobileOpen(false)}
           />
-          <div className="relative z-50 flex h-full w-[min(18rem,85vw)] flex-col overflow-hidden bg-background px-6 pt-5 pb-8 shadow-2xl">
+          <div className="relative z-50 flex h-full w-[min(16rem,80vw)] flex-col overflow-hidden bg-background px-6 pt-5 pb-8 shadow-2xl">
             <div className="mb-6 flex items-center justify-between gap-4">
               <span className={EYEBROW}>Navigation</span>
               <button
@@ -177,7 +177,12 @@ function SidebarShellContent({
             on the rail rather than at the end of the list */}
         {/* from lg there is no bar above it — the nav is the rail beside it — so
             the column sticks to the top of the viewport rather than under a bar */}
-        <aside className="sticky top-16 hidden h-[calc(100vh-4rem)] w-64 shrink-0 flex-col overflow-hidden pl-6 sm:top-20 sm:h-[calc(100vh-5rem)] sm:pl-10 md:flex lg:top-0 lg:h-screen">
+        {/*
+          w-56, not the w-64 it was: the rail is a list of short names beside a
+          column that now caps at 4xl, so the old width was mostly empty. Its inner
+          padding is unchanged, which is what the dot's arc is measured against.
+        */}
+        <aside className="sticky top-16 hidden h-[calc(100vh-4rem)] w-56 shrink-0 flex-col overflow-hidden pl-6 sm:top-20 sm:h-[calc(100vh-5rem)] sm:pl-10 md:flex lg:top-0 lg:h-screen">
           <DocSidebar />
         </aside>
 

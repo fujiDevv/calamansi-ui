@@ -228,7 +228,7 @@ export default function DocSidebar({
       // py-12 matches the fade-mask's 3rem stops, so at rest the list sits inside
       // the opaque zone and only its overflow fades.
       className={cn(
-        "fade-mask-y no-scrollbar min-h-0 flex-1 overflow-y-auto py-12 text-sm",
+        "fade-mask-y no-scrollbar min-h-0 flex-1 overflow-y-auto py-12 text-[13px]",
         className,
       )}
       style={{ "--dot-flight": `${DOT_FLIGHT_MS}ms` } as CSSProperties}
