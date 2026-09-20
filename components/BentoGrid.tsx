@@ -6,6 +6,7 @@ import {
   ArrowUpRight,
   Citrus,
   Eye,
+  Globe,
   Heart,
   Mail,
   MousePointer2,
@@ -261,6 +262,12 @@ const CONNECT = [
     value: "in/joshuasarmiento",
     href: SITE_LINKS.linkedin,
     icon: <LinkedinLogo className="size-3.5 shrink-0" />,
+  },
+  {
+    label: "Website",
+    value: "jsar.men",
+    href: SITE_LINKS.website,
+    icon: <Globe className="size-3.5 shrink-0" />,
   },
   {
     label: "Email",

@@ -53,6 +53,7 @@ export const SITE_LINKS = {
   github: "https://github.com/fujiDevv",
   x: "https://x.com/fujidevv02",
   linkedin: "https://www.linkedin.com/in/joshuasarmiento/",
+  website: "https://jsar.men/",
   email: `mailto:${SITE_CONTACT_EMAIL}`,
 } as const;
 
